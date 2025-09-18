@@ -5,74 +5,246 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
   Dimensions,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
+import FloatingActionButton from '../components/FloatingActionButton';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
 import { mockTrendingData } from '../utils/mockData';
+import { TrendingData } from '../types';
+
+const { width } = Dimensions.get('window');
+const cardWidth = (width - spacing.md * 2 - spacing.sm) / 2;
 
 const TrendingScreen: React.FC = () => {
-  const [selectedMainCategory, setSelectedMainCategory] = useState('Recommended');
-  const screenWidth = Dimensions.get('window').width;
-  const cardWidth = (screenWidth - spacing.md * 3) / 2; // 2 columns with spacing
+  const [selectedMainCategory, setSelectedMainCategory] = useState('Hot');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
-  const renderTrendCard = ({ item: trend }: { item: any }) => (
-    <TouchableOpacity style={[styles.trendCard, { width: cardWidth }]}>
-      <View style={styles.trendHeader}>
-        <View style={styles.trendIcon}>
-          <Text style={styles.trendIconText}>{trend.icon}</Text>
-        </View>
-        <View style={[styles.growthBadge, { backgroundColor: trend.color + '20' }]}>
-          <Text style={[styles.growthText, { color: trend.color }]}>
-            {trend.growth}
-          </Text>
-        </View>
-      </View>
-      
-      <Text style={styles.trendTitle} numberOfLines={2}>{trend.title}</Text>
-      <Text style={styles.trendCategory}>{trend.category}</Text>
-      
-      <Text style={styles.trendDescription} numberOfLines={3}>{trend.description}</Text>
-      
-      <View style={styles.trendFooter}>
-        <View style={styles.trendIndicator}>
-          <View style={[styles.trendArrow, { backgroundColor: trend.color }]}>
-            <Text style={styles.trendArrowText}>↗</Text>
-          </View>
-          <Text style={styles.trendLabel}>Trending</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+  const categories = [
+    { id: 'all', name: 'All' },
+    { id: 'food', name: 'Food' },
+    { id: 'lifestyle', name: 'Lifestyle' },
+    { id: 'business', name: 'Business' },
+  ];
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingHorizontal: spacing.md,
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.xl,
+    },
+    mainCategories: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      backgroundColor: colors.background,
+      marginHorizontal: spacing.sm,
+      marginTop: spacing.xs,
+      marginBottom: 0,
+      borderRadius: borderRadius.lg,
+    },
+    mainCategoryButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      marginHorizontal: spacing.xs,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      minWidth: 90,
+      height: 36,
+      justifyContent: 'center',
+    },
+    mainCategoryActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    mainCategoryText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.primary,
+      fontWeight: typography.fontWeight.medium,
+      marginLeft: spacing.xs,
+    },
+    mainCategoryTextActive: {
+      color: colors.text,
+      fontWeight: typography.fontWeight.semibold,
+    },
+    tagsContainer: {
+      backgroundColor: colors.background,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      marginHorizontal: spacing.sm,
+      marginBottom: spacing.xs,
+      borderRadius: borderRadius.lg,
+    },
+    tagsContent: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      alignItems: 'center',
+    },
+    tag: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: borderRadius.full,
+      paddingHorizontal: spacing.xs,
+      paddingVertical: 2,
+      marginRight: spacing.xs,
+      height: 24,
+      minWidth: 45,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    tagActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    tagText: {
+      fontSize: typography.fontSize.xs,
+      color: colors.textSecondary,
+      fontWeight: typography.fontWeight.medium,
+      lineHeight: typography.fontSize.xs * 1.1,
+      textAlign: 'center',
+    },
+    tagTextActive: {
+      color: colors.text,
+      fontWeight: typography.fontWeight.semibold,
+    },
+    feedContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      gap: spacing.sm,
+    },
+    contentCard: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      width: cardWidth,
+    },
+    contentImage: {
+      width: '100%',
+      height: 100,
+      borderRadius: borderRadius.md,
+      marginBottom: spacing.sm,
+    },
+    contentHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: spacing.sm,
+    },
+    contentTitle: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: typography.fontWeight.bold,
+      color: colors.text,
+      flex: 1,
+      marginRight: spacing.sm,
+    },
+    contentMeta: {
+      alignItems: 'flex-end',
+    },
+    contentAuthor: {
+      fontSize: typography.fontSize.sm,
+      color: colors.textSecondary,
+      marginBottom: spacing.xs,
+    },
+    contentStats: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    likesText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.textSecondary,
+      marginLeft: spacing.xs,
+    },
+    contentTagsContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginBottom: spacing.md,
+      gap: spacing.xs,
+    },
+    contentTag: {
+      backgroundColor: colors.primary + '20',
+      borderWidth: 1,
+      borderColor: colors.primary + '40',
+      borderRadius: borderRadius.full,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+    },
+    contentTagText: {
+      fontSize: typography.fontSize.xs,
+      color: colors.primary,
+      fontWeight: typography.fontWeight.medium,
+    },
+    contentFooter: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: spacing.sm,
+    },
+    readTimeText: {
+      fontSize: typography.fontSize.xs,
+      color: colors.textSecondary,
+    },
+    shareButton: {
+      backgroundColor: colors.surface,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    shareButtonText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text,
+      fontWeight: typography.fontWeight.medium,
+    },
+  });
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <Header 
-        title="Trending Now" 
-        subtitle="What's hot in New Zealand"
+        title="Trending" 
+        subtitle="What's hot right now"
       />
-      <View style={styles.container}>
-        {/* Main Category Tabs */}
+
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        {/* Main Category Buttons */}
         <View style={styles.mainCategories}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.mainCategoryButton, selectedMainCategory === 'Hot' && styles.mainCategoryActive]}
             onPress={() => setSelectedMainCategory('Hot')}
           >
             <Ionicons name="flame-outline" size={16} color={selectedMainCategory === 'Hot' ? colors.text : colors.primary} />
             <Text style={[styles.mainCategoryText, selectedMainCategory === 'Hot' && styles.mainCategoryTextActive]}>Hot</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[styles.mainCategoryButton, selectedMainCategory === 'Recommended' && styles.mainCategoryActive]}
             onPress={() => setSelectedMainCategory('Recommended')}
           >
             <Ionicons name="star-outline" size={16} color={selectedMainCategory === 'Recommended' ? colors.text : colors.primary} />
             <Text style={[styles.mainCategoryText, selectedMainCategory === 'Recommended' && styles.mainCategoryTextActive]}>Recommended</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[styles.mainCategoryButton, selectedMainCategory === 'Nearby' && styles.mainCategoryActive]}
             onPress={() => setSelectedMainCategory('Nearby')}
           >
@@ -81,148 +253,69 @@ const TrendingScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Two Column Grid */}
-        <FlatList
-          data={mockTrendingData}
-          renderItem={renderTrendCard}
-          numColumns={2}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.gridContent}
-          columnWrapperStyle={styles.row}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
+        {/* Category Tags */}
+        <View style={styles.tagsContainer}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.tagsContent}
+          >
+            {categories.map((category) => (
+              <TouchableOpacity
+                key={category.id}
+                style={[
+                  styles.tag,
+                  selectedCategory === category.id && styles.tagActive
+                ]}
+                onPress={() => setSelectedCategory(category.id)}
+              >
+                <Text style={[
+                  styles.tagText,
+                  selectedCategory === category.id && styles.tagTextActive
+                ]}>
+                  {category.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Trending Content */}
+        {mockTrendingData.map((trend) => (
+          <TouchableOpacity key={trend.id} style={styles.contentCard}>
+            <Image source={{ uri: 'https://picsum.photos/200/100?random=' + trend.id }} style={styles.contentImage} />
+            <View style={styles.contentHeader}>
+              <Text style={styles.contentTitle}>{trend.title}</Text>
+              <View style={styles.contentMeta}>
+                <Text style={styles.contentAuthor}>@{trend.author}</Text>
+                <View style={styles.contentStats}>
+                  <Ionicons name="heart-outline" size={16} color={colors.textSecondary} />
+                  <Text style={styles.likesText}>{trend.likes}</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.contentTagsContainer}>
+              {trend.tags.map((tag, index) => (
+                <View key={index} style={styles.contentTag}>
+                  <Text style={styles.contentTagText}>#{tag}</Text>
+                </View>
+              ))}
+            </View>
+
+            <View style={styles.contentFooter}>
+              <Text style={styles.readTimeText}>{trend.readTime} read</Text>
+              <TouchableOpacity style={styles.shareButton}>
+                <Text style={styles.shareButtonText}>📤 Share</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+      
+      <FloatingActionButton onPress={() => console.log('Create post')} />
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  gridContent: {
-    padding: spacing.sm,
-  },
-  row: {
-    justifyContent: 'space-between',
-    marginBottom: spacing.md,
-  },
-  mainCategories: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    backgroundColor: colors.background,
-    marginHorizontal: spacing.md,
-    marginBottom: spacing.sm,
-    borderRadius: borderRadius.lg,
-  },
-  mainCategoryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    marginHorizontal: spacing.xs,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    minWidth: 90,
-    justifyContent: 'center',
-  },
-  mainCategoryActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  mainCategoryText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.primary,
-    fontWeight: typography.fontWeight.medium,
-    marginLeft: spacing.xs,
-  },
-  mainCategoryTextActive: {
-    color: colors.text,
-    fontWeight: typography.fontWeight.semibold,
-  },
-  trendsContainer: {
-    marginBottom: spacing.lg,
-  },
-  trendCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-  },
-  trendHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.md,
-  },
-  trendIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.primary + '20',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  trendIconText: {
-    fontSize: typography.fontSize.lg,
-  },
-  trendTitle: {
-    fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.text,
-    marginBottom: spacing.xs,
-  },
-  trendCategory: {
-    fontSize: typography.fontSize.xs,
-    color: colors.textSecondary,
-    marginBottom: spacing.sm,
-  },
-  growthBadge: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.full,
-  },
-  growthText: {
-    fontSize: typography.fontSize.xs,
-    fontWeight: typography.fontWeight.bold,
-  },
-  trendDescription: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textSecondary,
-    lineHeight: typography.fontSize.sm * 1.4,
-    marginBottom: spacing.md,
-  },
-  trendFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  trendIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  trendArrow: {
-    width: 20,
-    height: 20,
-    borderRadius: borderRadius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.xs,
-  },
-  trendArrowText: {
-    color: colors.text,
-    fontSize: typography.fontSize.xs,
-    fontWeight: typography.fontWeight.bold,
-  },
-  trendLabel: {
-    fontSize: typography.fontSize.xs,
-    color: colors.textSecondary,
-  },
-});
 
 export default TrendingScreen;

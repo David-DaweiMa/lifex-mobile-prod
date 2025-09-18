@@ -5,25 +5,222 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  Dimensions,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
+import FloatingActionButton from '../components/FloatingActionButton';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
 import { mockDiscoverContent } from '../utils/mockData';
+import { DiscoverContent } from '../types';
+
+const { width } = Dimensions.get('window');
+const cardWidth = (width - spacing.md * 2 - spacing.sm) / 2;
 
 const DiscoverScreen: React.FC = () => {
-  const [selectedMainCategory, setSelectedMainCategory] = useState('Recommended');
+  const [selectedMainCategory, setSelectedMainCategory] = useState('Following');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  
+
   const categories = [
-    { id: 'all', name: 'All', emoji: '🌟' },
-    { id: 'food', name: 'Food & Drink', emoji: '🍽️' },
-    { id: 'lifestyle', name: 'Lifestyle', emoji: '✨' },
-    { id: 'environment', name: 'Environment', emoji: '🌱' },
-    { id: 'culture', name: 'Culture', emoji: '🎭' },
-    { id: 'adventure', name: 'Adventure', emoji: '🏔️' },
+    { id: 'all', name: 'All' },
+    { id: 'food', name: 'Food' },
+    { id: 'lifestyle', name: 'Lifestyle' },
+    { id: 'business', name: 'Business' },
+    { id: 'travel', name: 'Travel' },
+    { id: 'tech', name: 'Tech' },
+    { id: 'fashion', name: 'Fashion' },
+    { id: 'sports', name: 'Sports' },
   ];
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingHorizontal: spacing.md,
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.xl,
+    },
+    mainCategories: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      backgroundColor: colors.background,
+      marginHorizontal: spacing.sm,
+      marginTop: spacing.xs,
+      marginBottom: 0,
+      borderRadius: borderRadius.lg,
+    },
+    mainCategoryButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      marginHorizontal: spacing.xs,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      minWidth: 90,
+      height: 36,
+      justifyContent: 'center',
+    },
+    mainCategoryActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    mainCategoryText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.primary,
+      fontWeight: typography.fontWeight.medium,
+      marginLeft: spacing.xs,
+    },
+    mainCategoryTextActive: {
+      color: colors.text,
+      fontWeight: typography.fontWeight.semibold,
+    },
+    tagsContainer: {
+      backgroundColor: colors.background,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      marginHorizontal: spacing.sm,
+      marginBottom: spacing.xs,
+      borderRadius: borderRadius.lg,
+    },
+    tagsContent: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      alignItems: 'center',
+    },
+    tag: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: borderRadius.full,
+      paddingHorizontal: spacing.xs,
+      paddingVertical: 2,
+      marginRight: spacing.xs,
+      height: 24,
+      minWidth: 45,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    tagActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    tagText: {
+      fontSize: typography.fontSize.xs,
+      color: colors.textSecondary,
+      fontWeight: typography.fontWeight.medium,
+      lineHeight: typography.fontSize.xs * 1.1,
+      textAlign: 'center',
+    },
+    tagTextActive: {
+      color: colors.text,
+      fontWeight: typography.fontWeight.semibold,
+    },
+    feedContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      gap: spacing.sm,
+    },
+    contentCard: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      width: cardWidth,
+    },
+    contentImage: {
+      width: '100%',
+      height: 100,
+      borderRadius: borderRadius.md,
+      marginBottom: spacing.sm,
+    },
+    contentHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: spacing.sm,
+    },
+    contentTitle: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: typography.fontWeight.bold,
+      color: colors.text,
+      flex: 1,
+      marginRight: spacing.sm,
+    },
+    contentMeta: {
+      alignItems: 'flex-end',
+    },
+    contentAuthor: {
+      fontSize: typography.fontSize.sm,
+      color: colors.textSecondary,
+      marginBottom: spacing.xs,
+    },
+    contentStats: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    likesText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.textSecondary,
+      marginLeft: spacing.xs,
+    },
+    contentTagsContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginBottom: spacing.md,
+      gap: spacing.xs,
+    },
+    contentTag: {
+      backgroundColor: colors.primary + '20',
+      borderWidth: 1,
+      borderColor: colors.primary + '40',
+      borderRadius: borderRadius.full,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+    },
+    contentTagText: {
+      fontSize: typography.fontSize.xs,
+      color: colors.primary,
+      fontWeight: typography.fontWeight.medium,
+    },
+    contentFooter: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: spacing.sm,
+    },
+    readTimeText: {
+      fontSize: typography.fontSize.xs,
+      color: colors.textSecondary,
+    },
+    shareButton: {
+      backgroundColor: colors.surface,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    shareButtonText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text,
+      fontWeight: typography.fontWeight.medium,
+    },
+  });
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -32,26 +229,26 @@ const DiscoverScreen: React.FC = () => {
         subtitle="Explore community content"
       />
 
-      <View style={styles.container}>
-        {/* Main Category Tabs */}
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        {/* Main Category Buttons */}
         <View style={styles.mainCategories}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.mainCategoryButton, selectedMainCategory === 'Following' && styles.mainCategoryActive]}
             onPress={() => setSelectedMainCategory('Following')}
           >
             <Ionicons name="heart-outline" size={16} color={selectedMainCategory === 'Following' ? colors.text : colors.primary} />
             <Text style={[styles.mainCategoryText, selectedMainCategory === 'Following' && styles.mainCategoryTextActive]}>Following</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[styles.mainCategoryButton, selectedMainCategory === 'Recommended' && styles.mainCategoryActive]}
             onPress={() => setSelectedMainCategory('Recommended')}
           >
             <Ionicons name="star-outline" size={16} color={selectedMainCategory === 'Recommended' ? colors.text : colors.primary} />
             <Text style={[styles.mainCategoryText, selectedMainCategory === 'Recommended' && styles.mainCategoryTextActive]}>Recommended</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[styles.mainCategoryButton, selectedMainCategory === 'Nearby' && styles.mainCategoryActive]}
             onPress={() => setSelectedMainCategory('Nearby')}
           >
@@ -60,13 +257,11 @@ const DiscoverScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-          {/* Category Tags */}
-          <ScrollView 
-            horizontal 
+        {/* Category Tags */}
+        <View style={styles.tagsContainer}>
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
-            style={styles.tagsContainer}
             contentContainerStyle={styles.tagsContent}
           >
             {categories.map((category) => (
@@ -87,292 +282,44 @@ const DiscoverScreen: React.FC = () => {
               </TouchableOpacity>
             ))}
           </ScrollView>
-
-          {/* Content Feed */}
-          <View style={styles.feedContainer}>
-          <Text style={styles.feedTitle}>Featured Content</Text>
-          
-          {mockDiscoverContent.map((content) => (
-            <TouchableOpacity key={content.id} style={styles.contentCard}>
-              <View style={styles.contentHeader}>
-                <View style={styles.contentImage}>
-                  <Text style={styles.contentImageText}>📸</Text>
-                </View>
-                <View style={styles.contentInfo}>
-                  <Text style={styles.contentTitle}>{content.title}</Text>
-                  <Text style={styles.contentDescription}>{content.description}</Text>
-                </View>
-              </View>
-
-              <View style={styles.contentMeta}>
-                <View style={styles.contentAuthor}>
-                  <Text style={styles.authorText}>👤 {content.author}</Text>
-                  <Text style={styles.categoryText}>{content.category}</Text>
-                </View>
-                <Text style={styles.likesText}>❤️ {content.likes}</Text>
-              </View>
-
-              <View style={styles.tagsContainer}>
-                {content.tags.map((tag, index) => (
-                  <View key={index} style={styles.tag}>
-                    <Text style={styles.tagText}>#{tag}</Text>
-                  </View>
-                ))}
-              </View>
-
-              <View style={styles.contentFooter}>
-                <Text style={styles.readTimeText}>{content.readTime} read</Text>
-                <TouchableOpacity style={styles.shareButton}>
-                  <Text style={styles.shareButtonText}>📤 Share</Text>
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
-          ))}
         </View>
 
-        {/* Call to Action */}
-        <View style={styles.ctaContainer}>
-          <Text style={styles.ctaTitle}>Share Your Discovery</Text>
-          <Text style={styles.ctaText}>
-            Found something amazing? Share it with the LifeX community and help others discover hidden gems!
-          </Text>
-          <TouchableOpacity style={styles.ctaButton}>
-            <Text style={styles.ctaButtonText}>+ Create Post</Text>
+        {/* Discover Content */}
+        {mockDiscoverContent.map((content) => (
+          <TouchableOpacity key={content.id} style={styles.contentCard}>
+            <Image source={{ uri: 'https://picsum.photos/200/100?random=' + content.id }} style={styles.contentImage} />
+            <View style={styles.contentHeader}>
+              <Text style={styles.contentTitle}>{content.title}</Text>
+              <View style={styles.contentMeta}>
+                <Text style={styles.contentAuthor}>@{content.author}</Text>
+                <View style={styles.contentStats}>
+                  <Ionicons name="heart-outline" size={16} color={colors.textSecondary} />
+                  <Text style={styles.likesText}>{content.likes}</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.contentTagsContainer}>
+              {content.tags.map((tag, index) => (
+                <View key={index} style={styles.contentTag}>
+                  <Text style={styles.contentTagText}>#{tag}</Text>
+                </View>
+              ))}
+            </View>
+
+            <View style={styles.contentFooter}>
+              <Text style={styles.readTimeText}>{content.readTime} read</Text>
+              <TouchableOpacity style={styles.shareButton}>
+                <Text style={styles.shareButtonText}>📤 Share</Text>
+              </TouchableOpacity>
+            </View>
           </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </View>
+        ))}
+      </ScrollView>
+      
+      <FloatingActionButton onPress={() => console.log('Share discovery')} />
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  content: {
-    padding: spacing.md,
-  },
-  mainCategories: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    backgroundColor: colors.background,
-    marginHorizontal: spacing.md,
-    marginBottom: spacing.sm,
-    borderRadius: borderRadius.lg,
-  },
-  mainCategoryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    marginHorizontal: spacing.xs,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    minWidth: 90,
-    justifyContent: 'center',
-  },
-  mainCategoryActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  mainCategoryText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.primary,
-    fontWeight: typography.fontWeight.medium,
-    marginLeft: spacing.xs,
-  },
-  mainCategoryTextActive: {
-    color: colors.text,
-    fontWeight: typography.fontWeight.semibold,
-  },
-  title: {
-    fontSize: typography.fontSize.xxxl,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.text,
-    marginBottom: spacing.xs,
-  },
-  subtitle: {
-    fontSize: typography.fontSize.md,
-    color: colors.textSecondary,
-  },
-  tagsContainer: {
-    marginBottom: spacing.sm,
-  },
-  tagsContent: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-  },
-  tag: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    marginRight: spacing.sm,
-  },
-  tagActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  tagText: {
-    fontSize: typography.fontSize.xs,
-    color: colors.textSecondary,
-    fontWeight: typography.fontWeight.medium,
-  },
-  tagTextActive: {
-    color: colors.text,
-    fontWeight: typography.fontWeight.semibold,
-  },
-  feedContainer: {
-    marginBottom: spacing.lg,
-  },
-  feedTitle: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.text,
-    marginBottom: spacing.md,
-  },
-  contentCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.lg,
-    marginBottom: spacing.lg,
-  },
-  contentHeader: {
-    flexDirection: 'row',
-    marginBottom: spacing.md,
-  },
-  contentImage: {
-    width: 60,
-    height: 60,
-    borderRadius: borderRadius.lg,
-    backgroundColor: colors.primary + '20',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  contentImageText: {
-    fontSize: typography.fontSize.xl,
-  },
-  contentInfo: {
-    flex: 1,
-  },
-  contentTitle: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.text,
-    marginBottom: spacing.xs,
-  },
-  contentDescription: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textSecondary,
-    lineHeight: typography.fontSize.sm * 1.5,
-  },
-  contentMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  contentAuthor: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  authorText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textSecondary,
-    marginRight: spacing.md,
-  },
-  likesText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textSecondary,
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: spacing.md,
-    gap: spacing.xs,
-  },
-  tag: {
-    backgroundColor: colors.primary + '20',
-    borderWidth: 1,
-    borderColor: colors.primary + '40',
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-  },
-  tagText: {
-    fontSize: typography.fontSize.xs,
-    color: colors.primary,
-    fontWeight: typography.fontWeight.medium,
-  },
-  contentFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  readTimeText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textSecondary,
-  },
-  shareButton: {
-    backgroundColor: colors.primary + '20',
-    borderWidth: 1,
-    borderColor: colors.primary + '40',
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  shareButtonText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.primary,
-    fontWeight: typography.fontWeight.medium,
-  },
-  ctaContainer: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.xl,
-    alignItems: 'center',
-    marginBottom: spacing.xl,
-  },
-  ctaTitle: {
-    fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.text,
-    marginBottom: spacing.sm,
-  },
-  ctaText: {
-    fontSize: typography.fontSize.md,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: typography.fontSize.md * 1.5,
-    marginBottom: spacing.lg,
-  },
-  ctaButton: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.md,
-  },
-  ctaButtonText: {
-    fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.text,
-  },
-});
 
 export default DiscoverScreen;

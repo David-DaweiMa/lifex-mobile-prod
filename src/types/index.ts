@@ -88,6 +88,10 @@ export interface TrendingData {
   icon: any;
   color: string;
   trend: string;
+  author: string;
+  likes: string;
+  tags: string[];
+  readTime: string;
 }
 
 export interface DiscoverContent {
@@ -100,6 +104,18 @@ export interface DiscoverContent {
   image: string;
   tags: string[];
   readTime: string;
+}
+
+export interface SpecialsData {
+  id: number;
+  title: string;
+  business: string;
+  category: string;
+  discount: string;
+  originalPrice: string;
+  newPrice: string;
+  validUntil: string;
+  description: string;
 }
 
 export interface Category {

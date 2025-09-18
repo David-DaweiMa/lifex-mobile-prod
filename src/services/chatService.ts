@@ -76,7 +76,7 @@ export class ChatService {
 
   private generateMockResponse(userMessage: string): ChatServiceResponse {
     // Simple mock responses based on keywords
-    const message = userMessage.toLowerCase();
+    const message = (userMessage || '').toLowerCase();
     
     if (message.includes('coffee') || message.includes('cafe')) {
       return {

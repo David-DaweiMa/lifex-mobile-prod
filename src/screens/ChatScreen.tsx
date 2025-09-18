@@ -47,110 +47,287 @@ const ChatScreen: React.FC = () => {
     setMessages(prev => [...prev, userMessage]);
     setIsInConversation(true);
     setIsTyping(true);
-    
+    setChatInput('');
+
     try {
       const response = await chatService.sendMessage(query);
-      
-      setIsTyping(false);
-      
       const assistantMessage: Message = {
         type: 'assistant',
         content: response.message,
-        assistant: 'lifex',
-        recommendations: response.recommendations
+        assistant: 'lifex'
       };
-      
       setMessages(prev => [...prev, assistantMessage]);
       setFollowUpQuestions(response.followUpQuestions || []);
-      
     } catch (error) {
       console.error('Error sending message:', error);
-      setIsTyping(false);
-      
-      setMessages(prev => [...prev, {
+      const errorMessage: Message = {
         type: 'assistant',
-        content: "Sorry, I'm having trouble connecting right now. Please try again in a moment.",
+        content: "Sorry, I'm having trouble connecting right now. Please try again later.",
         assistant: 'lifex'
-      }]);
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsTyping(false);
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!chatInput.trim()) return;
-    await handleUserQuery(chatInput);
-    setChatInput('');
+  const handleQuickPrompt = (prompt: string) => {
+    handleUserQuery(prompt);
   };
 
-  const handleQuickPrompt = async (prompt: string) => {
-    await handleUserQuery(prompt);
+  const handleSendMessage = () => {
+    if (chatInput.trim()) {
+      handleUserQuery(chatInput.trim());
+    }
   };
 
   const handleBackToMain = () => {
     setIsInConversation(false);
+    setFollowUpQuestions([]);
   };
 
-  const renderMessage = (message: Message, index: number) => (
-    <View key={index} style={styles.messageContainer}>
-      {message.type === 'user' ? (
-        <View style={styles.userMessageContainer}>
-          <View style={styles.userMessage}>
-            <Text style={styles.userMessageText}>{message.content}</Text>
-          </View>
-        </View>
-      ) : (
-        <View style={styles.assistantMessageContainer}>
-          <View style={styles.assistantAvatar}>
-            <Text style={styles.assistantAvatarText}>⚡</Text>
-          </View>
-          <View style={styles.assistantMessage}>
-            <Text style={styles.assistantMessageText}>{message.content}</Text>
-            
-            {message.recommendations && (
-              <View style={styles.recommendationsContainer}>
-                {message.recommendations.map((rec: BusinessExtended) => (
-                  <View key={rec.id} style={styles.recommendationCard}>
-                    <View style={styles.recommendationHeader}>
-                      <View style={styles.recommendationInfo}>
-                        <Text style={styles.recommendationName}>{rec.name}</Text>
-                        <Text style={styles.recommendationType}>{rec.type}</Text>
-                      </View>
-                      <View style={styles.recommendationRating}>
-                        <Text style={styles.recommendationRatingText}>⭐ {rec.rating}</Text>
-                        <Text style={styles.recommendationPrice}>{rec.price}</Text>
-                      </View>
-                    </View>
-
-                    <View style={styles.recommendationReason}>
-                      <Text style={styles.recommendationReasonText}>{rec.aiReason}</Text>
-                      <View style={styles.tagsContainer}>
-                        {rec.tags.map((tag: string, tagIdx: number) => (
-                          <View key={tagIdx} style={styles.tag}>
-                            <Text style={styles.tagText}>{tag}</Text>
-                          </View>
-                        ))}
-                      </View>
-                    </View>
-
-                    <View style={styles.recommendationFooter}>
-                      <TouchableOpacity style={styles.recommendationButton}>
-                        <Text style={styles.recommendationButtonText}>📞 {rec.phone}</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity style={styles.recommendationButton}>
-                        <Text style={styles.recommendationButtonText}>📍 {rec.distance}</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity style={styles.bookButton}>
-                        <Text style={styles.bookButtonText}>Book Now</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                ))}
-              </View>
-            )}
-          </View>
-        </View>
-      )}
-    </View>
-  );
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: spacing.md,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    headerLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    backButton: {
+      padding: spacing.sm,
+      marginRight: spacing.sm,
+    },
+    logo: {
+      width: 32,
+      height: 32,
+      borderRadius: borderRadius.lg,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: spacing.sm,
+    },
+    logoText: {
+      color: colors.text,
+      fontSize: typography.fontSize.sm,
+      fontWeight: typography.fontWeight.bold,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: typography.fontWeight.bold,
+      color: colors.text,
+    },
+    headerSubtitle: {
+      fontSize: typography.fontSize.xs,
+      color: colors.textSecondary,
+    },
+    headerRight: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    headerButton: {
+      padding: spacing.sm,
+      borderRadius: borderRadius.md,
+    },
+    messagesContainer: {
+      flex: 1,
+      padding: spacing.md,
+    },
+    messageContainer: {
+      marginBottom: spacing.md,
+    },
+    userMessage: {
+      alignSelf: 'flex-end',
+      backgroundColor: colors.primary,
+      padding: spacing.md,
+      borderRadius: borderRadius.lg,
+      maxWidth: '80%',
+    },
+    assistantMessage: {
+      alignSelf: 'flex-start',
+      backgroundColor: colors.surface,
+      padding: spacing.md,
+      borderRadius: borderRadius.lg,
+      maxWidth: '80%',
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    messageText: {
+      color: colors.text,
+      fontSize: typography.fontSize.md,
+    },
+    userMessageText: {
+      color: colors.text,
+    },
+    assistantMessageText: {
+      color: colors.text,
+    },
+    typingIndicator: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: spacing.md,
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignSelf: 'flex-start',
+      maxWidth: '80%',
+    },
+    typingDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.primary,
+      marginHorizontal: 2,
+    },
+    followUpContainer: {
+      flexDirection: 'row',
+      marginBottom: spacing.md,
+    },
+    assistantAvatar: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: spacing.sm,
+    },
+    assistantAvatarText: {
+      fontSize: typography.fontSize.sm,
+    },
+    followUpContent: {
+      flex: 1,
+    },
+    followUpTitle: {
+      fontSize: typography.fontSize.sm,
+      fontWeight: typography.fontWeight.medium,
+      color: colors.textSecondary,
+      marginBottom: spacing.sm,
+    },
+    followUpQuestions: {
+      gap: spacing.xs,
+    },
+    followUpQuestion: {
+      backgroundColor: colors.surface,
+      padding: spacing.sm,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    followUpQuestionText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text,
+    },
+    inputContainer: {
+      padding: spacing.md,
+      backgroundColor: colors.surface,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    inputRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      gap: spacing.sm,
+    },
+    textInput: {
+      flex: 1,
+      backgroundColor: colors.background,
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      fontSize: typography.fontSize.md,
+      color: colors.text,
+      borderWidth: 1,
+      borderColor: colors.border,
+      maxHeight: 100,
+    },
+    sendButton: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+      borderRadius: borderRadius.lg,
+    },
+    sendButtonText: {
+      color: colors.text,
+      fontSize: typography.fontSize.md,
+      fontWeight: typography.fontWeight.medium,
+    },
+    mainContent: {
+      flex: 1,
+      padding: spacing.md,
+    },
+    welcomeTitle: {
+      fontSize: typography.fontSize.xxl,
+      fontWeight: typography.fontWeight.bold,
+      color: colors.text,
+      textAlign: 'center',
+      marginBottom: spacing.sm,
+    },
+    welcomeSubtitle: {
+      fontSize: typography.fontSize.lg,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: spacing.xl,
+    },
+    quickPromptsContainer: {
+      marginBottom: spacing.xl,
+    },
+    quickPromptsTitle: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: typography.fontWeight.semibold,
+      color: colors.text,
+      marginBottom: spacing.md,
+    },
+    quickPromptsGrid: {
+      gap: spacing.sm,
+    },
+    quickPrompt: {
+      backgroundColor: colors.surface,
+      padding: spacing.md,
+      borderRadius: borderRadius.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    quickPromptText: {
+      fontSize: typography.fontSize.md,
+      color: colors.text,
+      textAlign: 'center',
+    },
+    recentDiscoveriesContainer: {
+      marginBottom: spacing.xl,
+    },
+    recentDiscoveriesTitle: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: typography.fontWeight.semibold,
+      color: colors.text,
+      marginBottom: spacing.md,
+    },
+    recentDiscoveriesList: {
+      gap: spacing.sm,
+    },
+    recentDiscovery: {
+      backgroundColor: colors.surface,
+      padding: spacing.md,
+      borderRadius: borderRadius.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    recentDiscoveryText: {
+      fontSize: typography.fontSize.md,
+      color: colors.text,
+    },
+  });
 
   if (isInConversation) {
     return (
@@ -158,7 +335,7 @@ const ChatScreen: React.FC = () => {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <TouchableOpacity onPress={handleBackToMain} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={20} color={colors.primary} />
+              <Ionicons name="arrow-back" size={20} color="#a855f7" />
             </TouchableOpacity>
             <View style={styles.logo}>
               <Text style={styles.logoText}>LX</Text>
@@ -170,10 +347,10 @@ const ChatScreen: React.FC = () => {
           </View>
           <View style={styles.headerRight}>
             <TouchableOpacity style={styles.headerButton}>
-              <Ionicons name="notifications-outline" size={20} color={colors.primary} />
+              <Ionicons name="notifications-outline" size={20} color="#a855f7" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.headerButton}>
-              <Ionicons name="person-outline" size={20} color={colors.primary} />
+              <Ionicons name="person-outline" size={20} color="#a855f7" />
             </TouchableOpacity>
           </View>
         </View>
@@ -181,17 +358,27 @@ const ChatScreen: React.FC = () => {
         <ScrollView 
           ref={scrollViewRef}
           style={styles.messagesContainer}
-          contentContainerStyle={styles.messagesContent}
+          contentContainerStyle={{ paddingBottom: spacing.xl }}
         >
-          {messages.map((message: Message, index: number) => renderMessage(message, index))}
+          {messages.map((message, index) => (
+            <View key={index} style={styles.messageContainer}>
+              <View style={message.type === 'user' ? styles.userMessage : styles.assistantMessage}>
+                <Text style={[
+                  styles.messageText,
+                  message.type === 'user' ? styles.userMessageText : styles.assistantMessageText
+                ]}>
+                  {message.content}
+                </Text>
+              </View>
+            </View>
+          ))}
           
           {isTyping && (
-            <View style={styles.typingContainer}>
-              <View style={styles.assistantAvatar}>
-                <Text style={styles.assistantAvatarText}>⚡</Text>
-              </View>
+            <View style={styles.messageContainer}>
               <View style={styles.typingIndicator}>
-                <Text style={styles.typingText}>● ● ●</Text>
+                <View style={[styles.typingDot, { opacity: 0.4 }]} />
+                <View style={[styles.typingDot, { opacity: 0.7 }]} />
+                <View style={[styles.typingDot, { opacity: 1 }]} />
               </View>
             </View>
           )}
@@ -229,7 +416,7 @@ const ChatScreen: React.FC = () => {
               value={chatInput}
               onChangeText={setChatInput}
               placeholder="Ask me anything about New Zealand..."
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor="#9CA3AF"
               multiline
             />
             <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
@@ -248,442 +435,42 @@ const ChatScreen: React.FC = () => {
         subtitle="Explore Kiwi's hidden gems with AI"
       />
 
-      <ScrollView style={styles.mainContainer} contentContainerStyle={styles.mainContent}>
-        {/* Welcome Section */}
-        <View style={styles.welcomeContainer}>
-          <Text style={styles.welcomeTitle}>G'day! What can I help you find today?</Text>
-          
-          <View style={styles.inputSection}>
-            <TextInput
-              style={styles.mainInput}
-              value={chatInput}
-              onChangeText={setChatInput}
-              placeholder="Type your message..."
-              placeholderTextColor={colors.textSecondary}
-              multiline
-            />
-            <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
-              <Text style={styles.sendButtonText}>Send</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+      <ScrollView style={styles.mainContent} contentContainerStyle={{ paddingBottom: spacing.xl }}>
+        <Text style={styles.welcomeTitle}>Welcome to LifeX</Text>
+        <Text style={styles.welcomeSubtitle}>Your AI companion for discovering New Zealand</Text>
 
-        {/* Quick Prompts */}
         <View style={styles.quickPromptsContainer}>
-          {quickPrompts.map((row: string[], rowIdx: number) => (
-            <ScrollView 
-              key={rowIdx} 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              style={styles.promptRow}
-            >
-              {row.map((prompt: string, idx: number) => (
-                <TouchableOpacity
-                  key={idx}
-                  style={styles.quickPrompt}
-                  onPress={() => handleQuickPrompt(prompt)}
-                >
-                  <Text style={styles.quickPromptText}>{prompt}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          ))}
+          <Text style={styles.quickPromptsTitle}>Quick Prompts</Text>
+          <View style={styles.quickPromptsGrid}>
+            {quickPrompts.map((prompt, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.quickPrompt}
+                onPress={() => handleQuickPrompt(prompt)}
+              >
+                <Text style={styles.quickPromptText}>{prompt}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
-        {/* Recent Discoveries */}
-        <View style={styles.discoveriesContainer}>
-          <View style={styles.discoveriesHeader}>
-            <Text style={styles.discoveriesTitle}>Recent Discoveries</Text>
-            <TouchableOpacity>
-              <Text style={styles.seeAllText}>See all</Text>
-            </TouchableOpacity>
+        <View style={styles.recentDiscoveriesContainer}>
+          <Text style={styles.recentDiscoveriesTitle}>Recent Discoveries</Text>
+          <View style={styles.recentDiscoveriesList}>
+            {recentDiscoveries.map((discovery, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.recentDiscovery}
+                onPress={() => handleQuickPrompt(discovery.text)}
+              >
+                <Text style={styles.recentDiscoveryText}>{discovery.text}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
-          
-          {recentDiscoveries.map((discovery: any, idx: number) => (
-            <View key={idx} style={styles.discoveryCard}>
-              <Text style={styles.discoveryText}>{discovery.text}</Text>
-            </View>
-          ))}
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: spacing.md,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  backButton: {
-    padding: spacing.sm,
-    marginRight: spacing.sm,
-  },
-  logo: {
-    width: 32,
-    height: 32,
-    borderRadius: borderRadius.lg,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.sm,
-  },
-  logoText: {
-    color: colors.text,
-    fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.bold,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.text,
-  },
-  headerSubtitle: {
-    fontSize: typography.fontSize.xs,
-    color: colors.textSecondary,
-  },
-  headerRight: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  headerButton: {
-    padding: spacing.sm,
-    borderRadius: borderRadius.md,
-  },
-  messagesContainer: {
-    flex: 1,
-  },
-  messagesContent: {
-    padding: spacing.md,
-  },
-  messageContainer: {
-    marginBottom: spacing.md,
-  },
-  userMessageContainer: {
-    alignItems: 'flex-end',
-  },
-  userMessage: {
-    backgroundColor: colors.primary,
-    padding: spacing.sm,
-    borderRadius: borderRadius.lg,
-    borderBottomRightRadius: borderRadius.sm,
-    maxWidth: '80%',
-  },
-  userMessageText: {
-    color: colors.text,
-    fontSize: typography.fontSize.md,
-  },
-  assistantMessageContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  assistantAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.sm,
-  },
-  assistantAvatarText: {
-    color: colors.text,
-    fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.bold,
-  },
-  assistantMessage: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    padding: spacing.sm,
-    borderRadius: borderRadius.lg,
-    borderBottomLeftRadius: borderRadius.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  assistantMessageText: {
-    color: colors.text,
-    fontSize: typography.fontSize.md,
-    marginBottom: spacing.sm,
-  },
-  recommendationsContainer: {
-    marginTop: spacing.sm,
-  },
-  recommendationCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  recommendationHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: spacing.sm,
-  },
-  recommendationInfo: {
-    flex: 1,
-  },
-  recommendationName: {
-    fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.text,
-    marginBottom: 2,
-  },
-  recommendationType: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textSecondary,
-  },
-  recommendationRating: {
-    alignItems: 'flex-end',
-  },
-  recommendationRatingText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text,
-    marginBottom: 2,
-  },
-  recommendationPrice: {
-    fontSize: typography.fontSize.sm,
-    color: colors.secondary,
-    fontWeight: typography.fontWeight.medium,
-  },
-  recommendationReason: {
-    backgroundColor: `${colors.primary}20`,
-    borderWidth: 1,
-    borderColor: `${colors.primary}40`,
-    borderRadius: borderRadius.md,
-    padding: spacing.sm,
-    marginBottom: spacing.sm,
-  },
-  recommendationReasonText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text,
-    marginBottom: spacing.sm,
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
-  },
-  tag: {
-    backgroundColor: `${colors.primary}20`,
-    borderWidth: 1,
-    borderColor: `${colors.primary}40`,
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-  },
-  tagText: {
-    fontSize: typography.fontSize.xs,
-    color: colors.primary,
-    fontWeight: typography.fontWeight.medium,
-  },
-  recommendationFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  recommendationButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  recommendationButtonText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textSecondary,
-  },
-  bookButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.md,
-  },
-  bookButtonText: {
-    color: colors.text,
-    fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
-  },
-  typingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  typingIndicator: {
-    backgroundColor: colors.surface,
-    padding: spacing.sm,
-    borderRadius: borderRadius.lg,
-    borderBottomLeftRadius: borderRadius.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginLeft: spacing.sm,
-  },
-  typingText: {
-    color: colors.primary,
-    fontSize: typography.fontSize.lg,
-  },
-  followUpContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginTop: spacing.lg,
-  },
-  followUpContent: {
-    flex: 1,
-    marginLeft: spacing.sm,
-  },
-  followUpTitle: {
-    fontSize: typography.fontSize.md,
-    color: colors.textSecondary,
-    marginBottom: spacing.sm,
-  },
-  followUpQuestions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  followUpQuestion: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  followUpQuestionText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text,
-  },
-  inputContainer: {
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    padding: spacing.md,
-  },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: spacing.sm,
-  },
-  textInput: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: borderRadius.lg,
-    padding: spacing.sm,
-    color: colors.text,
-    fontSize: typography.fontSize.md,
-    maxHeight: 100,
-  },
-  sendButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.lg,
-  },
-  sendButtonText: {
-    color: colors.text,
-    fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
-  },
-  mainContainer: {
-    flex: 1,
-  },
-  mainContent: {
-    padding: spacing.md,
-  },
-  welcomeContainer: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.lg,
-    marginBottom: spacing.lg,
-    minHeight: 180,
-    justifyContent: 'space-between',
-  },
-  welcomeTitle: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.text,
-  },
-  inputSection: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: spacing.sm,
-  },
-  mainInput: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    borderRadius: borderRadius.lg,
-    padding: spacing.sm,
-    color: colors.text,
-    fontSize: typography.fontSize.md,
-    maxHeight: 100,
-  },
-  quickPromptsContainer: {
-    marginBottom: spacing.xl,
-  },
-  promptRow: {
-    marginBottom: spacing.sm,
-  },
-  quickPrompt: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    marginRight: spacing.sm,
-  },
-  quickPromptText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text,
-    fontWeight: typography.fontWeight.medium,
-  },
-  discoveriesContainer: {
-    marginTop: spacing.xl,
-  },
-  discoveriesHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  discoveriesTitle: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.text,
-  },
-  seeAllText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.primary,
-  },
-  discoveryCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  discoveryText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text,
-  },
-});
 
 export default ChatScreen;

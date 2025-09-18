@@ -1,4 +1,4 @@
-import { Booking, TrendingData, DiscoverContent } from '../types';
+import { Booking, TrendingData, DiscoverContent, SpecialsData } from '../types';
 
 export const mockBookings: Booking[] = [
   {
@@ -45,7 +45,11 @@ export const mockTrendingData: TrendingData[] = [
     description: 'Sustainable dining is trending up',
     icon: '🌱',
     color: '#10b981',
-    trend: 'up'
+    trend: 'up',
+    author: 'foodie_nz',
+    likes: '1.2k',
+    tags: ['vegan', 'sustainable', 'cafe'],
+    readTime: '3 min'
   },
   {
     id: 2,
@@ -55,7 +59,11 @@ export const mockTrendingData: TrendingData[] = [
     description: 'Home workouts continue to grow',
     icon: '💪',
     color: '#f59e0b',
-    trend: 'up'
+    trend: 'up',
+    author: 'fitness_kiwi',
+    likes: '856',
+    tags: ['fitness', 'virtual', 'home'],
+    readTime: '2 min'
   },
   {
     id: 3,
@@ -65,7 +73,11 @@ export const mockTrendingData: TrendingData[] = [
     description: 'Supporting local creators',
     icon: '🎨',
     color: '#a855f7',
-    trend: 'up'
+    trend: 'up',
+    author: 'art_lover',
+    likes: '2.1k',
+    tags: ['artisan', 'local', 'handmade'],
+    readTime: '4 min'
   },
   {
     id: 4,
@@ -75,7 +87,11 @@ export const mockTrendingData: TrendingData[] = [
     description: 'Green alternatives on the rise',
     icon: '♻️',
     color: '#10b981',
-    trend: 'up'
+    trend: 'up',
+    author: 'eco_warrior',
+    likes: '1.8k',
+    tags: ['eco', 'green', 'sustainable'],
+    readTime: '3 min'
   }
 ];
 
@@ -137,6 +153,53 @@ export const quickPrompts = [
     "Outdoor activities?",
     "Cultural attractions?"
   ]
+];
+
+export const mockSpecialsData: SpecialsData[] = [
+  {
+    id: 1,
+    title: '50% Off Coffee & Pastry Combo',
+    business: 'Cafe Mornings',
+    category: 'Food & Drink',
+    discount: '50%',
+    originalPrice: '$15',
+    newPrice: '$7.50',
+    validUntil: '2024-02-15',
+    description: 'Perfect morning combo with our signature blend'
+  },
+  {
+    id: 2,
+    title: 'Free Consultation + 20% Off',
+    business: 'Spa Relax',
+    category: 'Beauty & Spa',
+    discount: '20%',
+    originalPrice: '$120',
+    newPrice: '$96',
+    validUntil: '2024-02-20',
+    description: 'Deep tissue massage with free wellness consultation'
+  },
+  {
+    id: 3,
+    title: 'Buy 1 Get 1 Free Gym Pass',
+    business: 'FitZone',
+    category: 'Fitness',
+    discount: '50%',
+    originalPrice: '$40',
+    newPrice: '$20',
+    validUntil: '2024-02-25',
+    description: 'Bring a friend and both get full access'
+  },
+  {
+    id: 4,
+    title: '30% Off Organic Groceries',
+    business: 'Green Market',
+    category: 'Shopping',
+    discount: '30%',
+    originalPrice: '$50',
+    newPrice: '$35',
+    validUntil: '2024-02-18',
+    description: 'Stock up on organic groceries and household items'
+  }
 ];
 
 export const recentDiscoveries = [

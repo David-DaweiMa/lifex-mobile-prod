@@ -52,15 +52,14 @@ const styles = StyleSheet.create({
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
   },
   logo: {
     width: 32,
     height: 32,
-    borderRadius: borderRadius.lg,
+    borderRadius: 16,
     backgroundColor: colors.primary,
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
     marginRight: spacing.sm,
   },
   logoText: {
@@ -74,16 +73,17 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   headerSubtitle: {
-    fontSize: typography.fontSize.xs,
+    fontSize: typography.fontSize.sm,
     color: colors.textSecondary,
+    marginTop: 2,
   },
   headerRight: {
     flexDirection: 'row',
-    gap: spacing.sm,
+    alignItems: 'center',
   },
   headerButton: {
     padding: spacing.sm,
-    borderRadius: borderRadius.md,
+    marginLeft: spacing.xs,
   },
 });
 
