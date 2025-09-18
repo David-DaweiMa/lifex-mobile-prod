@@ -8,20 +8,22 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
-import { Message, BusinessExtended } from '../types';
+import { Message } from '../types';
 import { chatService } from '../services/chatService';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
-import { quickPrompts, recentDiscoveries } from '../utils/mockData';
+
+const { width } = Dimensions.get('window');
 
 const ChatScreen: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       type: 'assistant',
-      content: "G'day! I'm LifeX, your AI companion for discovering amazing local services in New Zealand. What can I help you find today?",
+      content: "G'day! What can I help you find today?",
       assistant: 'lifex'
     }
   ]);
@@ -41,6 +43,7 @@ const ChatScreen: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
 
   const handleUserQuery = async (query: string) => {
     const userMessage: Message = { type: 'user', content: query };
@@ -86,6 +89,29 @@ const ChatScreen: React.FC = () => {
     setFollowUpQuestions([]);
   };
 
+  // Updated quick prompts based on the image
+  const quickPrompts = [
+    "Best coffee shops in Ponsonby?",
+    "Kid-friendly restaurants with play areas",
+    "Plumber for blocked drains",
+    "House cleaner for weekly visits",
+    "Indoor activities for rainy Auckland days",
+    "Beginner-friendly yoga studios",
+    "Pet grooming services near me",
+    "Weekend markets in Auckland",
+    "Hair salon for men's cuts",
+    "Car mechanic for oil change",
+    "Dentist accepting new patients",
+    "Gym with personal trainers"
+  ];
+
+  // Updated recent discoveries based on the image
+  const recentDiscoveries = [
+    { text: "Best brunch spots in Mt Eden with outdoor seating" },
+    { text: "Affordable personal trainer near Albany for beginners" },
+    { text: "Emergency vet open late nights in West Auckland" }
+  ];
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -121,11 +147,11 @@ const ChatScreen: React.FC = () => {
     logoText: {
       color: colors.text,
       fontSize: typography.fontSize.sm,
-      fontWeight: typography.fontWeight.bold,
+      fontWeight: '700',
     },
     headerTitle: {
       fontSize: typography.fontSize.lg,
-      fontWeight: typography.fontWeight.bold,
+      fontWeight: '700',
       color: colors.text,
     },
     headerSubtitle: {
@@ -212,7 +238,7 @@ const ChatScreen: React.FC = () => {
     },
     followUpTitle: {
       fontSize: typography.fontSize.sm,
-      fontWeight: typography.fontWeight.medium,
+      fontWeight: '500',
       color: colors.textSecondary,
       marginBottom: spacing.sm,
     },
@@ -236,85 +262,138 @@ const ChatScreen: React.FC = () => {
       borderTopWidth: 1,
       borderTopColor: colors.border,
     },
-    inputRow: {
-      flexDirection: 'row',
-      alignItems: 'flex-end',
-      gap: spacing.sm,
-    },
-    textInput: {
-      flex: 1,
-      backgroundColor: colors.background,
-      borderRadius: borderRadius.lg,
-      padding: spacing.md,
-      fontSize: typography.fontSize.md,
-      color: colors.text,
-      borderWidth: 1,
-      borderColor: colors.border,
-      maxHeight: 100,
-    },
-    sendButton: {
-      backgroundColor: colors.primary,
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.md,
-      borderRadius: borderRadius.lg,
-    },
     sendButtonText: {
       color: colors.text,
       fontSize: typography.fontSize.md,
-      fontWeight: typography.fontWeight.medium,
+      fontWeight: '500',
     },
+    // Main landing page styles - based on the image design
     mainContent: {
       flex: 1,
-      padding: spacing.md,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.sm,
     },
-    welcomeTitle: {
-      fontSize: typography.fontSize.xxl,
-      fontWeight: typography.fontWeight.bold,
+    heroSection: {
+      alignItems: 'center',
+      marginBottom: spacing.md,
+      paddingTop: spacing.sm,
+    },
+    chatBubble: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.xl,
+      paddingVertical: spacing.xl * 2,
+      paddingHorizontal: spacing.lg,
+      marginHorizontal: 2,
+      borderWidth: 1,
+      borderColor: colors.border,
+      maxWidth: width * 0.98,
+      minHeight: 120,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    chatBubbleMessage: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: '700',
       color: colors.text,
       textAlign: 'center',
-      marginBottom: spacing.sm,
+      lineHeight: typography.fontSize.lg * 1.3,
     },
-    welcomeSubtitle: {
-      fontSize: typography.fontSize.lg,
-      color: colors.textSecondary,
-      textAlign: 'center',
-      marginBottom: spacing.xl,
+    inputSection: {
+      backgroundColor: 'transparent',
+      borderRadius: borderRadius.lg,
+      padding: spacing.sm,
+      marginHorizontal: 0,
+      marginBottom: 0,
+    },
+    inputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    addButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 8,
+      backgroundColor: 'transparent',
+      borderWidth: 1,
+      borderColor: '#a855f7',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    textInput: {
+      flex: 1,
+      backgroundColor: 'transparent',
+      borderRadius: borderRadius.lg,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      fontSize: typography.fontSize.md,
+      color: '#FFFFFF',
+      minHeight: 40,
+      borderWidth: 1,
+      borderColor: '#a855f7',
+    },
+    sendButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 8,
+      backgroundColor: '#a855f7',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     quickPromptsContainer: {
-      marginBottom: spacing.xl,
-    },
-    quickPromptsTitle: {
-      fontSize: typography.fontSize.lg,
-      fontWeight: typography.fontWeight.semibold,
-      color: colors.text,
       marginBottom: spacing.md,
     },
-    quickPromptsGrid: {
-      gap: spacing.sm,
+    quickPromptsRow: {
+      marginBottom: spacing.sm,
+    },
+    quickPromptsRowContent: {
+      paddingHorizontal: spacing.xs,
+      gap: spacing.xs,
     },
     quickPrompt: {
       backgroundColor: colors.surface,
-      padding: spacing.md,
-      borderRadius: borderRadius.lg,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: borderRadius.full,
       borderWidth: 1,
       borderColor: colors.border,
+      minWidth: 120,
+      alignItems: 'center',
     },
     quickPromptText: {
-      fontSize: typography.fontSize.md,
+      fontSize: typography.fontSize.sm,
       color: colors.text,
       textAlign: 'center',
     },
     recentDiscoveriesContainer: {
-      marginBottom: spacing.xl,
-    },
-    recentDiscoveriesTitle: {
-      fontSize: typography.fontSize.lg,
-      fontWeight: typography.fontWeight.semibold,
-      color: colors.text,
+      marginTop: spacing.xl * 2,
       marginBottom: spacing.md,
     },
+    recentDiscoveriesHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+      paddingHorizontal: spacing.xs,
+    },
+    recentDiscoveriesTitle: {
+      fontSize: typography.fontSize.xl,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    seeAllLink: {
+      fontSize: typography.fontSize.md,
+      color: colors.primary,
+      fontWeight: '500',
+    },
     recentDiscoveriesList: {
-      gap: spacing.sm,
+      paddingHorizontal: spacing.xs,
     },
     recentDiscovery: {
       backgroundColor: colors.surface,
@@ -322,10 +401,40 @@ const ChatScreen: React.FC = () => {
       borderRadius: borderRadius.lg,
       borderWidth: 1,
       borderColor: colors.border,
+      marginBottom: spacing.sm,
     },
     recentDiscoveryText: {
       fontSize: typography.fontSize.md,
       color: colors.text,
+      lineHeight: typography.fontSize.md * 1.4,
+    },
+    // Main container with background
+    mainContainer: {
+      backgroundColor: '#1A1625',
+      borderRadius: borderRadius.xl,
+      margin: spacing.md,
+      padding: spacing.lg,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    // Greeting container styles - matching the design
+    greetingContainer: {
+      paddingHorizontal: 0,
+      paddingTop: 0,
+      marginBottom: spacing.xl * 2,
+    },
+    greetingText: {
+      fontSize: typography.fontSize.xl,
+      fontWeight: 'normal',
+      color: '#FFFFFF',
+      textAlign: 'left',
+      lineHeight: typography.fontSize.xl * 1.3,
     },
   });
 
@@ -435,14 +544,47 @@ const ChatScreen: React.FC = () => {
         subtitle="Explore Kiwi's hidden gems with AI"
       />
 
-      <ScrollView style={styles.mainContent} contentContainerStyle={{ paddingBottom: spacing.xl }}>
-        <Text style={styles.welcomeTitle}>Welcome to LifeX</Text>
-        <Text style={styles.welcomeSubtitle}>Your AI companion for discovering New Zealand</Text>
+      <ScrollView style={styles.mainContent} contentContainerStyle={{ paddingBottom: spacing.sm }}>
+        {/* Main container with background */}
+        <View style={styles.mainContainer}>
+          {/* Greeting in top left corner */}
+          <View style={styles.greetingContainer}>
+            <Text style={styles.greetingText}>
+              G'day! What can I help you find today?
+            </Text>
+          </View>
 
+          {/* Input Section - based on image */}
+          <View style={styles.inputSection}>
+            <View style={styles.inputRow}>
+              <TouchableOpacity style={styles.addButton}>
+                <Ionicons name="add" size={20} color="#a855f7" />
+              </TouchableOpacity>
+              <TextInput
+                style={styles.textInput}
+                value={chatInput}
+                onChangeText={setChatInput}
+                placeholder="Type your message..."
+                placeholderTextColor="#a855f7"
+                multiline
+              />
+              <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
+                <Ionicons name="send" size={20} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
+        {/* Quick Prompts Section - based on image */}
         <View style={styles.quickPromptsContainer}>
-          <Text style={styles.quickPromptsTitle}>Quick Prompts</Text>
-          <View style={styles.quickPromptsGrid}>
-            {quickPrompts.map((prompt, index) => (
+          {/* First Row */}
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={styles.quickPromptsRow}
+            contentContainerStyle={styles.quickPromptsRowContent}
+          >
+            {quickPrompts.slice(0, 4).map((prompt, index) => (
               <TouchableOpacity
                 key={index}
                 style={styles.quickPrompt}
@@ -451,11 +593,53 @@ const ChatScreen: React.FC = () => {
                 <Text style={styles.quickPromptText}>{prompt}</Text>
               </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
+
+          {/* Second Row */}
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={styles.quickPromptsRow}
+            contentContainerStyle={styles.quickPromptsRowContent}
+          >
+            {quickPrompts.slice(4, 8).map((prompt, index) => (
+              <TouchableOpacity
+                key={index + 4}
+                style={styles.quickPrompt}
+                onPress={() => handleQuickPrompt(prompt)}
+              >
+                <Text style={styles.quickPromptText}>{prompt}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          {/* Third Row */}
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={styles.quickPromptsRow}
+            contentContainerStyle={styles.quickPromptsRowContent}
+          >
+            {quickPrompts.slice(8, 12).map((prompt, index) => (
+              <TouchableOpacity
+                key={index + 8}
+                style={styles.quickPrompt}
+                onPress={() => handleQuickPrompt(prompt)}
+              >
+                <Text style={styles.quickPromptText}>{prompt}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
 
+        {/* Recent Discoveries Section - based on image */}
         <View style={styles.recentDiscoveriesContainer}>
-          <Text style={styles.recentDiscoveriesTitle}>Recent Discoveries</Text>
+          <View style={styles.recentDiscoveriesHeader}>
+            <Text style={styles.recentDiscoveriesTitle}>Recent Discoveries</Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAllLink}>See all</Text>
+            </TouchableOpacity>
+          </View>
           <View style={styles.recentDiscoveriesList}>
             {recentDiscoveries.map((discovery, index) => (
               <TouchableOpacity

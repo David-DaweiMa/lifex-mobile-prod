@@ -92,6 +92,34 @@ export const mockTrendingData: TrendingData[] = [
     likes: '1.8k',
     tags: ['eco', 'green', 'sustainable'],
     readTime: '3 min'
+  },
+  {
+    id: 5,
+    title: 'Remote Work Spaces',
+    category: 'Business',
+    growth: '+38%',
+    description: 'Co-working and flexible office solutions',
+    icon: '💻',
+    color: '#3b82f6',
+    trend: 'up',
+    author: 'work_nomad',
+    likes: '945',
+    tags: ['coworking', 'remote', 'office'],
+    readTime: '4 min'
+  },
+  {
+    id: 6,
+    title: 'Pet Care Services',
+    category: 'Services',
+    growth: '+41%',
+    description: 'Growing demand for pet wellness',
+    icon: '🐕',
+    color: '#f97316',
+    trend: 'up',
+    author: 'pet_lover_nz',
+    likes: '1.5k',
+    tags: ['pets', 'wellness', 'care'],
+    readTime: '3 min'
   }
 ];
 
@@ -132,27 +160,21 @@ export const mockDiscoverContent: DiscoverContent[] = [
 ];
 
 export const quickPrompts = [
-  [
-    "Best coffee shops for remote work?",
-    "Family-friendly restaurants?",
-    "Weekend activities in Auckland?",
-    "Shopping centers and malls?",
-    "Pet-friendly places?"
-  ],
-  [
-    "Hair salons near me?",
-    "Gym and fitness centers?",
-    "Beauty and spa services?",
-    "Home improvement stores?",
-    "Car repair shops?"
-  ],
-  [
-    "Best brunch spots?",
-    "Date night restaurants?",
-    "Kids' entertainment?",
-    "Outdoor activities?",
-    "Cultural attractions?"
-  ]
+  "Best coffee shops for remote work?",
+  "Family-friendly restaurants?",
+  "Weekend activities in Auckland?",
+  "Shopping centers and malls?",
+  "Pet-friendly places?",
+  "Hair salons near me?",
+  "Gym and fitness centers?",
+  "Beauty and spa services?",
+  "Home improvement stores?",
+  "Car repair shops?",
+  "Best brunch spots?",
+  "Date night restaurants?",
+  "Kids' entertainment?",
+  "Outdoor activities?",
+  "Cultural attractions?"
 ];
 
 export const mockSpecialsData: SpecialsData[] = [
@@ -199,6 +221,28 @@ export const mockSpecialsData: SpecialsData[] = [
     newPrice: '$35',
     validUntil: '2024-02-18',
     description: 'Stock up on organic groceries and household items'
+  },
+  {
+    id: 5,
+    title: 'Hair Cut & Style - 40% Off',
+    business: 'Style Studio',
+    category: 'Beauty',
+    discount: '40%',
+    originalPrice: '$80',
+    newPrice: '$48',
+    validUntil: '2024-02-22',
+    description: 'Professional haircut and styling with experienced stylists'
+  },
+  {
+    id: 6,
+    title: 'Car Wash & Wax Package',
+    business: 'Auto Shine',
+    category: 'Services',
+    discount: '25%',
+    originalPrice: '$60',
+    newPrice: '$45',
+    validUntil: '2024-02-28',
+    description: 'Complete car wash, wax, and interior cleaning'
   }
 ];
 
@@ -217,5 +261,117 @@ export const recentDiscoveries = [
   },
   {
     text: "Local farmer's market has incredible organic produce 🌱"
+  }
+];
+
+// Business listing data for Discover page
+export const mockBusinessList: any[] = [
+  {
+    id: 1,
+    name: "Orphan's Kitchen",
+    type: "Restaurant",
+    category: "Food & Drink",
+    rating: 4.5,
+    reviewCount: 128,
+    price: "$$",
+    distance: "0.8 km",
+    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=300&h=200&fit=crop&crop=center&auto=format&q=60",
+    address: "118 Ponsonby Road, Ponsonby, Auckland",
+    highlights: ["Modern NZ cuisine", "Great cocktails", "Outdoor seating"],
+    isOpen: true,
+    aiReason: "Trending local favorite with innovative menu",
+    waitTime: "15-20 min",
+    confidence: 0.92,
+    opening_hours: "Mon-Sun: 5:30 PM - 10:00 PM"
+  },
+  {
+    id: 2,
+    name: "Amano Restaurant",
+    type: "Restaurant", 
+    category: "Food & Drink",
+    rating: 4.7,
+    reviewCount: 89,
+    price: "$$$",
+    distance: "1.2 km",
+    image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=300&h=200&fit=crop&crop=center&auto=format&q=60",
+    address: "68-86 Tyler Street, Britomart, Auckland",
+    highlights: ["Italian cuisine", "Fresh pasta", "Wine selection"],
+    isOpen: true,
+    aiReason: "Highly rated Italian restaurant with authentic flavors",
+    waitTime: "25-30 min",
+    confidence: 0.89,
+    opening_hours: "Mon-Sun: 7:00 AM - 11:00 PM"
+  },
+  {
+    id: 3,
+    name: "The Barber Shop",
+    type: "Beauty & Personal Care",
+    category: "Services",
+    rating: 4.3,
+    reviewCount: 67,
+    price: "$",
+    distance: "0.5 km",
+    image: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=300&h=200&fit=crop&crop=center&auto=format&q=60",
+    address: "45 High Street, Auckland CBD",
+    highlights: ["Traditional barbering", "Beard styling", "Walk-ins welcome"],
+    isOpen: true,
+    aiReason: "Classic barber experience with skilled stylists",
+    waitTime: "10-15 min",
+    confidence: 0.85,
+    opening_hours: "Mon-Sat: 9:00 AM - 6:00 PM"
+  },
+  {
+    id: 4,
+    name: "Les Mills Newmarket",
+    type: "Gym & Fitness",
+    category: "Health & Fitness",
+    rating: 4.4,
+    reviewCount: 156,
+    price: "$$",
+    distance: "2.1 km",
+    image: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=300&h=200&fit=crop&crop=center&auto=format&q=60",
+    address: "277 Broadway, Newmarket, Auckland",
+    highlights: ["Group classes", "Personal training", "Modern equipment"],
+    isOpen: true,
+    aiReason: "Premium fitness center with excellent facilities",
+    waitTime: "No wait",
+    confidence: 0.91,
+    opening_hours: "Mon-Fri: 5:30 AM - 10:00 PM, Sat-Sun: 7:00 AM - 8:00 PM"
+  },
+  {
+    id: 5,
+    name: "Spa Relax",
+    type: "Beauty & Personal Care",
+    category: "Services",
+    rating: 4.6,
+    reviewCount: 94,
+    price: "$$$",
+    distance: "1.8 km",
+    image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=300&h=200&fit=crop&crop=center&auto=format&q=60",
+    address: "12 Shortland Street, Auckland CBD",
+    highlights: ["Deep tissue massage", "Facial treatments", "Relaxation therapy"],
+    isOpen: true,
+    aiReason: "Luxury spa with professional therapists",
+    waitTime: "20-25 min",
+    confidence: 0.88,
+    opening_hours: "Mon-Sat: 9:00 AM - 9:00 PM, Sun: 10:00 AM - 6:00 PM"
+  },
+  {
+    id: 6,
+    name: "Green Market",
+    type: "Grocery Store",
+    category: "Shopping",
+    rating: 4.2,
+    reviewCount: 43,
+    price: "$$",
+    distance: "1.5 km",
+    image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=200&fit=crop&crop=center&auto=format&q=60",
+    address: "89 Queen Street, Auckland CBD",
+    highlights: ["Organic produce", "Local suppliers", "Fresh daily"],
+    isOpen: true,
+    aiReason: "Organic and sustainable grocery shopping",
+    waitTime: "5-10 min",
+    confidence: 0.82,
+    opening_hours: "Mon-Sun: 7:00 AM - 9:00 PM"
   }
 ];

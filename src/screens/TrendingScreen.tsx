@@ -28,6 +28,10 @@ const TrendingScreen: React.FC = () => {
     { id: 'food', name: 'Food' },
     { id: 'lifestyle', name: 'Lifestyle' },
     { id: 'business', name: 'Business' },
+    { id: 'health', name: 'Health' },
+    { id: 'beauty', name: 'Beauty' },
+    { id: 'services', name: 'Services' },
+    { id: 'travel', name: 'Travel' },
   ];
 
   const styles = StyleSheet.create({
@@ -42,6 +46,11 @@ const TrendingScreen: React.FC = () => {
       paddingHorizontal: spacing.md,
       paddingTop: spacing.sm,
       paddingBottom: spacing.xl,
+    },
+    contentGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
     },
     mainCategories: {
       flexDirection: 'row',
@@ -75,12 +84,12 @@ const TrendingScreen: React.FC = () => {
     mainCategoryText: {
       fontSize: typography.fontSize.sm,
       color: colors.primary,
-      fontWeight: typography.fontWeight.medium,
+      fontWeight: '500',
       marginLeft: spacing.xs,
     },
     mainCategoryTextActive: {
       color: colors.text,
-      fontWeight: typography.fontWeight.semibold,
+      fontWeight: '600',
     },
     tagsContainer: {
       backgroundColor: colors.background,
@@ -115,13 +124,13 @@ const TrendingScreen: React.FC = () => {
     tagText: {
       fontSize: typography.fontSize.xs,
       color: colors.textSecondary,
-      fontWeight: typography.fontWeight.medium,
+      fontWeight: '500',
       lineHeight: typography.fontSize.xs * 1.1,
       textAlign: 'center',
     },
     tagTextActive: {
       color: colors.text,
-      fontWeight: typography.fontWeight.semibold,
+      fontWeight: '600',
     },
     feedContainer: {
       flexDirection: 'row',
@@ -132,7 +141,7 @@ const TrendingScreen: React.FC = () => {
     contentCard: {
       backgroundColor: colors.surface,
       borderRadius: borderRadius.lg,
-      padding: spacing.md,
+      padding: spacing.sm,
       marginBottom: spacing.md,
       borderWidth: 1,
       borderColor: colors.border,
@@ -143,7 +152,7 @@ const TrendingScreen: React.FC = () => {
       height: 100,
       borderRadius: borderRadius.md,
       marginBottom: spacing.sm,
-    },
+    } as const,
     contentHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -151,8 +160,8 @@ const TrendingScreen: React.FC = () => {
       marginBottom: spacing.sm,
     },
     contentTitle: {
-      fontSize: typography.fontSize.lg,
-      fontWeight: typography.fontWeight.bold,
+      fontSize: typography.fontSize.sm,
+      fontWeight: 'normal',
       color: colors.text,
       flex: 1,
       marginRight: spacing.sm,
@@ -191,7 +200,7 @@ const TrendingScreen: React.FC = () => {
     contentTagText: {
       fontSize: typography.fontSize.xs,
       color: colors.primary,
-      fontWeight: typography.fontWeight.medium,
+      fontWeight: '500',
     },
     contentFooter: {
       flexDirection: 'row',
@@ -214,7 +223,12 @@ const TrendingScreen: React.FC = () => {
     shareButtonText: {
       fontSize: typography.fontSize.sm,
       color: colors.text,
-      fontWeight: typography.fontWeight.medium,
+      fontWeight: '500',
+    },
+    moreTagsText: {
+      fontSize: typography.fontSize.xs,
+      color: colors.textSecondary,
+      fontStyle: 'italic',
     },
   });
 
@@ -280,37 +294,41 @@ const TrendingScreen: React.FC = () => {
           </ScrollView>
         </View>
 
-        {/* Trending Content */}
-        {mockTrendingData.map((trend) => (
-          <TouchableOpacity key={trend.id} style={styles.contentCard}>
-            <Image source={{ uri: 'https://picsum.photos/200/100?random=' + trend.id }} style={styles.contentImage} />
-            <View style={styles.contentHeader}>
-              <Text style={styles.contentTitle}>{trend.title}</Text>
-              <View style={styles.contentMeta}>
+        {/* Trending Content - Two Column Grid */}
+        <View style={styles.contentGrid}>
+          {mockTrendingData.map((trend) => (
+            <TouchableOpacity key={trend.id} style={styles.contentCard}>
+              {/* Image at the top */}
+              <Image source={{ uri: 'https://picsum.photos/200/100?random=' + trend.id }} style={styles.contentImage} />
+              
+              {/* Title below image - max 2 lines */}
+              <Text style={styles.contentTitle} numberOfLines={2} ellipsizeMode="tail">
+                {trend.title}
+              </Text>
+
+              {/* Tags in one row */}
+              <View style={styles.contentTagsContainer}>
+                {trend.tags.slice(0, 2).map((tag, index) => (
+                  <View key={index} style={styles.contentTag}>
+                    <Text style={styles.contentTagText}>#{tag}</Text>
+                  </View>
+                ))}
+                {trend.tags.length > 2 && (
+                  <Text style={styles.moreTagsText}>+{trend.tags.length - 2}</Text>
+                )}
+              </View>
+
+              {/* Author and likes at the bottom */}
+              <View style={styles.contentFooter}>
                 <Text style={styles.contentAuthor}>@{trend.author}</Text>
                 <View style={styles.contentStats}>
-                  <Ionicons name="heart-outline" size={16} color={colors.textSecondary} />
+                  <Ionicons name="heart-outline" size={14} color="#9CA3AF" />
                   <Text style={styles.likesText}>{trend.likes}</Text>
                 </View>
               </View>
-            </View>
-
-            <View style={styles.contentTagsContainer}>
-              {trend.tags.map((tag, index) => (
-                <View key={index} style={styles.contentTag}>
-                  <Text style={styles.contentTagText}>#{tag}</Text>
-                </View>
-              ))}
-            </View>
-
-            <View style={styles.contentFooter}>
-              <Text style={styles.readTimeText}>{trend.readTime} read</Text>
-              <TouchableOpacity style={styles.shareButton}>
-                <Text style={styles.shareButtonText}>📤 Share</Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        ))}
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
       
       <FloatingActionButton onPress={() => console.log('Create post')} />

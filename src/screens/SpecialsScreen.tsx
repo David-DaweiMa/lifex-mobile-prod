@@ -23,6 +23,16 @@ const SpecialsScreen: React.FC = () => {
   const [selectedMainCategory, setSelectedMainCategory] = useState('Featured');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
+  // Special images for different categories
+  const specialImages = [
+    'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=200&h=100&fit=crop&crop=center&auto=format&q=60', // Coffee
+    'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=200&h=100&fit=crop&crop=center&auto=format&q=60', // Spa
+    'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=200&h=100&fit=crop&crop=center&auto=format&q=60', // Gym
+    'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=200&h=100&fit=crop&crop=center&auto=format&q=60', // Groceries
+    'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=200&h=100&fit=crop&crop=center&auto=format&q=60', // Hair salon
+    'https://images.unsplash.com/photo-1563298723-dcfebaa392e3?w=200&h=100&fit=crop&crop=center&auto=format&q=60', // Car wash
+  ];
+
   const categories = [
     { id: 'all', name: 'All' },
     { id: 'food', name: 'Food' },
@@ -45,6 +55,11 @@ const SpecialsScreen: React.FC = () => {
       paddingHorizontal: spacing.md,
       paddingTop: spacing.sm,
       paddingBottom: spacing.xl,
+    },
+    contentGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
     },
     mainCategories: {
       flexDirection: 'row',
@@ -78,12 +93,12 @@ const SpecialsScreen: React.FC = () => {
     mainCategoryText: {
       fontSize: typography.fontSize.sm,
       color: colors.primary,
-      fontWeight: typography.fontWeight.medium,
+      fontWeight: '500',
       marginLeft: spacing.xs,
     },
     mainCategoryTextActive: {
       color: colors.text,
-      fontWeight: typography.fontWeight.semibold,
+      fontWeight: '600',
     },
     tagsContainer: {
       backgroundColor: colors.background,
@@ -118,13 +133,13 @@ const SpecialsScreen: React.FC = () => {
     tagText: {
       fontSize: typography.fontSize.xs,
       color: colors.textSecondary,
-      fontWeight: typography.fontWeight.medium,
+      fontWeight: '500',
       lineHeight: typography.fontSize.xs * 1.1,
       textAlign: 'center',
     },
     tagTextActive: {
       color: colors.text,
-      fontWeight: typography.fontWeight.semibold,
+      fontWeight: '600',
     },
     feedContainer: {
       flexDirection: 'row',
@@ -135,7 +150,7 @@ const SpecialsScreen: React.FC = () => {
     contentCard: {
       backgroundColor: colors.surface,
       borderRadius: borderRadius.lg,
-      padding: spacing.md,
+      padding: spacing.sm,
       marginBottom: spacing.md,
       borderWidth: 1,
       borderColor: colors.border,
@@ -146,7 +161,7 @@ const SpecialsScreen: React.FC = () => {
       height: 100,
       borderRadius: borderRadius.md,
       marginBottom: spacing.sm,
-    },
+    } as const,
     contentHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -154,8 +169,8 @@ const SpecialsScreen: React.FC = () => {
       marginBottom: spacing.sm,
     },
     contentTitle: {
-      fontSize: typography.fontSize.lg,
-      fontWeight: typography.fontWeight.bold,
+      fontSize: typography.fontSize.sm,
+      fontWeight: 'normal',
       color: colors.text,
       flex: 1,
       marginRight: spacing.sm,
@@ -194,7 +209,7 @@ const SpecialsScreen: React.FC = () => {
     contentTagText: {
       fontSize: typography.fontSize.xs,
       color: colors.primary,
-      fontWeight: typography.fontWeight.medium,
+      fontWeight: '500',
     },
     contentFooter: {
       flexDirection: 'row',
@@ -217,7 +232,12 @@ const SpecialsScreen: React.FC = () => {
     shareButtonText: {
       fontSize: typography.fontSize.sm,
       color: colors.text,
-      fontWeight: typography.fontWeight.medium,
+      fontWeight: '500',
+    },
+    moreTagsText: {
+      fontSize: typography.fontSize.xs,
+      color: colors.textSecondary,
+      fontStyle: 'italic',
     },
   });
 
@@ -291,38 +311,36 @@ const SpecialsScreen: React.FC = () => {
           </ScrollView>
         </View>
 
-        {/* Specials Content */}
-        {mockSpecialsData.map((special) => (
-          <TouchableOpacity key={special.id} style={styles.contentCard}>
-            <Image source={{ uri: 'https://picsum.photos/200/100?random=' + special.id }} style={styles.contentImage} />
-            <View style={styles.contentHeader}>
-              <Text style={styles.contentTitle}>{special.title}</Text>
-              <View style={styles.contentMeta}>
+        {/* Specials Content - Two Column Grid */}
+        <View style={styles.contentGrid}>
+          {mockSpecialsData.map((special) => (
+            <TouchableOpacity key={special.id} style={styles.contentCard}>
+              {/* Image at the top */}
+              <Image source={{ uri: specialImages[special.id - 1] }} style={styles.contentImage} />
+              
+              {/* Title below image - max 2 lines */}
+              <Text style={styles.contentTitle} numberOfLines={2} ellipsizeMode="tail">
+                {special.title}
+              </Text>
+
+              {/* Tags in one row */}
+              <View style={styles.contentTagsContainer}>
+                <View style={styles.contentTag}>
+                  <Text style={styles.contentTagText}>#{special.category}</Text>
+                </View>
+                <Text style={styles.moreTagsText}>{special.discount} OFF</Text>
+              </View>
+
+              {/* Business name and price at the bottom */}
+              <View style={styles.contentFooter}>
                 <Text style={styles.contentAuthor}>{special.business}</Text>
                 <View style={styles.contentStats}>
-                  <Ionicons name="pricetag-outline" size={16} color={colors.textSecondary} />
+                  <Text style={styles.likesText}>{special.newPrice}</Text>
                 </View>
-                <Text style={styles.likesText}>💰 {special.newPrice} (was {special.originalPrice})</Text>
               </View>
-            </View>
-
-            <View style={styles.contentTagsContainer}>
-              <View style={styles.contentTag}>
-                <Text style={styles.contentTagText}>#{special.category}</Text>
-              </View>
-              <View style={styles.contentTag}>
-                <Text style={styles.contentTagText}>Valid until {special.validUntil}</Text>
-              </View>
-            </View>
-
-            <View style={styles.contentFooter}>
-              <Text style={styles.readTimeText}>Limited Time Offer</Text>
-              <TouchableOpacity style={styles.shareButton}>
-                <Text style={styles.shareButtonText}>🔗 Get Deal</Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        ))}
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
       
       <FloatingActionButton onPress={() => console.log('Share deal')} />

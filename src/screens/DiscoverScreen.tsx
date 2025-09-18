@@ -13,14 +13,14 @@ import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import FloatingActionButton from '../components/FloatingActionButton';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
-import { mockDiscoverContent } from '../utils/mockData';
-import { DiscoverContent } from '../types';
+import { mockBusinessList } from '../utils/mockData';
+import { BusinessExtended } from '../types';
 
 const { width } = Dimensions.get('window');
 const cardWidth = (width - spacing.md * 2 - spacing.sm) / 2;
 
 const DiscoverScreen: React.FC = () => {
-  const [selectedMainCategory, setSelectedMainCategory] = useState('Following');
+  const [selectedMainCategory, setSelectedMainCategory] = useState('Nearby');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   const categories = [
@@ -220,6 +220,127 @@ const DiscoverScreen: React.FC = () => {
       color: colors.text,
       fontWeight: typography.fontWeight.medium,
     },
+    // Business listing styles
+    businessCard: {
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      marginBottom: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      flexDirection: 'row',
+      padding: spacing.sm,
+    },
+    businessImage: {
+      width: 80,
+      height: 80,
+      borderRadius: borderRadius.md,
+      marginRight: spacing.sm,
+    },
+    businessInfo: {
+      flex: 1,
+      paddingVertical: spacing.xs,
+    },
+    businessHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: spacing.xs,
+    },
+    businessName: {
+      fontSize: typography.fontSize.md,
+      fontWeight: '700',
+      color: colors.text,
+      flex: 1,
+      marginRight: spacing.xs,
+    },
+    businessRating: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 2,
+    },
+    ratingText: {
+      fontSize: typography.fontSize.xs,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    reviewCount: {
+      fontSize: typography.fontSize.xs,
+      color: colors.textSecondary,
+    },
+    businessMeta: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.xs,
+      gap: spacing.xs,
+    },
+    businessType: {
+      fontSize: typography.fontSize.xs,
+      color: colors.textSecondary,
+      backgroundColor: colors.primary + '20',
+      paddingHorizontal: spacing.xs,
+      paddingVertical: 2,
+      borderRadius: borderRadius.sm,
+    },
+    businessPrice: {
+      fontSize: typography.fontSize.xs,
+      color: colors.textSecondary,
+    },
+    businessDistance: {
+      fontSize: typography.fontSize.xs,
+      color: colors.textSecondary,
+    },
+    businessAddress: {
+      fontSize: typography.fontSize.xs,
+      color: colors.textSecondary,
+      marginBottom: spacing.xs,
+    },
+    businessHighlights: {
+      marginBottom: spacing.xs,
+    },
+    highlightText: {
+      fontSize: typography.fontSize.xs,
+      color: colors.textSecondary,
+      marginBottom: 1,
+    },
+    businessFooter: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    statusContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    statusDot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+    },
+    statusText: {
+      fontSize: typography.fontSize.xs,
+      color: colors.text,
+      fontWeight: '500',
+    },
+    waitTime: {
+      fontSize: typography.fontSize.xs,
+      color: colors.textSecondary,
+      marginLeft: spacing.xs,
+    },
+    actionButtons: {
+      flexDirection: 'row',
+      gap: spacing.xs,
+    },
+    callButton: {
+      padding: spacing.xs,
+      borderRadius: borderRadius.sm,
+      backgroundColor: colors.primary + '20',
+    },
+    directionButton: {
+      padding: spacing.xs,
+      borderRadius: borderRadius.sm,
+      backgroundColor: colors.primary + '20',
+    },
   });
 
   return (
@@ -241,11 +362,11 @@ const DiscoverScreen: React.FC = () => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.mainCategoryButton, selectedMainCategory === 'Recommended' && styles.mainCategoryActive]}
-            onPress={() => setSelectedMainCategory('Recommended')}
+            style={[styles.mainCategoryButton, selectedMainCategory === 'Top Rated' && styles.mainCategoryActive]}
+            onPress={() => setSelectedMainCategory('Top Rated')}
           >
-            <Ionicons name="star-outline" size={16} color={selectedMainCategory === 'Recommended' ? colors.text : colors.primary} />
-            <Text style={[styles.mainCategoryText, selectedMainCategory === 'Recommended' && styles.mainCategoryTextActive]}>Recommended</Text>
+            <Ionicons name="star-outline" size={16} color={selectedMainCategory === 'Top Rated' ? colors.text : colors.primary} />
+            <Text style={[styles.mainCategoryText, selectedMainCategory === 'Top Rated' && styles.mainCategoryTextActive]}>Top Rated</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -255,6 +376,7 @@ const DiscoverScreen: React.FC = () => {
             <Ionicons name="location-outline" size={16} color={selectedMainCategory === 'Nearby' ? colors.text : colors.primary} />
             <Text style={[styles.mainCategoryText, selectedMainCategory === 'Nearby' && styles.mainCategoryTextActive]}>Nearby</Text>
           </TouchableOpacity>
+
         </View>
 
         {/* Category Tags */}
@@ -284,34 +406,48 @@ const DiscoverScreen: React.FC = () => {
           </ScrollView>
         </View>
 
-        {/* Discover Content */}
-        {mockDiscoverContent.map((content) => (
-          <TouchableOpacity key={content.id} style={styles.contentCard}>
-            <Image source={{ uri: 'https://picsum.photos/200/100?random=' + content.id }} style={styles.contentImage} />
-            <View style={styles.contentHeader}>
-              <Text style={styles.contentTitle}>{content.title}</Text>
-              <View style={styles.contentMeta}>
-                <Text style={styles.contentAuthor}>@{content.author}</Text>
-                <View style={styles.contentStats}>
-                  <Ionicons name="heart-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.likesText}>{content.likes}</Text>
+        {/* Business Listings */}
+        {mockBusinessList.map((business) => (
+          <TouchableOpacity key={business.id} style={styles.businessCard}>
+            <Image source={{ uri: business.image }} style={styles.businessImage} />
+            <View style={styles.businessInfo}>
+              <View style={styles.businessHeader}>
+                <Text style={styles.businessName} numberOfLines={1}>{business.name}</Text>
+                <View style={styles.businessRating}>
+                  <Ionicons name="star" size={12} color="#fbbf24" />
+                  <Text style={styles.ratingText}>{business.rating}</Text>
                 </View>
               </View>
-            </View>
-
-            <View style={styles.contentTagsContainer}>
-              {content.tags.map((tag, index) => (
-                <View key={index} style={styles.contentTag}>
-                  <Text style={styles.contentTagText}>#{tag}</Text>
+              
+              <View style={styles.businessMeta}>
+                <Text style={styles.businessType}>{business.type}</Text>
+                <Text style={styles.businessPrice}>{business.price}</Text>
+                <Text style={styles.businessDistance}>{business.distance}</Text>
+              </View>
+              
+              <Text style={styles.businessAddress} numberOfLines={1}>{business.address}</Text>
+              
+              <View style={styles.businessHighlights}>
+                {business.highlights.slice(0, 1).map((highlight, index) => (
+                  <Text key={index} style={styles.highlightText} numberOfLines={1}>• {highlight}</Text>
+                ))}
+              </View>
+              
+              <View style={styles.businessFooter}>
+                <View style={styles.statusContainer}>
+                  <View style={[styles.statusDot, { backgroundColor: business.isOpen ? '#10b981' : '#ef4444' }]} />
+                  <Text style={styles.statusText}>{business.isOpen ? 'Open' : 'Closed'}</Text>
+                  {business.waitTime && <Text style={styles.waitTime}>{business.waitTime}</Text>}
                 </View>
-              ))}
-            </View>
-
-            <View style={styles.contentFooter}>
-              <Text style={styles.readTimeText}>{content.readTime} read</Text>
-              <TouchableOpacity style={styles.shareButton}>
-                <Text style={styles.shareButtonText}>📤 Share</Text>
-              </TouchableOpacity>
+                <View style={styles.actionButtons}>
+                  <TouchableOpacity style={styles.callButton}>
+                    <Ionicons name="call-outline" size={14} color={colors.primary} />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.directionButton}>
+                    <Ionicons name="navigate-outline" size={14} color={colors.primary} />
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
           </TouchableOpacity>
         ))}
