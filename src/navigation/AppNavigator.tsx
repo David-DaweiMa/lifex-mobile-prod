@@ -14,6 +14,7 @@ import ChatScreen from '../screens/ChatScreen';
 import MembershipScreen from '../screens/MembershipScreen';
 import SubscriptionScreen from '../screens/SubscriptionScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import ColyScreen from '../screens/ColyScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -29,15 +30,6 @@ const TabIcon = ({ name, focused }: { name: keyof typeof Ionicons.glyphMap; focu
   );
 };
 
-// Subscription Stack Navigator
-function SubscriptionStack() {
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Membership" component={MembershipScreen} />
-      <Stack.Screen name="Subscription" component={SubscriptionScreen} />
-    </Stack.Navigator>
-  );
-}
 
 // Main Tab Navigator
 function MainTabs() {
@@ -91,7 +83,7 @@ function MainTabs() {
       />
       <Tab.Screen
         name="Coly"
-        component={SubscriptionStack}
+        component={ColyScreen}
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="person-outline" focused={focused} />,
         }}
@@ -107,6 +99,8 @@ export default function AppNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="MainTabs" component={MainTabs} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="Membership" component={MembershipScreen} />
+        <Stack.Screen name="Subscription" component={SubscriptionScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
