@@ -23,6 +23,9 @@ const TrendingScreen: React.FC = () => {
   const [selectedMainCategory, setSelectedMainCategory] = useState('Hot');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
+  // Different heights for waterfall layout
+  const waterfallHeights = [140, 120, 160, 130, 150, 110];
+
   const categories = [
     { id: 'all', name: 'All' },
     { id: 'food', name: 'Food' },
@@ -47,10 +50,17 @@ const TrendingScreen: React.FC = () => {
       paddingTop: spacing.sm,
       paddingBottom: spacing.xl,
     },
-    contentGrid: {
+    // Waterfall Layout
+    waterfallContainer: {
       flexDirection: 'row',
-      flexWrap: 'wrap',
+      paddingHorizontal: spacing.md,
       justifyContent: 'space-between',
+      alignItems: 'flex-start',
+    },
+    waterfallColumn: {
+      flex: 1,
+      marginHorizontal: spacing.xs,
+      maxWidth: '48%',
     },
     mainCategories: {
       flexDirection: 'row',
@@ -138,14 +148,99 @@ const TrendingScreen: React.FC = () => {
       justifyContent: 'space-between',
       gap: spacing.sm,
     },
-    contentCard: {
+    // Waterfall Card Styles
+    waterfallCard: {
       backgroundColor: colors.surface,
       borderRadius: borderRadius.lg,
-      padding: spacing.sm,
-      marginBottom: spacing.md,
       borderWidth: 1,
       borderColor: colors.border,
-      width: cardWidth,
+      overflow: 'hidden',
+      shadowColor: colors.primary,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+      width: '100%',
+    },
+    waterfallImageContainer: {
+      position: 'relative',
+      // Height will be set dynamically in JSX
+    },
+    waterfallImage: {
+      width: '100%',
+      height: '100%',
+      resizeMode: 'cover',
+    },
+    featuredBadge: {
+      position: 'absolute',
+      top: spacing.sm,
+      right: spacing.sm,
+      backgroundColor: colors.primary,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.sm,
+    },
+    featuredBadgeText: {
+      fontSize: typography.fontSize.xs,
+      fontWeight: '700',
+      color: '#FFFFFF',
+    },
+    waterfallContent: {
+      padding: spacing.sm,
+    },
+    waterfallTitle: {
+      fontSize: typography.fontSize.sm,
+      fontWeight: '500',
+      color: colors.text,
+      marginBottom: spacing.xs,
+      lineHeight: typography.fontSize.sm * 1.4,
+    },
+    waterfallTagsContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginBottom: spacing.xs,
+    },
+    waterfallTag: {
+      backgroundColor: colors.primary + '20',
+      paddingHorizontal: spacing.xs,
+      paddingVertical: 2,
+      borderRadius: borderRadius.sm,
+      marginRight: spacing.xs,
+      marginBottom: spacing.xs,
+    },
+    waterfallTagText: {
+      fontSize: typography.fontSize.xs,
+      color: colors.primary,
+      fontWeight: '500',
+    },
+    waterfallMoreTagsText: {
+      fontSize: typography.fontSize.xs,
+      color: colors.textSecondary,
+      fontWeight: '500',
+      marginTop: 2,
+    },
+    waterfallFooter: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    waterfallAuthor: {
+      fontSize: typography.fontSize.xs,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    waterfallStats: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    waterfallLikes: {
+      fontSize: typography.fontSize.xs,
+      color: colors.textSecondary,
+      fontWeight: '500',
     },
     contentImage: {
       width: '100%',
@@ -294,40 +389,87 @@ const TrendingScreen: React.FC = () => {
           </ScrollView>
         </View>
 
-        {/* Trending Content - Two Column Grid */}
-        <View style={styles.contentGrid}>
-          {mockTrendingData.map((trend) => (
-            <TouchableOpacity key={trend.id} style={styles.contentCard}>
-              {/* Image at the top */}
-              <Image source={{ uri: 'https://picsum.photos/200/100?random=' + trend.id }} style={styles.contentImage} />
-              
-              {/* Title below image - max 2 lines */}
-              <Text style={styles.contentTitle} numberOfLines={2} ellipsizeMode="tail">
-                {trend.title}
-              </Text>
-
-              {/* Tags in one row */}
-              <View style={styles.contentTagsContainer}>
-                {trend.tags.slice(0, 2).map((tag, index) => (
-                  <View key={index} style={styles.contentTag}>
-                    <Text style={styles.contentTagText}>#{tag}</Text>
-                  </View>
-                ))}
-                {trend.tags.length > 2 && (
-                  <Text style={styles.moreTagsText}>+{trend.tags.length - 2}</Text>
-                )}
-              </View>
-
-              {/* Author and likes at the bottom */}
-              <View style={styles.contentFooter}>
-                <Text style={styles.contentAuthor}>@{trend.author}</Text>
-                <View style={styles.contentStats}>
-                  <Ionicons name="heart-outline" size={14} color="#9CA3AF" />
-                  <Text style={styles.likesText}>{trend.likes}</Text>
+        {/* Trending Content - Waterfall Layout */}
+        <View style={styles.waterfallContainer}>
+          <View style={styles.waterfallColumn}>
+            {mockTrendingData.filter((_, index) => index % 2 === 0).map((trend, index) => (
+              <TouchableOpacity key={trend.id} style={[styles.waterfallCard, { marginBottom: spacing.xs }]}>
+                <View style={[styles.waterfallImageContainer, { height: waterfallHeights[index * 2] }]}>
+                  <Image source={{ uri: 'https://picsum.photos/200/100?random=' + trend.id }} style={styles.waterfallImage} />
+                  {index === 0 && (
+                    <View style={styles.featuredBadge}>
+                      <Text style={styles.featuredBadgeText}>🔥 TRENDING</Text>
+                    </View>
+                  )}
                 </View>
-              </View>
-            </TouchableOpacity>
-          ))}
+                
+                <View style={styles.waterfallContent}>
+                  <Text style={styles.waterfallTitle} numberOfLines={2} ellipsizeMode="tail">
+                    {trend.title}
+                  </Text>
+
+                  <View style={styles.waterfallTagsContainer}>
+                    {trend.tags.slice(0, 2).map((tag, tagIndex) => (
+                      <View key={tagIndex} style={styles.waterfallTag}>
+                        <Text style={styles.waterfallTagText}>#{tag}</Text>
+                      </View>
+                    ))}
+                    {trend.tags.length > 2 && (
+                      <Text style={styles.waterfallMoreTagsText}>+{trend.tags.length - 2}</Text>
+                    )}
+                  </View>
+
+                  <View style={styles.waterfallFooter}>
+                    <Text style={styles.waterfallAuthor}>@{trend.author}</Text>
+                    <View style={styles.waterfallStats}>
+                      <Ionicons name="heart-outline" size={14} color="#9CA3AF" />
+                      <Text style={styles.waterfallLikes}>{trend.likes}</Text>
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <View style={styles.waterfallColumn}>
+            {mockTrendingData.filter((_, index) => index % 2 === 1).map((trend, index) => (
+              <TouchableOpacity key={trend.id} style={[styles.waterfallCard, { marginBottom: spacing.xs }]}>
+                <View style={[styles.waterfallImageContainer, { height: waterfallHeights[index * 2 + 1] }]}>
+                  <Image source={{ uri: 'https://picsum.photos/200/100?random=' + trend.id }} style={styles.waterfallImage} />
+                  {index === 0 && (
+                    <View style={styles.featuredBadge}>
+                      <Text style={styles.featuredBadgeText}>⚡ POPULAR</Text>
+                    </View>
+                  )}
+                </View>
+                
+                <View style={styles.waterfallContent}>
+                  <Text style={styles.waterfallTitle} numberOfLines={2} ellipsizeMode="tail">
+                    {trend.title}
+                  </Text>
+
+                  <View style={styles.waterfallTagsContainer}>
+                    {trend.tags.slice(0, 2).map((tag, tagIndex) => (
+                      <View key={tagIndex} style={styles.waterfallTag}>
+                        <Text style={styles.waterfallTagText}>#{tag}</Text>
+                      </View>
+                    ))}
+                    {trend.tags.length > 2 && (
+                      <Text style={styles.waterfallMoreTagsText}>+{trend.tags.length - 2}</Text>
+                    )}
+                  </View>
+
+                  <View style={styles.waterfallFooter}>
+                    <Text style={styles.waterfallAuthor}>@{trend.author}</Text>
+                    <View style={styles.waterfallStats}>
+                      <Ionicons name="heart-outline" size={14} color="#9CA3AF" />
+                      <Text style={styles.waterfallLikes}>{trend.likes}</Text>
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </ScrollView>
       
