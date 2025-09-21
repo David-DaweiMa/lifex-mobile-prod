@@ -9,6 +9,7 @@ import {
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import FloatingActionButton from '../components/FloatingActionButton';
@@ -20,8 +21,17 @@ const { width } = Dimensions.get('window');
 const cardWidth = (width - spacing.md * 2 - spacing.sm) / 2;
 
 const TrendingScreen: React.FC = () => {
+  const navigation = useNavigation();
   const [selectedMainCategory, setSelectedMainCategory] = useState('Hot');
   const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const handleSearchPress = () => {
+    navigation.navigate('Search' as never);
+  };
+
+  const handleProfilePress = () => {
+    navigation.navigate('Profile' as never);
+  };
 
   // Different heights for waterfall layout
   const waterfallHeights = [140, 120, 160, 130, 150, 110];
@@ -328,10 +338,12 @@ const TrendingScreen: React.FC = () => {
   });
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container}>
       <Header 
         title="Trending" 
         subtitle="What's hot right now"
+        onSearchPress={handleSearchPress}
+        onProfilePress={handleProfilePress}
       />
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>

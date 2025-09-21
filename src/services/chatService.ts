@@ -91,11 +91,8 @@ export class ChatService {
             reviewCount: 234,
             distance: '0.3km',
             price: '$$',
-            tags: ['Fast WiFi', 'Quiet', 'Great Coffee'],
             highlights: ['Fast WiFi', 'Quiet', 'Great Coffee'],
             aiReason: 'Perfect for remote work with excellent coffee and reliable WiFi.',
-            phone: '09-555-0123',
-            address: '118 Ponsonby Road, Auckland',
             image: 'from-amber-400 to-orange-500',
             isOpen: true,
             location: {

@@ -9,6 +9,7 @@ import {
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import FloatingActionButton from '../components/FloatingActionButton';
@@ -20,8 +21,17 @@ const { width } = Dimensions.get('window');
 const cardWidth = (width - spacing.md * 2 - spacing.sm) / 2;
 
 const DiscoverScreen: React.FC = () => {
+  const navigation = useNavigation();
   const [selectedMainCategory, setSelectedMainCategory] = useState('Nearby');
   const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const handleSearchPress = () => {
+    navigation.navigate('Search' as never);
+  };
+
+  const handleProfilePress = () => {
+    navigation.navigate('Profile' as never);
+  };
 
   const categories = [
     { id: 'all', name: 'All' },
@@ -348,6 +358,8 @@ const DiscoverScreen: React.FC = () => {
       <Header 
         title="Discover" 
         subtitle="Explore community content"
+        onSearchPress={handleSearchPress}
+        onProfilePress={handleProfilePress}
       />
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
@@ -428,7 +440,7 @@ const DiscoverScreen: React.FC = () => {
               <Text style={styles.businessAddress} numberOfLines={1}>{business.address}</Text>
               
               <View style={styles.businessHighlights}>
-                {business.highlights.slice(0, 1).map((highlight, index) => (
+                {business.highlights.slice(0, 1).map((highlight: string, index: number) => (
                   <Text key={index} style={styles.highlightText} numberOfLines={1}>• {highlight}</Text>
                 ))}
               </View>

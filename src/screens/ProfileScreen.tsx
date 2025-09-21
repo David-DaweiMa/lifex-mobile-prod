@@ -7,18 +7,41 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
 
 const ProfileScreen: React.FC = () => {
+  const navigation = useNavigation();
+
   const handleLogout = () => {
     console.log('Logout pressed');
     // TODO: Implement logout logic
   };
 
+  const handleMenuPress = (itemId: string) => {
+    switch (itemId) {
+      case 'privacy':
+        navigation.navigate('PrivacyPolicy' as never);
+        break;
+      case 'terms':
+        navigation.navigate('TermsOfService' as never);
+        break;
+      case 'subscription':
+        navigation.navigate('Membership' as never); // 导航到Membership页面
+        break;
+      default:
+        console.log(`Menu item pressed: ${itemId}`);
+        break;
+    }
+  };
+
   const menuItems = [
-    { id: 'bookings', title: 'My Bookings', icon: '📅', description: 'View your upcoming appointments' },
     { id: 'favorites', title: 'Favorites', icon: '❤️', description: 'Your saved businesses and places' },
     { id: 'history', title: 'History', icon: '📜', description: 'Your past searches and recommendations' },
+    { id: 'subscription', title: 'Subscription', icon: '💎', description: 'Manage your plan and upgrade features' },
+    { id: 'privacy', title: 'Privacy Policy', icon: '🔒', description: 'How we protect your data' },
+    { id: 'terms', title: 'Terms of Service', icon: '📋', description: 'Terms and conditions' },
     { id: 'settings', title: 'Settings', icon: '⚙️', description: 'App preferences and notifications' },
     { id: 'help', title: 'Help & Support', icon: '❓', description: 'Get help or contact support' },
     { id: 'about', title: 'About LifeX', icon: 'ℹ️', description: 'Learn more about our app' },
@@ -28,8 +51,13 @@ const ProfileScreen: React.FC = () => {
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.title}>Profile</Text>
-          <Text style={styles.subtitle}>Manage your account and preferences</Text>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
+          </TouchableOpacity>
+          <View>
+            <Text style={styles.title}>Profile</Text>
+            <Text style={styles.subtitle}>Manage your account and preferences</Text>
+          </View>
         </View>
 
         {/* User Info */}
@@ -54,11 +82,6 @@ const ProfileScreen: React.FC = () => {
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>5</Text>
-            <Text style={styles.statLabel}>Bookings</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
             <Text style={styles.statNumber}>8</Text>
             <Text style={styles.statLabel}>Favorites</Text>
           </View>
@@ -67,7 +90,11 @@ const ProfileScreen: React.FC = () => {
         {/* Menu Items */}
         <View style={styles.menuContainer}>
           {menuItems.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.menuItem}>
+            <TouchableOpacity 
+              key={item.id} 
+              style={styles.menuItem}
+              onPress={() => handleMenuPress(item.id)}
+            >
               <View style={styles.menuIcon}>
                 <Text style={styles.menuIconText}>{item.icon}</Text>
               </View>
@@ -134,7 +161,13 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: spacing.xl,
+  },
+  backButton: {
+    padding: spacing.sm,
+    marginRight: spacing.sm,
   },
   title: {
     fontSize: typography.fontSize.xxxl,
@@ -201,6 +234,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     padding: spacing.lg,
     marginBottom: spacing.lg,
+    justifyContent: 'space-around', // 让两列更好地分布
   },
   statItem: {
     flex: 1,

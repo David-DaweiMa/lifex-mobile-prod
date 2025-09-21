@@ -6,6 +6,8 @@ import { colors, spacing, typography, borderRadius } from '../constants/theme';
 interface HeaderProps {
   title: string;
   subtitle?: string;
+  showBackButton?: boolean;
+  onBackPress?: () => void;
   onSearchPress?: () => void;
   onProfilePress?: () => void;
 }
@@ -13,28 +15,39 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({
   title,
   subtitle,
+  showBackButton = false,
+  onBackPress,
   onSearchPress,
   onProfilePress,
 }) => {
   return (
     <View style={styles.header}>
       <View style={styles.headerLeft}>
-        <View style={styles.logo}>
-          <Text style={styles.logoText}>LX</Text>
-        </View>
+        {showBackButton && (
+          <TouchableOpacity style={styles.backButton} onPress={onBackPress}>
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
+          </TouchableOpacity>
+        )}
+        {!showBackButton && (
+          <View style={styles.logo}>
+            <Text style={styles.logoText}>LX</Text>
+          </View>
+        )}
         <View>
           <Text style={styles.headerTitle}>{title}</Text>
           {subtitle && <Text style={styles.headerSubtitle}>{subtitle}</Text>}
         </View>
       </View>
-      <View style={styles.headerRight}>
-        <TouchableOpacity style={styles.headerButton} onPress={onSearchPress}>
-          <Ionicons name="search-outline" size={20} color={colors.primary} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.headerButton} onPress={onProfilePress}>
-          <Ionicons name="person-outline" size={20} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
+      {!showBackButton && (
+        <View style={styles.headerRight}>
+          <TouchableOpacity style={styles.headerButton} onPress={onSearchPress}>
+            <Ionicons name="search-outline" size={20} color={colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.headerButton} onPress={onProfilePress}>
+            <Ionicons name="person-outline" size={20} color={colors.primary} />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
@@ -54,6 +67,10 @@ const styles = StyleSheet.create({
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  backButton: {
+    padding: spacing.sm,
+    marginRight: spacing.sm,
   },
   logo: {
     width: 32,

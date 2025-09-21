@@ -22,6 +22,14 @@ const SubscriptionScreen: React.FC<SubscriptionScreenProps> = ({ navigation }) =
     navigation?.navigate('Membership');
   };
 
+  const handleNavigateToPrivacy = () => {
+    navigation?.navigate('PrivacyPolicy');
+  };
+
+  const handleNavigateToTerms = () => {
+    navigation?.navigate('TermsOfService');
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
@@ -140,6 +148,20 @@ const SubscriptionScreen: React.FC<SubscriptionScreenProps> = ({ navigation }) =
             It's like having a local friend who knows all the best spots!"
           </Text>
           <Text style={styles.testimonialAuthor}>- Sarah, Auckland</Text>
+        </View>
+
+        {/* Legal Links */}
+        <View style={styles.legalContainer}>
+          <Text style={styles.legalText}>
+            By using LifeX, you agree to our{' '}
+            <Text style={styles.legalLink} onPress={handleNavigateToTerms}>
+              Terms of Service
+            </Text>
+            {' '}and{' '}
+            <Text style={styles.legalLink} onPress={handleNavigateToPrivacy}>
+              Privacy Policy
+            </Text>
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -339,6 +361,20 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.sm,
     color: colors.textSecondary,
     textAlign: 'right',
+  },
+  legalContainer: {
+    alignItems: 'center',
+    paddingVertical: spacing.lg,
+  },
+  legalText: {
+    fontSize: typography.fontSize.sm,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: typography.fontSize.sm * 1.5,
+  },
+  legalLink: {
+    color: colors.primary,
+    textDecorationLine: 'underline',
   },
 });
 

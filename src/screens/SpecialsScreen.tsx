@@ -9,6 +9,7 @@ import {
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import FloatingActionButton from '../components/FloatingActionButton';
@@ -20,9 +21,18 @@ const { width } = Dimensions.get('window');
 const cardWidth = (width - spacing.md * 3) / 2;
 
 const SpecialsScreen: React.FC = () => {
+  const navigation = useNavigation();
   const [selectedMainCategory, setSelectedMainCategory] = useState('Featured');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [currentPage, setCurrentPage] = useState(0);
+
+  const handleSearchPress = () => {
+    navigation.navigate('Search' as never);
+  };
+
+  const handleProfilePress = () => {
+    navigation.navigate('Profile' as never);
+  };
 
   // Handle scroll events for dots indicator
   const handleScroll = (event: any) => {
@@ -447,6 +457,8 @@ const SpecialsScreen: React.FC = () => {
       <Header 
         title="Specials" 
         subtitle="Exclusive deals and offers"
+        onSearchPress={handleSearchPress}
+        onProfilePress={handleProfilePress}
       />
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>

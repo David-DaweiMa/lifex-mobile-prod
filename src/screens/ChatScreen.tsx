@@ -11,6 +11,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import { Message } from '../types';
@@ -20,6 +21,7 @@ import { colors, spacing, typography, borderRadius } from '../constants/theme';
 const { width } = Dimensions.get('window');
 
 const ChatScreen: React.FC = () => {
+  const navigation = useNavigation();
   const [messages, setMessages] = useState<Message[]>([
     {
       type: 'assistant',
@@ -33,6 +35,22 @@ const ChatScreen: React.FC = () => {
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   
   const scrollViewRef = useRef<ScrollView>(null);
+
+  const handleNavigateToPrivacy = () => {
+    navigation.navigate('PrivacyPolicy' as never);
+  };
+
+  const handleNavigateToTerms = () => {
+    navigation.navigate('TermsOfService' as never);
+  };
+
+  const handleSearchPress = () => {
+    navigation.navigate('Search' as never);
+  };
+
+  const handleProfilePress = () => {
+    navigation.navigate('Profile' as never);
+  };
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -408,6 +426,22 @@ const ChatScreen: React.FC = () => {
       color: colors.text,
       lineHeight: typography.fontSize.md * 1.4,
     },
+    legalContainer: {
+      alignItems: 'center',
+      paddingVertical: spacing.lg,
+      paddingHorizontal: spacing.md,
+      marginTop: spacing.xl,
+    },
+    legalText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: typography.fontSize.sm * 1.5,
+    },
+    legalLink: {
+      color: colors.primary,
+      textDecorationLine: 'underline',
+    },
     // Main container with background
     mainContainer: {
       backgroundColor: '#1A1625',
@@ -440,7 +474,7 @@ const ChatScreen: React.FC = () => {
 
   if (isInConversation) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <TouchableOpacity onPress={handleBackToMain} style={styles.backButton}>
@@ -538,10 +572,12 @@ const ChatScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container}>
       <Header 
         title="LifeX" 
         subtitle="Explore Kiwi's hidden gems with AI"
+        onSearchPress={handleSearchPress}
+        onProfilePress={handleProfilePress}
       />
 
       <ScrollView style={styles.mainContent} contentContainerStyle={{ paddingBottom: spacing.sm }}>
@@ -651,6 +687,20 @@ const ChatScreen: React.FC = () => {
               </TouchableOpacity>
             ))}
           </View>
+        </View>
+
+        {/* Legal Links */}
+        <View style={styles.legalContainer}>
+          <Text style={styles.legalText}>
+            By using LifeX, you agree to our{' '}
+            <Text style={styles.legalLink} onPress={handleNavigateToTerms}>
+              Terms of Service
+            </Text>
+            {' '}and{' '}
+            <Text style={styles.legalLink} onPress={handleNavigateToPrivacy}>
+              Privacy Policy
+            </Text>
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>

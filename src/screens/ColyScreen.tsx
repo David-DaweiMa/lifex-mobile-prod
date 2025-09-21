@@ -28,11 +28,29 @@ const ColyScreen: React.FC<ColyScreenProps> = ({ navigation }) => {
     navigation?.navigate('Profile');
   };
 
+  const handleNavigateToPrivacy = () => {
+    navigation?.navigate('PrivacyPolicy');
+  };
+
+  const handleNavigateToTerms = () => {
+    navigation?.navigate('TermsOfService');
+  };
+
+  const handleSearchPress = () => {
+    navigation?.navigate('Search');
+  };
+
+  const handleProfilePress = () => {
+    navigation?.navigate('Profile');
+  };
+
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container}>
       <Header 
         title="Coly" 
         subtitle="Your personal AI companion"
+        onSearchPress={handleSearchPress}
+        onProfilePress={handleProfilePress}
       />
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
@@ -164,6 +182,20 @@ const ColyScreen: React.FC<ColyScreenProps> = ({ navigation }) => {
           </Text>
           <Text style={styles.testimonialAuthor}>- Sarah, Auckland</Text>
         </View>
+
+        {/* Legal Links */}
+        <View style={styles.legalContainer}>
+          <Text style={styles.legalText}>
+            By using LifeX, you agree to our{' '}
+            <Text style={styles.legalLink} onPress={handleNavigateToTerms}>
+              Terms of Service
+            </Text>
+            {' '}and{' '}
+            <Text style={styles.legalLink} onPress={handleNavigateToPrivacy}>
+              Privacy Policy
+            </Text>
+          </Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -179,6 +211,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: spacing.md,
+    paddingBottom: spacing.xl * 2, // 为底部Tab导航留出空间
   },
   heroContainer: {
     backgroundColor: colors.surface,
@@ -389,6 +422,22 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.sm,
     color: colors.textSecondary,
     textAlign: 'right',
+  },
+  legalContainer: {
+    alignItems: 'center',
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.md,
+    marginTop: spacing.xl,
+  },
+  legalText: {
+    fontSize: typography.fontSize.sm,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: typography.fontSize.sm * 1.5,
+  },
+  legalLink: {
+    color: colors.primary,
+    textDecorationLine: 'underline',
   },
 });
 
