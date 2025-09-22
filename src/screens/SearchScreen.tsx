@@ -65,7 +65,7 @@ const SearchScreen: React.FC = () => {
           business.name.toLowerCase().includes(lowerQuery) ||
           business.type.toLowerCase().includes(lowerQuery) ||
           business.category.toLowerCase().includes(lowerQuery) ||
-          business.highlights.some(highlight => 
+          business.highlights.some((highlight: string) => 
             highlight.toLowerCase().includes(lowerQuery)
           )
         )

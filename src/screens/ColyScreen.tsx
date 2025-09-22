@@ -16,10 +16,6 @@ interface ColyScreenProps {
 }
 
 const ColyScreen: React.FC<ColyScreenProps> = ({ navigation }) => {
-  const handleNavigateToChat = () => {
-    navigation?.navigate('Chat');
-  };
-
   const handleNavigateToMembership = () => {
     navigation?.navigate('Membership');
   };
@@ -57,7 +53,7 @@ const ColyScreen: React.FC<ColyScreenProps> = ({ navigation }) => {
         {/* Hero Section - Meet Coly */}
         <View style={styles.heroContainer}>
           <View style={styles.heroIcon}>
-            <Text style={styles.heroIconText}>🤖</Text>
+            <Text style={styles.heroIconText}>✨</Text>
           </View>
           <Text style={styles.heroTitle}>Meet Coly</Text>
           <Text style={styles.heroDescription}>
@@ -141,14 +137,6 @@ const ColyScreen: React.FC<ColyScreenProps> = ({ navigation }) => {
 
         {/* Action Buttons */}
         <View style={styles.actionsContainer}>
-          <TouchableOpacity 
-            style={styles.primaryButton}
-            onPress={handleNavigateToChat}
-          >
-            <Ionicons name="chatbubble-outline" size={20} color={colors.text} />
-            <Text style={styles.primaryButtonText}>Start Chatting with Coly</Text>
-          </TouchableOpacity>
-          
           <TouchableOpacity 
             style={styles.secondaryButton}
             onPress={handleNavigateToMembership}

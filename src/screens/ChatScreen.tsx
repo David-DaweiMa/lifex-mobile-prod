@@ -211,20 +211,10 @@ const ChatScreen: React.FC = () => {
     },
     assistantMessage: {
       alignSelf: 'flex-start',
-      backgroundColor: colors.surface,
+      backgroundColor: 'transparent',
       padding: spacing.md,
       borderRadius: borderRadius.lg,
       maxWidth: '80%',
-      borderWidth: 1,
-      borderColor: colors.border,
-      shadowColor: colors.primary,
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
     },
     messageText: {
       color: colors.text,
@@ -444,16 +434,16 @@ const ChatScreen: React.FC = () => {
     },
     recentDiscovery: {
       backgroundColor: colors.surface,
-      padding: spacing.md,
-      borderRadius: borderRadius.lg,
+      padding: spacing.sm,
+      borderRadius: borderRadius.md,
       borderWidth: 1,
       borderColor: colors.border,
-      marginBottom: spacing.sm,
+      marginBottom: spacing.xs,
     },
     recentDiscoveryText: {
-      fontSize: typography.fontSize.md,
+      fontSize: typography.fontSize.sm,
       color: colors.text,
-      lineHeight: typography.fontSize.md * 1.4,
+      lineHeight: typography.fontSize.sm * 1.3,
     },
     legalContainer: {
       alignItems: 'center',
@@ -518,9 +508,7 @@ const ChatScreen: React.FC = () => {
     },
     compactAssistantMessage: {
       alignSelf: 'flex-start',
-      backgroundColor: '#2A1F3D',
-      borderWidth: 1,
-      borderColor: colors.border,
+      backgroundColor: 'transparent',
       marginRight: 'auto',
     },
     compactMessageText: {
