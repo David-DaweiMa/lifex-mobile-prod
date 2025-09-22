@@ -374,12 +374,13 @@ const ChatScreen: React.FC = () => {
       backgroundColor: 'transparent',
       borderRadius: borderRadius.lg,
       paddingHorizontal: spacing.sm,
-      paddingVertical: spacing.sm,
+      paddingVertical: spacing.xs,
       fontSize: typography.fontSize.md,
       color: '#FFFFFF',
-      minHeight: 40,
+      height: 40,
       borderWidth: 1,
       borderColor: colors.primary,
+      textAlignVertical: 'center',
     },
     sendButton: {
       width: 40,
@@ -630,7 +631,6 @@ const ChatScreen: React.FC = () => {
                 onChangeText={setChatInput}
                 placeholder="Type your message..."
                 placeholderTextColor={colors.primary}
-                multiline
               />
               <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
                 <Ionicons name="send" size={20} color="#FFFFFF" />
