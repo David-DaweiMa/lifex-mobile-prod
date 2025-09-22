@@ -588,7 +588,7 @@ const ChatScreen: React.FC = () => {
               value={chatInput}
               onChangeText={setChatInput}
               placeholder="Ask me anything about New Zealand..."
-              placeholderTextColor={colors.secondary}
+              placeholderTextColor="#FFFFFF"
               multiline
             />
             <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
@@ -630,7 +630,7 @@ const ChatScreen: React.FC = () => {
                 value={chatInput}
                 onChangeText={setChatInput}
                 placeholder="Type your message..."
-                placeholderTextColor={colors.secondary}
+                placeholderTextColor="#FFFFFF"
               />
               <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
                 <Ionicons name="send" size={20} color="#FFFFFF" />
