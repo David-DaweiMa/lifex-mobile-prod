@@ -186,7 +186,7 @@ const ChatScreen: React.FC = () => {
     },
     messagesContainer: {
       flex: 1,
-      padding: spacing.md,
+      padding: spacing.sm,
       backgroundColor: colors.background,
     },
     messageContainer: {
@@ -300,7 +300,7 @@ const ChatScreen: React.FC = () => {
       color: colors.text,
     },
     inputContainer: {
-      padding: spacing.md,
+      padding: spacing.sm,
       backgroundColor: colors.background,
       borderTopWidth: 1,
       borderTopColor: colors.border,
@@ -313,7 +313,7 @@ const ChatScreen: React.FC = () => {
     // Main landing page styles - based on the image design
     mainContent: {
       flex: 1,
-      paddingHorizontal: spacing.sm,
+      paddingHorizontal: spacing.xs,
       paddingVertical: spacing.sm,
     },
     heroSection: {
@@ -471,7 +471,7 @@ const ChatScreen: React.FC = () => {
     mainContainer: {
       backgroundColor: '#1A1625',
       borderRadius: borderRadius.xl,
-      margin: spacing.md,
+      margin: spacing.sm,
       padding: spacing.lg,
       shadowColor: '#000',
       shadowOffset: {
