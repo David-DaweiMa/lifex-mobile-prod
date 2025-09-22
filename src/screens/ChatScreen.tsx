@@ -340,7 +340,7 @@ const ChatScreen: React.FC = () => {
       borderRadius: 8,
       backgroundColor: 'transparent',
       borderWidth: 1,
-      borderColor: '#a855f7',
+      borderColor: colors.primary,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -354,13 +354,13 @@ const ChatScreen: React.FC = () => {
       color: '#FFFFFF',
       minHeight: 40,
       borderWidth: 1,
-      borderColor: '#a855f7',
+      borderColor: colors.primary,
     },
     sendButton: {
       width: 40,
       height: 40,
       borderRadius: 8,
-      backgroundColor: '#a855f7',
+      backgroundColor: colors.primary,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -478,7 +478,7 @@ const ChatScreen: React.FC = () => {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <TouchableOpacity onPress={handleBackToMain} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={20} color="#a855f7" />
+              <Ionicons name="arrow-back" size={20} color={colors.primary} />
             </TouchableOpacity>
             <View style={styles.logo}>
               <Text style={styles.logoText}>LX</Text>
@@ -490,10 +490,10 @@ const ChatScreen: React.FC = () => {
           </View>
           <View style={styles.headerRight}>
             <TouchableOpacity style={styles.headerButton}>
-              <Ionicons name="notifications-outline" size={20} color="#a855f7" />
+              <Ionicons name="notifications-outline" size={20} color={colors.primary} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.headerButton}>
-              <Ionicons name="person-outline" size={20} color="#a855f7" />
+              <Ionicons name="person-outline" size={20} color={colors.primary} />
             </TouchableOpacity>
           </View>
         </View>
@@ -594,14 +594,14 @@ const ChatScreen: React.FC = () => {
           <View style={styles.inputSection}>
             <View style={styles.inputRow}>
               <TouchableOpacity style={styles.addButton}>
-                <Ionicons name="add" size={20} color="#a855f7" />
+                <Ionicons name="add" size={20} color={colors.primary} />
               </TouchableOpacity>
               <TextInput
                 style={styles.textInput}
                 value={chatInput}
                 onChangeText={setChatInput}
                 placeholder="Type your message..."
-                placeholderTextColor="#a855f7"
+                placeholderTextColor={colors.primary}
                 multiline
               />
               <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>

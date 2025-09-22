@@ -1,5 +1,5 @@
 export const colors = {
-  primary: '#a855f7',
+  primary: '#d946ef', // 鲜艳紫色，在深色背景上更醒目
   secondary: '#10b981',
   accent: '#f59e0b',
   background: '#000000',
