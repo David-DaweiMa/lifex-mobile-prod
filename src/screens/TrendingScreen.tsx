@@ -202,11 +202,11 @@ const TrendingScreen: React.FC = () => {
       padding: spacing.xs,
     },
     waterfallTitle: {
-      fontSize: typography.fontSize.md,
+      fontSize: typography.fontSize.sm,
       fontWeight: '500',
       color: colors.text,
       marginBottom: spacing.xs * 0.5,
-      lineHeight: typography.fontSize.md * 1.3,
+      lineHeight: typography.fontSize.sm * 1.3,
     },
     waterfallTagsContainer: {
       flexDirection: 'row',
