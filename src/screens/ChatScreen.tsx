@@ -490,7 +490,7 @@ const ChatScreen: React.FC = () => {
     greetingContainer: {
       paddingHorizontal: 0,
       paddingTop: 0,
-      marginBottom: spacing.xl * 2,
+      marginBottom: spacing.md,
     },
     greetingText: {
       fontSize: typography.fontSize.xl,
