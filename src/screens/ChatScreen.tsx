@@ -499,21 +499,39 @@ const ChatScreen: React.FC = () => {
       textAlign: 'left',
       lineHeight: typography.fontSize.xl * 1.3,
     },
-    recentConversationContainer: {
-      paddingVertical: spacing.xs,
+    conversationScrollView: {
+      maxHeight: 200,
+      marginBottom: spacing.sm,
     },
-    recentConversationLabel: {
-      fontSize: typography.fontSize.sm,
-      fontWeight: '500',
-      color: colors.textSecondary,
+    compactMessageContainer: {
       marginBottom: spacing.xs,
     },
-    recentConversationText: {
-      fontSize: typography.fontSize.lg,
-      fontWeight: 'normal',
+    compactMessage: {
+      padding: spacing.sm,
+      borderRadius: borderRadius.md,
+      maxWidth: '90%',
+    },
+    compactUserMessage: {
+      alignSelf: 'flex-end',
+      backgroundColor: colors.secondary,
+      marginLeft: 'auto',
+    },
+    compactAssistantMessage: {
+      alignSelf: 'flex-start',
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginRight: 'auto',
+    },
+    compactMessageText: {
+      fontSize: typography.fontSize.sm,
+      lineHeight: typography.fontSize.sm * 1.4,
+    },
+    compactUserMessageText: {
       color: '#FFFFFF',
-      textAlign: 'left',
-      lineHeight: typography.fontSize.lg * 1.3,
+    },
+    compactAssistantMessageText: {
+      color: colors.text,
     },
   });
 
@@ -631,15 +649,30 @@ const ChatScreen: React.FC = () => {
       <ScrollView style={styles.mainContent} contentContainerStyle={{ paddingBottom: spacing.sm }}>
         {/* Main container with background */}
         <View style={styles.mainContainer}>
-          {/* Greeting or Recent Conversation */}
+          {/* Greeting or Conversation History */}
           <View style={styles.greetingContainer}>
             {hasConversationHistory ? (
-              <View style={styles.recentConversationContainer}>
-                <Text style={styles.recentConversationLabel}>Recent conversation:</Text>
-                <Text style={styles.recentConversationText} numberOfLines={2}>
-                  {messages.length > 1 ? messages[messages.length - 1].content : "G'day! What can I help you find today?"}
-                </Text>
-              </View>
+              <ScrollView 
+                style={styles.conversationScrollView}
+                showsVerticalScrollIndicator={true}
+                nestedScrollEnabled={true}
+              >
+                {messages.map((message, index) => (
+                  <View key={index} style={styles.compactMessageContainer}>
+                    <View style={[
+                      styles.compactMessage,
+                      message.type === 'user' ? styles.compactUserMessage : styles.compactAssistantMessage
+                    ]}>
+                      <Text style={[
+                        styles.compactMessageText,
+                        message.type === 'user' ? styles.compactUserMessageText : styles.compactAssistantMessageText
+                      ]}>
+                        {message.content}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </ScrollView>
             ) : (
               <Text style={styles.greetingText}>
                 G'day! What can I help you find today?
