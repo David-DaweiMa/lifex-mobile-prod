@@ -490,7 +490,7 @@ const ChatScreen: React.FC = () => {
     greetingContainer: {
       paddingHorizontal: 0,
       paddingTop: 0,
-      marginBottom: spacing.md,
+      marginBottom: spacing.sm,
     },
     greetingText: {
       fontSize: typography.fontSize.xl,
@@ -501,7 +501,7 @@ const ChatScreen: React.FC = () => {
     },
     conversationScrollView: {
       maxHeight: 200,
-      marginBottom: spacing.sm,
+      marginBottom: spacing.xs,
     },
     compactMessageContainer: {
       marginBottom: spacing.xs,
