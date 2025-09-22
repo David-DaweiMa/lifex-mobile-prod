@@ -374,7 +374,7 @@ const ChatScreen: React.FC = () => {
       backgroundColor: 'transparent',
       borderRadius: borderRadius.lg,
       paddingHorizontal: spacing.sm,
-      paddingVertical: 0,
+      paddingVertical: 8,
       fontSize: typography.fontSize.sm,
       color: '#FFFFFF',
       height: 40,
