@@ -56,29 +56,29 @@ const TrendingScreen: React.FC = () => {
       flex: 1,
     },
     scrollContent: {
-      paddingHorizontal: spacing.md,
+      paddingHorizontal: spacing.sm,
       paddingTop: spacing.sm,
       paddingBottom: spacing.xl,
     },
     // Waterfall Layout
     waterfallContainer: {
       flexDirection: 'row',
-      paddingHorizontal: spacing.md,
+      paddingHorizontal: spacing.sm,
       justifyContent: 'space-between',
       alignItems: 'flex-start',
     },
     waterfallColumn: {
       flex: 1,
       marginHorizontal: spacing.xs,
-      maxWidth: '48%',
+      maxWidth: '49%',
     },
     mainCategories: {
       flexDirection: 'row',
       justifyContent: 'center',
-      paddingHorizontal: spacing.md,
+      paddingHorizontal: spacing.sm,
       paddingVertical: spacing.xs,
       backgroundColor: colors.background,
-      marginHorizontal: spacing.sm,
+      marginHorizontal: spacing.xs,
       marginTop: spacing.xs,
       marginBottom: 0,
       borderRadius: borderRadius.lg,
@@ -115,12 +115,12 @@ const TrendingScreen: React.FC = () => {
       backgroundColor: colors.background,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
-      marginHorizontal: spacing.sm,
+      marginHorizontal: spacing.xs,
       marginBottom: spacing.xs,
       borderRadius: borderRadius.lg,
     },
     tagsContent: {
-      paddingHorizontal: spacing.md,
+      paddingHorizontal: spacing.sm,
       paddingVertical: spacing.xs,
       alignItems: 'center',
     },
@@ -199,19 +199,19 @@ const TrendingScreen: React.FC = () => {
       color: '#FFFFFF',
     },
     waterfallContent: {
-      padding: spacing.sm,
+      padding: spacing.xs,
     },
     waterfallTitle: {
       fontSize: typography.fontSize.sm,
       fontWeight: '500',
       color: colors.text,
-      marginBottom: spacing.xs,
-      lineHeight: typography.fontSize.sm * 1.4,
+      marginBottom: spacing.xs * 0.5,
+      lineHeight: typography.fontSize.sm * 1.3,
     },
     waterfallTagsContainer: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      marginBottom: spacing.xs,
+      marginBottom: spacing.xs * 0.5,
     },
     waterfallTag: {
       backgroundColor: colors.primary + '20',
@@ -405,7 +405,7 @@ const TrendingScreen: React.FC = () => {
         <View style={styles.waterfallContainer}>
           <View style={styles.waterfallColumn}>
             {mockTrendingData.filter((_, index) => index % 2 === 0).map((trend, index) => (
-              <TouchableOpacity key={trend.id} style={[styles.waterfallCard, { marginBottom: spacing.xs }]}>
+              <TouchableOpacity key={trend.id} style={[styles.waterfallCard, { marginBottom: spacing.xs * 0.5 }]}>
                 <View style={[styles.waterfallImageContainer, { height: waterfallHeights[index * 2] }]}>
                   <Image source={{ uri: 'https://picsum.photos/200/100?random=' + trend.id }} style={styles.waterfallImage} />
                   {index === 0 && (
@@ -445,7 +445,7 @@ const TrendingScreen: React.FC = () => {
 
           <View style={styles.waterfallColumn}>
             {mockTrendingData.filter((_, index) => index % 2 === 1).map((trend, index) => (
-              <TouchableOpacity key={trend.id} style={[styles.waterfallCard, { marginBottom: spacing.xs }]}>
+              <TouchableOpacity key={trend.id} style={[styles.waterfallCard, { marginBottom: spacing.xs * 0.5 }]}>
                 <View style={[styles.waterfallImageContainer, { height: waterfallHeights[index * 2 + 1] }]}>
                   <Image source={{ uri: 'https://picsum.photos/200/100?random=' + trend.id }} style={styles.waterfallImage} />
                   {index === 0 && (
