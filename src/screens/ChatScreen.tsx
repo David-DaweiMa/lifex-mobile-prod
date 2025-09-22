@@ -518,7 +518,7 @@ const ChatScreen: React.FC = () => {
     },
     compactAssistantMessage: {
       alignSelf: 'flex-start',
-      backgroundColor: colors.surface,
+      backgroundColor: '#2A1F3D',
       borderWidth: 1,
       borderColor: colors.border,
       marginRight: 'auto',
