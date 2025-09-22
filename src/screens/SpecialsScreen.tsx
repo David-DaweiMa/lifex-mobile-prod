@@ -110,7 +110,7 @@ const SpecialsScreen: React.FC = () => {
     },
     heroBadge: {
       alignSelf: 'flex-start',
-      backgroundColor: '#dc2626',
+      backgroundColor: '#ff4444',
       borderRadius: borderRadius.full,
       paddingHorizontal: spacing.sm,
       paddingVertical: spacing.xs,
@@ -133,7 +133,7 @@ const SpecialsScreen: React.FC = () => {
     heroDiscount: {
       fontSize: typography.fontSize.xl,
       fontWeight: '700',
-      color: '#dc2626',
+      color: '#ff4444',
       marginBottom: spacing.xs,
     },
     heroBusiness: {
@@ -147,7 +147,7 @@ const SpecialsScreen: React.FC = () => {
     },
     heroTimerText: {
       fontSize: typography.fontSize.sm,
-      color: '#dc2626',
+      color: '#ff4444',
       marginLeft: spacing.xs,
       fontWeight: '600',
     },
@@ -168,7 +168,7 @@ const SpecialsScreen: React.FC = () => {
       marginHorizontal: 4,
     },
     activeDot: {
-      backgroundColor: '#dc2626',
+      backgroundColor: '#ff4444',
     },
     dotsText: {
       fontSize: typography.fontSize.sm,
@@ -310,7 +310,7 @@ const SpecialsScreen: React.FC = () => {
       borderWidth: 1,
       borderColor: colors.border,
       overflow: 'hidden',
-      shadowColor: '#dc2626',
+      shadowColor: '#ff4444',
       shadowOffset: {
         width: 0,
         height: 3,
@@ -333,7 +333,7 @@ const SpecialsScreen: React.FC = () => {
       position: 'absolute',
       top: spacing.sm,
       left: spacing.sm,
-      backgroundColor: '#dc2626',
+      backgroundColor: '#ff4444',
       borderRadius: borderRadius.full,
       paddingHorizontal: spacing.sm,
       paddingVertical: spacing.xs,
@@ -347,7 +347,7 @@ const SpecialsScreen: React.FC = () => {
       position: 'absolute',
       top: spacing.sm,
       right: spacing.sm,
-      backgroundColor: '#dc2626',
+      backgroundColor: '#ff4444',
       borderRadius: borderRadius.md,
       paddingHorizontal: spacing.sm,
       paddingVertical: spacing.xs,
@@ -393,7 +393,7 @@ const SpecialsScreen: React.FC = () => {
     waterfallNewPrice: {
       fontSize: typography.fontSize.md,
       fontWeight: '700',
-      color: '#dc2626',
+      color: '#ff4444',
     },
     waterfallTimer: {
       flexDirection: 'row',
@@ -402,7 +402,7 @@ const SpecialsScreen: React.FC = () => {
     },
     waterfallTimerText: {
       fontSize: typography.fontSize.sm,
-      color: '#dc2626',
+      color: '#ff4444',
       marginLeft: spacing.xs,
       fontWeight: '600',
     },
@@ -489,11 +489,11 @@ const SpecialsScreen: React.FC = () => {
                     <Text style={styles.heroBusiness}>{special.business}</Text>
                     <View style={styles.heroTimerContainer}>
                       <View style={styles.heroTimer}>
-                        <Ionicons name="time-outline" size={14} color="#dc2626" />
+                        <Ionicons name="time-outline" size={14} color="#ff4444" />
                         <Text style={styles.heroTimerText}>Ends in {index + 1} day{index > 0 ? 's' : ''}</Text>
                       </View>
                       <TouchableOpacity style={styles.heroFavoriteButton}>
-                        <Ionicons name="heart-outline" size={14} color="#dc2626" />
+                        <Ionicons name="heart-outline" size={14} color="#ff4444" />
                         <Text style={styles.heroFavoriteCount}>{18 + index * 2}</Text>
                       </TouchableOpacity>
                     </View>
@@ -602,11 +602,11 @@ const SpecialsScreen: React.FC = () => {
                   
                   <View style={styles.waterfallTimerContainer}>
                     <View style={styles.waterfallTimer}>
-                      <Ionicons name="time-outline" size={12} color="#dc2626" />
+                      <Ionicons name="time-outline" size={12} color="#ff4444" />
                       <Text style={styles.waterfallTimerText}>Ends in {index + 2} days</Text>
                     </View>
                     <TouchableOpacity style={styles.waterfallFavoriteButton}>
-                      <Ionicons name="heart-outline" size={14} color="#dc2626" />
+                      <Ionicons name="heart-outline" size={14} color="#ff4444" />
                       <Text style={styles.waterfallFavoriteCount}>{24 + index * 3}</Text>
                     </TouchableOpacity>
                   </View>
@@ -642,11 +642,11 @@ const SpecialsScreen: React.FC = () => {
                   
                   <View style={styles.waterfallTimerContainer}>
                     <View style={styles.waterfallTimer}>
-                      <Ionicons name="time-outline" size={12} color="#dc2626" />
+                      <Ionicons name="time-outline" size={12} color="#ff4444" />
                       <Text style={styles.waterfallTimerText}>Ends in {index + 3} days</Text>
                     </View>
                     <TouchableOpacity style={styles.waterfallFavoriteButton}>
-                      <Ionicons name="heart-outline" size={14} color="#dc2626" />
+                      <Ionicons name="heart-outline" size={14} color="#ff4444" />
                       <Text style={styles.waterfallFavoriteCount}>{27 + index * 4}</Text>
                     </TouchableOpacity>
                   </View>
