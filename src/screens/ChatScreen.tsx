@@ -187,6 +187,7 @@ const ChatScreen: React.FC = () => {
     messagesContainer: {
       flex: 1,
       padding: spacing.md,
+      backgroundColor: colors.background,
     },
     messageContainer: {
       marginBottom: spacing.md,
@@ -197,6 +198,14 @@ const ChatScreen: React.FC = () => {
       padding: spacing.md,
       borderRadius: borderRadius.lg,
       maxWidth: '80%',
+      shadowColor: colors.primary,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
     },
     assistantMessage: {
       alignSelf: 'flex-start',
@@ -206,6 +215,14 @@ const ChatScreen: React.FC = () => {
       maxWidth: '80%',
       borderWidth: 1,
       borderColor: colors.border,
+      shadowColor: colors.primary,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
     },
     messageText: {
       color: colors.text,
@@ -266,9 +283,17 @@ const ChatScreen: React.FC = () => {
     followUpQuestion: {
       backgroundColor: colors.surface,
       padding: spacing.sm,
-      borderRadius: borderRadius.md,
+      borderRadius: borderRadius.full,
       borderWidth: 1,
       borderColor: colors.border,
+      shadowColor: colors.primary,
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
     },
     followUpQuestionText: {
       fontSize: typography.fontSize.sm,
@@ -276,7 +301,7 @@ const ChatScreen: React.FC = () => {
     },
     inputContainer: {
       padding: spacing.md,
-      backgroundColor: colors.surface,
+      backgroundColor: colors.background,
       borderTopWidth: 1,
       borderTopColor: colors.border,
     },
@@ -554,16 +579,19 @@ const ChatScreen: React.FC = () => {
           style={styles.inputContainer}
         >
           <View style={styles.inputRow}>
+            <TouchableOpacity style={styles.addButton}>
+              <Ionicons name="add" size={20} color={colors.primary} />
+            </TouchableOpacity>
             <TextInput
               style={styles.textInput}
               value={chatInput}
               onChangeText={setChatInput}
               placeholder="Ask me anything about New Zealand..."
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={colors.primary}
               multiline
             />
             <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
-              <Text style={styles.sendButtonText}>Send</Text>
+              <Ionicons name="send" size={20} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
