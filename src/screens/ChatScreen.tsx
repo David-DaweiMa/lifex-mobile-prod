@@ -350,14 +350,14 @@ const ChatScreen: React.FC = () => {
     inputSection: {
       backgroundColor: 'transparent',
       borderRadius: borderRadius.lg,
-      padding: spacing.sm,
+      padding: spacing.xs,
       marginHorizontal: 0,
       marginBottom: 0,
     },
     inputRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: spacing.sm,
+      gap: spacing.xs,
     },
     addButton: {
       width: 40,
@@ -373,7 +373,7 @@ const ChatScreen: React.FC = () => {
       flex: 1,
       backgroundColor: 'transparent',
       borderRadius: borderRadius.lg,
-      paddingHorizontal: spacing.md,
+      paddingHorizontal: spacing.sm,
       paddingVertical: spacing.sm,
       fontSize: typography.fontSize.md,
       color: '#FFFFFF',
