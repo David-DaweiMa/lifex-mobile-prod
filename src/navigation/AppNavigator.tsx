@@ -67,7 +67,7 @@ function MainTabs() {
         name="Events"
         component={TrendingScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon name="calendar-outline" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon name="sparkles-outline" focused={focused} />,
         }}
       />
       <Tab.Screen
