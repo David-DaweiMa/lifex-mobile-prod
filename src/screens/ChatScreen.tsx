@@ -194,11 +194,11 @@ const ChatScreen: React.FC = () => {
     },
     userMessage: {
       alignSelf: 'flex-end',
-      backgroundColor: colors.primary,
+      backgroundColor: colors.secondary,
       padding: spacing.md,
       borderRadius: borderRadius.lg,
       maxWidth: '80%',
-      shadowColor: colors.primary,
+      shadowColor: colors.secondary,
       shadowOffset: {
         width: 0,
         height: 2,
@@ -249,7 +249,7 @@ const ChatScreen: React.FC = () => {
       width: 8,
       height: 8,
       borderRadius: 4,
-      backgroundColor: colors.primary,
+      backgroundColor: colors.secondary,
       marginHorizontal: 2,
     },
     followUpContainer: {
@@ -260,7 +260,7 @@ const ChatScreen: React.FC = () => {
       width: 32,
       height: 32,
       borderRadius: 16,
-      backgroundColor: colors.primary,
+      backgroundColor: colors.secondary,
       alignItems: 'center',
       justifyContent: 'center',
       marginRight: spacing.sm,
@@ -365,7 +365,7 @@ const ChatScreen: React.FC = () => {
       borderRadius: 8,
       backgroundColor: 'transparent',
       borderWidth: 1,
-      borderColor: colors.primary,
+      borderColor: colors.secondary,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -379,14 +379,14 @@ const ChatScreen: React.FC = () => {
       color: '#FFFFFF',
       height: 40,
       borderWidth: 1,
-      borderColor: colors.primary,
+      borderColor: colors.secondary,
       textAlignVertical: 'center',
     },
     sendButton: {
       width: 40,
       height: 40,
       borderRadius: 8,
-      backgroundColor: colors.primary,
+      backgroundColor: colors.secondary,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -580,15 +580,15 @@ const ChatScreen: React.FC = () => {
           style={styles.inputContainer}
         >
           <View style={styles.inputRow}>
-            <TouchableOpacity style={styles.addButton}>
-              <Ionicons name="add" size={20} color={colors.primary} />
-            </TouchableOpacity>
+              <TouchableOpacity style={styles.addButton}>
+                <Ionicons name="add" size={20} color={colors.secondary} />
+              </TouchableOpacity>
             <TextInput
               style={styles.textInput}
               value={chatInput}
               onChangeText={setChatInput}
               placeholder="Ask me anything about New Zealand..."
-              placeholderTextColor={colors.primary}
+              placeholderTextColor={colors.secondary}
               multiline
             />
             <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
@@ -623,14 +623,14 @@ const ChatScreen: React.FC = () => {
           <View style={styles.inputSection}>
             <View style={styles.inputRow}>
               <TouchableOpacity style={styles.addButton}>
-                <Ionicons name="add" size={20} color={colors.primary} />
+                <Ionicons name="add" size={20} color={colors.secondary} />
               </TouchableOpacity>
               <TextInput
                 style={styles.textInput}
                 value={chatInput}
                 onChangeText={setChatInput}
                 placeholder="Type your message..."
-                placeholderTextColor={colors.primary}
+                placeholderTextColor={colors.secondary}
               />
               <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
                 <Ionicons name="send" size={20} color="#FFFFFF" />
