@@ -74,21 +74,21 @@ function MainTabs() {
         name="Specials"
         component={SpecialsScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon name="gift-outline" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon name="pricetag-outline" focused={focused} />,
         }}
       />
       <Tab.Screen
         name="Places"
         component={DiscoverScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon name="location-outline" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon name="storefront-outline" focused={focused} />,
         }}
       />
       <Tab.Screen
         name="Coly"
         component={ColyScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon name="person-outline" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon name="heart-outline" focused={focused} />,
         }}
       />
     </Tab.Navigator>

@@ -87,14 +87,14 @@ const DiscoverScreen: React.FC = () => {
       borderColor: colors.primary,
     },
     mainCategoryText: {
-      fontSize: typography.fontSize.md,
+      fontSize: typography.fontSize.sm,
       color: colors.primary,
-      fontWeight: typography.fontWeight.medium,
+      fontWeight: '500',
       marginLeft: spacing.xs,
     },
     mainCategoryTextActive: {
       color: colors.text,
-      fontWeight: typography.fontWeight.semibold,
+      fontWeight: '600',
     },
     tagsContainer: {
       backgroundColor: colors.background,
