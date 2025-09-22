@@ -356,8 +356,8 @@ const DiscoverScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <Header 
-        title="Discover" 
-        subtitle="Explore community content"
+        title="Places" 
+        subtitle="Find local businesses & venues"
         onSearchPress={handleSearchPress}
         onProfilePress={handleProfilePress}
       />

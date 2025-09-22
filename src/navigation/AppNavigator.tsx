@@ -64,10 +64,10 @@ function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="Trending"
+        name="Events"
         component={TrendingScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon name="trending-up-outline" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon name="calendar-outline" focused={focused} />,
         }}
       />
       <Tab.Screen
@@ -78,10 +78,10 @@ function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="Discover"
+        name="Places"
         component={DiscoverScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon name="search-outline" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon name="location-outline" focused={focused} />,
         }}
       />
       <Tab.Screen

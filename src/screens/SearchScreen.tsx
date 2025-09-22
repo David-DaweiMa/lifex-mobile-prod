@@ -91,7 +91,7 @@ const SearchScreen: React.FC = () => {
           type: 'trending' as const,
           title: trending.title,
           subtitle: trending.category,
-          category: 'Trending',
+          category: 'Events',
           data: trending
         }));
 
@@ -186,7 +186,7 @@ const SearchScreen: React.FC = () => {
               <View style={styles.resultTitleContainer}>
                 <Text style={styles.resultName}>{result.title}</Text>
                 <View style={[styles.typeBadge, { backgroundColor: colors.success }]}>
-                  <Text style={styles.typeBadgeText}>Trending</Text>
+                  <Text style={styles.typeBadgeText}>Events</Text>
                 </View>
               </View>
               <Text style={styles.resultType}>{result.subtitle}</Text>
@@ -262,7 +262,7 @@ const SearchScreen: React.FC = () => {
       <Text style={styles.emptySubtitle}>
         {searchQuery 
           ? `Try searching for something else`
-          : `Find businesses, special offers, trending topics, and more`
+          : `Find businesses, special offers, events, and more`
         }
       </Text>
     </View>
@@ -287,7 +287,7 @@ const SearchScreen: React.FC = () => {
             <TextInput
               ref={inputRef}
               style={styles.searchInput}
-              placeholder="Search businesses, specials, trending..."
+              placeholder="Search businesses, specials, events..."
               placeholderTextColor={colors.textSecondary}
               value={searchQuery}
               onChangeText={handleQueryChange}

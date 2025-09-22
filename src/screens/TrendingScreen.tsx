@@ -340,8 +340,8 @@ const TrendingScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Header 
-        title="Trending" 
-        subtitle="What's hot right now"
+        title="Events" 
+        subtitle="Discover local events & activities"
         onSearchPress={handleSearchPress}
         onProfilePress={handleProfilePress}
       />
