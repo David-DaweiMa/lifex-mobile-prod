@@ -25,13 +25,13 @@ export const spacing = {
 export const typography = {
   fontFamily: 'System',
   fontSize: {
-    xs: 10,
-    sm: 12,
-    md: 14,
-    lg: 16,
-    xl: 18,
-    xxl: 24,
-    xxxl: 32,
+    xs: 12,
+    sm: 14,
+    md: 16,
+    lg: 18,
+    xl: 20,
+    xxl: 26,
+    xxxl: 34,
   },
   fontWeight: {
     light: '300' as const,

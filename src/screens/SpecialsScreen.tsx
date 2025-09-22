@@ -116,7 +116,7 @@ const SpecialsScreen: React.FC = () => {
       paddingVertical: spacing.xs,
     },
     heroBadgeText: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       fontWeight: '700',
       color: colors.text,
     },
@@ -204,7 +204,7 @@ const SpecialsScreen: React.FC = () => {
       elevation: 2,
     },
     heroFavoriteCount: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       fontWeight: '600',
       color: colors.text,
     },
@@ -281,7 +281,7 @@ const SpecialsScreen: React.FC = () => {
       borderColor: colors.primary,
     },
     tagText: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.textSecondary,
       fontWeight: '500',
       lineHeight: typography.fontSize.xs * 1.1,
@@ -339,7 +339,7 @@ const SpecialsScreen: React.FC = () => {
       paddingVertical: spacing.xs,
     },
     featuredBadgeText: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       fontWeight: '700',
       color: colors.text,
     },
@@ -361,7 +361,7 @@ const SpecialsScreen: React.FC = () => {
       lineHeight: typography.fontSize.sm * 1.1,
     },
     waterfallOffText: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       fontWeight: '600',
       color: colors.text,
     },
@@ -375,7 +375,7 @@ const SpecialsScreen: React.FC = () => {
       marginBottom: spacing.xs,
     },
     waterfallBusiness: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.textSecondary,
       marginBottom: spacing.xs,
     },
@@ -401,7 +401,7 @@ const SpecialsScreen: React.FC = () => {
       marginBottom: spacing.sm,
     },
     waterfallTimerText: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: '#dc2626',
       marginLeft: spacing.xs,
       fontWeight: '600',
@@ -446,7 +446,7 @@ const SpecialsScreen: React.FC = () => {
       elevation: 2,
     },
     waterfallFavoriteCount: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       fontWeight: '600',
       color: colors.text,
     },

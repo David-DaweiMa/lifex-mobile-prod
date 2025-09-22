@@ -202,11 +202,11 @@ const TrendingScreen: React.FC = () => {
       padding: spacing.xs,
     },
     waterfallTitle: {
-      fontSize: typography.fontSize.sm,
+      fontSize: typography.fontSize.md,
       fontWeight: '500',
       color: colors.text,
       marginBottom: spacing.xs * 0.5,
-      lineHeight: typography.fontSize.sm * 1.3,
+      lineHeight: typography.fontSize.md * 1.3,
     },
     waterfallTagsContainer: {
       flexDirection: 'row',
@@ -222,12 +222,12 @@ const TrendingScreen: React.FC = () => {
       marginBottom: spacing.xs,
     },
     waterfallTagText: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.primary,
       fontWeight: '500',
     },
     waterfallMoreTagsText: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.textSecondary,
       fontWeight: '500',
       marginTop: 2,
@@ -238,7 +238,7 @@ const TrendingScreen: React.FC = () => {
       alignItems: 'center',
     },
     waterfallAuthor: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.textSecondary,
       fontWeight: '500',
     },
@@ -248,7 +248,7 @@ const TrendingScreen: React.FC = () => {
       gap: spacing.xs,
     },
     waterfallLikes: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.textSecondary,
       fontWeight: '500',
     },

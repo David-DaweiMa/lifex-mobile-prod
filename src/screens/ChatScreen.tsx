@@ -173,7 +173,7 @@ const ChatScreen: React.FC = () => {
       color: colors.text,
     },
     headerSubtitle: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.textSecondary,
     },
     headerRight: {

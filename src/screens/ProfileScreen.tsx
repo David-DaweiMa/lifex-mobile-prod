@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   userBadgeText: {
-    fontSize: typography.fontSize.xs,
+    fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.bold,
     color: colors.text,
   },

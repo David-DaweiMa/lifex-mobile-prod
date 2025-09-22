@@ -87,7 +87,7 @@ const DiscoverScreen: React.FC = () => {
       borderColor: colors.primary,
     },
     mainCategoryText: {
-      fontSize: typography.fontSize.sm,
+      fontSize: typography.fontSize.md,
       color: colors.primary,
       fontWeight: typography.fontWeight.medium,
       marginLeft: spacing.xs,
@@ -127,7 +127,7 @@ const DiscoverScreen: React.FC = () => {
       borderColor: colors.primary,
     },
     tagText: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.textSecondary,
       fontWeight: typography.fontWeight.medium,
       lineHeight: typography.fontSize.xs * 1.1,
@@ -203,7 +203,7 @@ const DiscoverScreen: React.FC = () => {
       paddingVertical: spacing.xs,
     },
     contentTagText: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.primary,
       fontWeight: typography.fontWeight.medium,
     },
@@ -214,7 +214,7 @@ const DiscoverScreen: React.FC = () => {
       marginTop: spacing.sm,
     },
     readTimeText: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.textSecondary,
     },
     shareButton: {
@@ -269,12 +269,12 @@ const DiscoverScreen: React.FC = () => {
       gap: 2,
     },
     ratingText: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       fontWeight: '600',
       color: colors.text,
     },
     reviewCount: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.textSecondary,
     },
     businessMeta: {
@@ -284,7 +284,7 @@ const DiscoverScreen: React.FC = () => {
       gap: spacing.xs,
     },
     businessType: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.textSecondary,
       backgroundColor: colors.primary + '20',
       paddingHorizontal: spacing.xs,
@@ -292,15 +292,15 @@ const DiscoverScreen: React.FC = () => {
       borderRadius: borderRadius.sm,
     },
     businessPrice: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.textSecondary,
     },
     businessDistance: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.textSecondary,
     },
     businessAddress: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.textSecondary,
       marginBottom: spacing.xs,
     },
@@ -308,7 +308,7 @@ const DiscoverScreen: React.FC = () => {
       marginBottom: spacing.xs,
     },
     highlightText: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.textSecondary,
       marginBottom: 1,
     },
@@ -328,12 +328,12 @@ const DiscoverScreen: React.FC = () => {
       borderRadius: 3,
     },
     statusText: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.text,
       fontWeight: '500',
     },
     waitTime: {
-      fontSize: typography.fontSize.xs,
+      fontSize: typography.fontSize.sm,
       color: colors.textSecondary,
       marginLeft: spacing.xs,
     },

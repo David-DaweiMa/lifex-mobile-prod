@@ -421,14 +421,14 @@ const styles = StyleSheet.create({
     marginLeft: spacing.xs,
   },
   distanceText: {
-    fontSize: typography.fontSize.xs,
+    fontSize: typography.fontSize.sm,
     color: colors.textSecondary,
   },
   resultHighlights: {
     marginBottom: spacing.sm,
   },
   highlightText: {
-    fontSize: typography.fontSize.xs,
+    fontSize: typography.fontSize.sm,
     color: colors.textSecondary,
     marginBottom: spacing.xs,
   },
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     marginRight: spacing.xs,
   },
   statusText: {
-    fontSize: typography.fontSize.xs,
+    fontSize: typography.fontSize.sm,
     color: colors.textSecondary,
   },
   resultTitleContainer: {
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
     marginLeft: spacing.sm,
   },
   typeBadgeText: {
-    fontSize: typography.fontSize.xs,
+    fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.bold,
     color: colors.text,
   },
@@ -491,7 +491,7 @@ const styles = StyleSheet.create({
     marginLeft: spacing.xs,
   },
   likesText: {
-    fontSize: typography.fontSize.xs,
+    fontSize: typography.fontSize.sm,
     color: colors.textSecondary,
   },
   tagsContainer: {
@@ -499,12 +499,12 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   tagText: {
-    fontSize: typography.fontSize.xs,
+    fontSize: typography.fontSize.sm,
     color: colors.primary,
     marginRight: spacing.sm,
   },
   readTimeText: {
-    fontSize: typography.fontSize.xs,
+    fontSize: typography.fontSize.sm,
     color: colors.textSecondary,
   },
   discountText: {
@@ -528,7 +528,7 @@ const styles = StyleSheet.create({
     color: colors.error,
   },
   validUntilText: {
-    fontSize: typography.fontSize.xs,
+    fontSize: typography.fontSize.sm,
     color: colors.textSecondary,
   },
   emptyState: {
