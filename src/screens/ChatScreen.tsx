@@ -33,6 +33,7 @@ const ChatScreen: React.FC = () => {
   const [isInConversation, setIsInConversation] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
+  const [hasConversationHistory, setHasConversationHistory] = useState(false);
   
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -69,6 +70,7 @@ const ChatScreen: React.FC = () => {
     setIsInConversation(true);
     setIsTyping(true);
     setChatInput('');
+    setHasConversationHistory(true);
 
     try {
       const response = await chatService.sendMessage(query);
@@ -497,6 +499,22 @@ const ChatScreen: React.FC = () => {
       textAlign: 'left',
       lineHeight: typography.fontSize.xl * 1.3,
     },
+    recentConversationContainer: {
+      paddingVertical: spacing.xs,
+    },
+    recentConversationLabel: {
+      fontSize: typography.fontSize.sm,
+      fontWeight: '500',
+      color: colors.textSecondary,
+      marginBottom: spacing.xs,
+    },
+    recentConversationText: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: 'normal',
+      color: '#FFFFFF',
+      textAlign: 'left',
+      lineHeight: typography.fontSize.lg * 1.3,
+    },
   });
 
   if (isInConversation) {
@@ -613,11 +631,20 @@ const ChatScreen: React.FC = () => {
       <ScrollView style={styles.mainContent} contentContainerStyle={{ paddingBottom: spacing.sm }}>
         {/* Main container with background */}
         <View style={styles.mainContainer}>
-          {/* Greeting in top left corner */}
+          {/* Greeting or Recent Conversation */}
           <View style={styles.greetingContainer}>
-            <Text style={styles.greetingText}>
-              G'day! What can I help you find today?
-            </Text>
+            {hasConversationHistory ? (
+              <View style={styles.recentConversationContainer}>
+                <Text style={styles.recentConversationLabel}>Recent conversation:</Text>
+                <Text style={styles.recentConversationText} numberOfLines={2}>
+                  {messages.length > 1 ? messages[messages.length - 1].content : "G'day! What can I help you find today?"}
+                </Text>
+              </View>
+            ) : (
+              <Text style={styles.greetingText}>
+                G'day! What can I help you find today?
+              </Text>
+            )}
           </View>
 
           {/* Input Section - based on image */}
