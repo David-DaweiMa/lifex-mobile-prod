@@ -42,6 +42,7 @@ const TrendingScreen: React.FC = () => {
     setCurrentEventPage(roundIndex);
   };
 
+
   // Featured events for hero banner
   const featuredEvents = mockEventsData.filter(event => event.isHot).slice(0, 3);
 

@@ -34,6 +34,7 @@ const SpecialsScreen: React.FC = () => {
     navigation.navigate('Profile' as never);
   };
 
+
   // Handle scroll events for dots indicator
   const handleScroll = (event: any) => {
     const slideSize = event.nativeEvent.layoutMeasurement.width;

@@ -34,6 +34,7 @@ const DiscoverScreen: React.FC = () => {
     navigation.navigate('Profile' as never);
   };
 
+
   // Handle scroll events for places banner dots indicator
   const handlePlaceScroll = (event: any) => {
     const slideSize = event.nativeEvent.layoutMeasurement.width;
