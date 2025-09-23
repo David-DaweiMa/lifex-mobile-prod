@@ -295,13 +295,13 @@ const SpecialsScreen: React.FC = () => {
     // Waterfall Layout
     waterfallContainer: {
       flexDirection: 'row',
-      paddingHorizontal: spacing.md,
+      paddingHorizontal: spacing.xs,
       justifyContent: 'space-between',
       alignItems: 'flex-start',
     },
     waterfallColumn: {
       flex: 1,
-      marginHorizontal: spacing.xs,
+      marginHorizontal: 2,
       maxWidth: '48%',
     },
     waterfallCard: {

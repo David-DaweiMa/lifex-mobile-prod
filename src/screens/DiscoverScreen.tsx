@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import FloatingActionButton from '../components/FloatingActionButton';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
-import { mockBusinessList } from '../utils/mockData';
+import { mockBusinessList, mockFeaturedPlaces } from '../utils/mockData';
 import { BusinessExtended } from '../types';
 
 const { width } = Dimensions.get('window');
@@ -24,6 +24,7 @@ const DiscoverScreen: React.FC = () => {
   const navigation = useNavigation();
   const [selectedMainCategory, setSelectedMainCategory] = useState('Nearby');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [currentPlacePage, setCurrentPlacePage] = useState(0);
 
   const handleSearchPress = () => {
     navigation.navigate('Search' as never);
@@ -32,6 +33,17 @@ const DiscoverScreen: React.FC = () => {
   const handleProfilePress = () => {
     navigation.navigate('Profile' as never);
   };
+
+  // Handle scroll events for places banner dots indicator
+  const handlePlaceScroll = (event: any) => {
+    const slideSize = event.nativeEvent.layoutMeasurement.width;
+    const index = event.nativeEvent.contentOffset.x / slideSize;
+    const roundIndex = Math.round(index);
+    setCurrentPlacePage(roundIndex);
+  };
+
+  // Featured places for hero banner
+  const featuredPlaces = mockFeaturedPlaces.filter(place => place.isFeatured).slice(0, 3);
 
   const categories = [
     { id: 'all', name: 'All' },
@@ -56,6 +68,90 @@ const DiscoverScreen: React.FC = () => {
       paddingHorizontal: spacing.md,
       paddingTop: spacing.sm,
       paddingBottom: spacing.xl,
+    },
+    
+    // Hero Banner Styles
+    heroBanner: {
+      height: 200,
+      marginBottom: spacing.sm,
+    },
+    heroScrollView: {
+      flex: 1,
+    },
+    heroCard: {
+      width: width,
+      height: 200,
+      position: 'relative',
+    },
+    heroImage: {
+      width: '100%',
+      height: '100%',
+      resizeMode: 'cover',
+    },
+    heroOverlay: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: 'rgba(0,0,0,0.6)',
+      padding: spacing.md,
+    },
+    heroTitle: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: '700',
+      color: '#FFFFFF',
+      marginBottom: spacing.xs,
+    },
+    heroSubtitle: {
+      fontSize: typography.fontSize.sm,
+      color: '#FFFFFF',
+      marginBottom: spacing.xs,
+    },
+    heroMeta: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    heroPrice: {
+      fontSize: typography.fontSize.md,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+    heroRating: {
+      fontSize: typography.fontSize.sm,
+      color: '#FFFFFF',
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    heroBadge: {
+      position: 'absolute',
+      top: spacing.md,
+      left: spacing.md,
+      backgroundColor: colors.primary,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.sm,
+    },
+    heroBadgeText: {
+      fontSize: typography.fontSize.xs,
+      fontWeight: '700',
+      color: '#FFFFFF',
+    },
+    dotsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+    },
+    dot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.border,
+      marginHorizontal: 4,
+    },
+    dotActive: {
+      backgroundColor: colors.primary,
     },
     mainCategories: {
       flexDirection: 'row',
@@ -240,11 +336,16 @@ const DiscoverScreen: React.FC = () => {
       flexDirection: 'row',
       padding: spacing.sm,
     },
+    businessLeft: {
+      flexDirection: 'column',
+      alignItems: 'center',
+      marginRight: spacing.sm,
+    },
     businessImage: {
       width: 80,
       height: 80,
       borderRadius: borderRadius.md,
-      marginRight: spacing.sm,
+      marginBottom: spacing.xs,
     },
     businessInfo: {
       flex: 1,
@@ -314,13 +415,14 @@ const DiscoverScreen: React.FC = () => {
     },
     businessFooter: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
       alignItems: 'center',
+      marginTop: spacing.xs,
     },
     statusContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.xs,
+      flex: 1,
     },
     statusDot: {
       width: 6,
@@ -333,23 +435,27 @@ const DiscoverScreen: React.FC = () => {
       fontWeight: '500',
     },
     waitTime: {
-      fontSize: typography.fontSize.sm,
+      fontSize: typography.fontSize.xs,
       color: colors.textSecondary,
       marginLeft: spacing.xs,
+      flex: 1,
+      flexWrap: 'wrap',
     },
     actionButtons: {
       flexDirection: 'row',
-      gap: spacing.xs,
+      gap: spacing.sm,
+      justifyContent: 'center',
+      width: 80,
     },
     callButton: {
-      padding: spacing.xs,
-      borderRadius: borderRadius.sm,
-      backgroundColor: colors.primary + '20',
+      padding: spacing.sm,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.secondary + '20',
     },
     directionButton: {
-      padding: spacing.xs,
-      borderRadius: borderRadius.sm,
-      backgroundColor: colors.primary + '20',
+      padding: spacing.sm,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.secondary + '20',
     },
   });
 
@@ -363,6 +469,51 @@ const DiscoverScreen: React.FC = () => {
       />
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        {/* Featured Places Hero Banner */}
+        <View style={styles.heroBanner}>
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={handlePlaceScroll}
+            scrollEventThrottle={16}
+            style={styles.heroScrollView}
+          >
+            {featuredPlaces.map((place) => (
+              <TouchableOpacity key={place.id} style={styles.heroCard}>
+                <Image source={{ uri: place.image }} style={styles.heroImage} />
+                <View style={styles.heroBadge}>
+                  <Text style={styles.heroBadgeText}>⭐ FEATURED</Text>
+                </View>
+                <View style={styles.heroOverlay}>
+                  <Text style={styles.heroTitle}>{place.name}</Text>
+                  <Text style={styles.heroSubtitle}>{place.type} • {place.distance}</Text>
+                  <View style={styles.heroMeta}>
+                    <Text style={styles.heroPrice}>{place.price}</Text>
+                    <View style={styles.heroRating}>
+                      <Ionicons name="star" size={14} color="#FFD700" />
+                      <Text style={{ marginLeft: 4 }}>{place.rating}</Text>
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          
+          {/* Dots Indicator */}
+          <View style={styles.dotsContainer}>
+            {featuredPlaces.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.dot,
+                  currentPlacePage === index && styles.dotActive
+                ]}
+              />
+            ))}
+          </View>
+        </View>
+
         {/* Main Category Buttons */}
         <View style={styles.mainCategories}>
           <TouchableOpacity
@@ -421,7 +572,17 @@ const DiscoverScreen: React.FC = () => {
         {/* Business Listings */}
         {mockBusinessList.map((business) => (
           <TouchableOpacity key={business.id} style={styles.businessCard}>
-            <Image source={{ uri: business.image }} style={styles.businessImage} />
+            <View style={styles.businessLeft}>
+              <Image source={{ uri: business.image }} style={styles.businessImage} />
+              <View style={styles.actionButtons}>
+                  <TouchableOpacity style={styles.callButton}>
+                    <Ionicons name="call-outline" size={18} color={colors.secondary} />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.directionButton}>
+                    <Ionicons name="navigate-outline" size={18} color={colors.secondary} />
+                  </TouchableOpacity>
+              </View>
+            </View>
             <View style={styles.businessInfo}>
               <View style={styles.businessHeader}>
                 <Text style={styles.businessName} numberOfLines={1}>{business.name}</Text>
@@ -449,15 +610,7 @@ const DiscoverScreen: React.FC = () => {
                 <View style={styles.statusContainer}>
                   <View style={[styles.statusDot, { backgroundColor: business.isOpen ? '#10b981' : '#ef4444' }]} />
                   <Text style={styles.statusText}>{business.isOpen ? 'Open' : 'Closed'}</Text>
-                  {business.waitTime && <Text style={styles.waitTime}>{business.waitTime}</Text>}
-                </View>
-                <View style={styles.actionButtons}>
-                  <TouchableOpacity style={styles.callButton}>
-                    <Ionicons name="call-outline" size={14} color={colors.primary} />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.directionButton}>
-                    <Ionicons name="navigate-outline" size={14} color={colors.primary} />
-                  </TouchableOpacity>
+                  {business.openingHours && <Text style={styles.waitTime}>{business.openingHours}</Text>}
                 </View>
               </View>
             </View>

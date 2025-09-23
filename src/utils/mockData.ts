@@ -265,6 +265,152 @@ export const recentDiscoveries = [
 ];
 
 // Business listing data for Discover page
+export const mockEventsData: any[] = [
+  {
+    id: 1,
+    title: 'Auckland Food & Wine Festival',
+    date: '2024-02-15',
+    time: '12:00 PM - 8:00 PM',
+    location: 'Viaduct Harbour',
+    category: 'Food & Drink',
+    price: '$25',
+    attendees: '2.3k',
+    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=200&fit=crop&crop=center&auto=format&q=60',
+    description: 'Celebrate local cuisine and premium wines',
+    tags: ['food', 'wine', 'festival'],
+    isHot: true
+  },
+  {
+    id: 2,
+    title: 'Auckland Marathon 2024',
+    date: '2024-03-10',
+    time: '6:30 AM - 12:00 PM',
+    location: 'Auckland Domain',
+    category: 'Sports & Fitness',
+    price: 'Free',
+    attendees: '8.5k',
+    image: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&h=200&fit=crop&crop=center&auto=format&q=60',
+    description: 'Join thousands of runners in this iconic race',
+    tags: ['marathon', 'fitness', 'community'],
+    isHot: true
+  },
+  {
+    id: 3,
+    title: 'NZ Art Week Exhibition',
+    date: '2024-02-20',
+    time: '10:00 AM - 6:00 PM',
+    location: 'Auckland Art Gallery',
+    category: 'Arts & Culture',
+    price: '$15',
+    attendees: '1.8k',
+    image: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=200&fit=crop&crop=center&auto=format&q=60',
+    description: 'Contemporary New Zealand artists showcase',
+    tags: ['art', 'exhibition', 'culture'],
+    isHot: false
+  },
+  {
+    id: 4,
+    title: 'Tech Innovation Summit',
+    date: '2024-02-28',
+    time: '9:00 AM - 5:00 PM',
+    location: 'Aotea Centre',
+    category: 'Business & Technology',
+    price: '$120',
+    attendees: '950',
+    image: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=400&h=200&fit=crop&crop=center&auto=format&q=60',
+    description: 'Leading tech companies and startups',
+    tags: ['tech', 'innovation', 'networking'],
+    isHot: false
+  },
+  {
+    id: 5,
+    title: 'Summer Music Festival',
+    date: '2024-03-15',
+    time: '2:00 PM - 11:00 PM',
+    location: 'Western Springs',
+    category: 'Music & Entertainment',
+    price: '$85',
+    attendees: '12k',
+    image: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400&h=200&fit=crop&crop=center&auto=format&q=60',
+    description: 'Local and international artists perform',
+    tags: ['music', 'festival', 'summer'],
+    isHot: true
+  }
+];
+
+export const mockFeaturedPlaces: any[] = [
+  {
+    id: 1,
+    name: 'The French Cafe',
+    type: 'Fine Dining',
+    category: 'Food & Drink',
+    rating: 4.8,
+    reviewCount: '342',
+    price: '$$$',
+    distance: '0.8 km',
+    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=200&fit=crop&crop=center&auto=format&q=60',
+    address: '210 Symonds Street, Auckland',
+    highlights: ['Michelin Guide', 'Wine Pairing', 'Romantic Dining'],
+    isFeatured: true
+  },
+  {
+    id: 2,
+    name: 'Ponsonby Central',
+    type: 'Food Hall',
+    category: 'Food & Drink',
+    rating: 4.6,
+    reviewCount: '1.2k',
+    price: '$$',
+    distance: '1.2 km',
+    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=200&fit=crop&crop=center&auto=format&q=60',
+    address: '136 Ponsonby Road, Ponsonby',
+    highlights: ['Multiple Vendors', 'Local Artisans', 'Outdoor Seating'],
+    isFeatured: true
+  },
+  {
+    id: 3,
+    name: 'Auckland Art Gallery',
+    type: 'Museum & Gallery',
+    category: 'Arts & Culture',
+    rating: 4.7,
+    reviewCount: '856',
+    price: 'Free',
+    distance: '0.5 km',
+    image: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=200&fit=crop&crop=center&auto=format&q=60',
+    address: 'Corner Kitchener and Wellesley Streets',
+    highlights: ['NZ Art Collection', 'Temporary Exhibitions', 'Cafe'],
+    isFeatured: true
+  },
+  {
+    id: 4,
+    name: 'Britomart Precinct',
+    type: 'Shopping & Dining',
+    category: 'Shopping',
+    rating: 4.5,
+    reviewCount: '2.1k',
+    price: '$$',
+    distance: '0.3 km',
+    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=200&fit=crop&crop=center&auto=format&q=60',
+    address: 'Tyler Street, Britomart',
+    highlights: ['Boutique Shops', 'Restaurants', 'Historic Buildings'],
+    isFeatured: false
+  },
+  {
+    id: 5,
+    name: 'Viaduct Harbour',
+    type: 'Marina & Entertainment',
+    category: 'Entertainment',
+    rating: 4.4,
+    reviewCount: '1.8k',
+    price: '$$',
+    distance: '0.7 km',
+    image: 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=400&h=200&fit=crop&crop=center&auto=format&q=60',
+    address: 'Viaduct Harbour, Auckland',
+    highlights: ['Waterfront Dining', 'Yacht Watching', 'Bars & Clubs'],
+    isFeatured: false
+  }
+];
+
 export const mockBusinessList: any[] = [
   {
     id: 1,
@@ -280,7 +426,7 @@ export const mockBusinessList: any[] = [
     highlights: ["Modern NZ cuisine", "Great cocktails", "Outdoor seating"],
     isOpen: true,
     aiReason: "Trending local favorite with innovative menu",
-    waitTime: "15-20 min",
+    openingHours: "Mon-Sun: 5:30 PM - 10:00 PM",
     confidence: 0.92,
     opening_hours: "Mon-Sun: 5:30 PM - 10:00 PM"
   },
@@ -298,7 +444,7 @@ export const mockBusinessList: any[] = [
     highlights: ["Italian cuisine", "Fresh pasta", "Wine selection"],
     isOpen: true,
     aiReason: "Highly rated Italian restaurant with authentic flavors",
-    waitTime: "25-30 min",
+    openingHours: "Mon-Sun: 7:00 AM - 11:00 PM",
     confidence: 0.89,
     opening_hours: "Mon-Sun: 7:00 AM - 11:00 PM"
   },
@@ -316,7 +462,7 @@ export const mockBusinessList: any[] = [
     highlights: ["Traditional barbering", "Beard styling", "Walk-ins welcome"],
     isOpen: true,
     aiReason: "Classic barber experience with skilled stylists",
-    waitTime: "10-15 min",
+    openingHours: "Mon-Sat: 9:00 AM - 6:00 PM",
     confidence: 0.85,
     opening_hours: "Mon-Sat: 9:00 AM - 6:00 PM"
   },
@@ -334,7 +480,7 @@ export const mockBusinessList: any[] = [
     highlights: ["Group classes", "Personal training", "Modern equipment"],
     isOpen: true,
     aiReason: "Premium fitness center with excellent facilities",
-    waitTime: "No wait",
+    openingHours: "Mon-Fri: 5:30 AM - 10:00 PM, Sat-Sun: 7:00 AM - 8:00 PM",
     confidence: 0.91,
     opening_hours: "Mon-Fri: 5:30 AM - 10:00 PM, Sat-Sun: 7:00 AM - 8:00 PM"
   },
@@ -352,7 +498,7 @@ export const mockBusinessList: any[] = [
     highlights: ["Deep tissue massage", "Facial treatments", "Relaxation therapy"],
     isOpen: true,
     aiReason: "Luxury spa with professional therapists",
-    waitTime: "20-25 min",
+    openingHours: "Mon-Sat: 9:00 AM - 9:00 PM, Sun: 10:00 AM - 6:00 PM",
     confidence: 0.88,
     opening_hours: "Mon-Sat: 9:00 AM - 9:00 PM, Sun: 10:00 AM - 6:00 PM"
   },
@@ -370,7 +516,7 @@ export const mockBusinessList: any[] = [
     highlights: ["Organic produce", "Local suppliers", "Fresh daily"],
     isOpen: true,
     aiReason: "Organic and sustainable grocery shopping",
-    waitTime: "5-10 min",
+    openingHours: "Mon-Sun: 7:00 AM - 9:00 PM",
     confidence: 0.82,
     opening_hours: "Mon-Sun: 7:00 AM - 9:00 PM"
   }

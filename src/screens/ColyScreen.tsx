@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -53,7 +54,7 @@ const ColyScreen: React.FC<ColyScreenProps> = ({ navigation }) => {
         {/* Hero Section - Meet Coly */}
         <View style={styles.heroContainer}>
           <View style={styles.heroIcon}>
-            <Text style={styles.heroIconText}>✨</Text>
+            <Ionicons name="sparkles" size={100} color={colors.primary} />
           </View>
           <Text style={styles.heroTitle}>Meet Coly</Text>
           <Text style={styles.heroDescription}>
@@ -211,16 +212,29 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   heroIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: borderRadius.full,
-    backgroundColor: colors.primary + '20',
+    width: 120,
+    height: 120,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.lg,
   },
   heroIconText: {
     fontSize: typography.fontSize.xxxl,
+  },
+  heroImage: {
+    width: 80,
+    height: 80,
+    borderRadius: borderRadius.full,
+  },
+  emojiContainer: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  glassesEmoji: {
+    position: 'absolute',
+    fontSize: 24,
+    top: -5,
   },
   heroTitle: {
     fontSize: typography.fontSize.xxl,

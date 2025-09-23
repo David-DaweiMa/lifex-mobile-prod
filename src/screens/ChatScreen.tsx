@@ -426,7 +426,7 @@ const ChatScreen: React.FC = () => {
     },
     seeAllLink: {
       fontSize: typography.fontSize.md,
-      color: colors.primary,
+      color: '#FFFFFF',
       fontWeight: '500',
     },
     recentDiscoveriesList: {

@@ -44,9 +44,9 @@ function MainTabs() {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          paddingBottom: 10,
-          paddingTop: 2,
-          height: 60,
+          paddingBottom: 20,
+          paddingTop: 8,
+          height: 80,
         },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textSecondary,
@@ -67,7 +67,7 @@ function MainTabs() {
         name="Events"
         component={TrendingScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon name="sparkles-outline" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon name="people-outline" focused={focused} />,
         }}
       />
       <Tab.Screen
@@ -88,7 +88,7 @@ function MainTabs() {
         name="Coly"
         component={ColyScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon name="heart-outline" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon name="sparkles-outline" focused={focused} />,
         }}
       />
     </Tab.Navigator>

@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import FloatingActionButton from '../components/FloatingActionButton';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
-import { mockTrendingData } from '../utils/mockData';
+import { mockTrendingData, mockEventsData } from '../utils/mockData';
 import { TrendingData } from '../types';
 
 const { width } = Dimensions.get('window');
@@ -24,6 +24,7 @@ const TrendingScreen: React.FC = () => {
   const navigation = useNavigation();
   const [selectedMainCategory, setSelectedMainCategory] = useState('Hot');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [currentEventPage, setCurrentEventPage] = useState(0);
 
   const handleSearchPress = () => {
     navigation.navigate('Search' as never);
@@ -32,6 +33,17 @@ const TrendingScreen: React.FC = () => {
   const handleProfilePress = () => {
     navigation.navigate('Profile' as never);
   };
+
+  // Handle scroll events for event banner dots indicator
+  const handleEventScroll = (event: any) => {
+    const slideSize = event.nativeEvent.layoutMeasurement.width;
+    const index = event.nativeEvent.contentOffset.x / slideSize;
+    const roundIndex = Math.round(index);
+    setCurrentEventPage(roundIndex);
+  };
+
+  // Featured events for hero banner
+  const featuredEvents = mockEventsData.filter(event => event.isHot).slice(0, 3);
 
   // Different heights for waterfall layout
   const waterfallHeights = [140, 120, 160, 130, 150, 110];
@@ -60,17 +72,101 @@ const TrendingScreen: React.FC = () => {
       paddingTop: spacing.sm,
       paddingBottom: spacing.xl,
     },
+    
+    // Hero Banner Styles
+    heroBanner: {
+      height: 200,
+      marginBottom: spacing.sm,
+    },
+    heroScrollView: {
+      flex: 1,
+    },
+    heroCard: {
+      width: width,
+      height: 200,
+      position: 'relative',
+    },
+    heroImage: {
+      width: '100%',
+      height: '100%',
+      resizeMode: 'cover',
+    },
+    heroOverlay: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: 'rgba(0,0,0,0.6)',
+      padding: spacing.md,
+    },
+    heroTitle: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: '700',
+      color: '#FFFFFF',
+      marginBottom: spacing.xs,
+    },
+    heroSubtitle: {
+      fontSize: typography.fontSize.sm,
+      color: '#FFFFFF',
+      marginBottom: spacing.xs,
+    },
+    heroMeta: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    heroPrice: {
+      fontSize: typography.fontSize.md,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+    heroAttendees: {
+      fontSize: typography.fontSize.sm,
+      color: '#FFFFFF',
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    heroBadge: {
+      position: 'absolute',
+      top: spacing.md,
+      left: spacing.md,
+      backgroundColor: colors.primary,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.sm,
+    },
+    heroBadgeText: {
+      fontSize: typography.fontSize.xs,
+      fontWeight: '700',
+      color: '#FFFFFF',
+    },
+    dotsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+    },
+    dot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.border,
+      marginHorizontal: 4,
+    },
+    dotActive: {
+      backgroundColor: colors.primary,
+    },
     // Waterfall Layout
     waterfallContainer: {
       flexDirection: 'row',
-      paddingHorizontal: spacing.sm,
+      paddingHorizontal: spacing.xs,
       justifyContent: 'space-between',
       alignItems: 'flex-start',
     },
     waterfallColumn: {
       flex: 1,
-      marginHorizontal: spacing.xs,
-      maxWidth: '49%',
+      marginHorizontal: 2,
+      maxWidth: '48%',
     },
     mainCategories: {
       flexDirection: 'row',
@@ -347,6 +443,51 @@ const TrendingScreen: React.FC = () => {
       />
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        {/* Featured Events Hero Banner */}
+        <View style={styles.heroBanner}>
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={handleEventScroll}
+            scrollEventThrottle={16}
+            style={styles.heroScrollView}
+          >
+            {featuredEvents.map((event) => (
+              <TouchableOpacity key={event.id} style={styles.heroCard}>
+                <Image source={{ uri: event.image }} style={styles.heroImage} />
+                <View style={styles.heroBadge}>
+                  <Text style={styles.heroBadgeText}>🔥 HOT EVENT</Text>
+                </View>
+                <View style={styles.heroOverlay}>
+                  <Text style={styles.heroTitle}>{event.title}</Text>
+                  <Text style={styles.heroSubtitle}>{event.location} • {event.date}</Text>
+                  <View style={styles.heroMeta}>
+                    <Text style={styles.heroPrice}>{event.price}</Text>
+                    <View style={styles.heroAttendees}>
+                      <Ionicons name="people-outline" size={14} color="#FFFFFF" />
+                      <Text style={{ marginLeft: 4 }}>{event.attendees}</Text>
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          
+          {/* Dots Indicator */}
+          <View style={styles.dotsContainer}>
+            {featuredEvents.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.dot,
+                  currentEventPage === index && styles.dotActive
+                ]}
+              />
+            ))}
+          </View>
+        </View>
+
         {/* Main Category Buttons */}
         <View style={styles.mainCategories}>
           <TouchableOpacity
