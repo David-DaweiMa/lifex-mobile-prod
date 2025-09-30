@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Dimensions,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -18,7 +19,7 @@ import { Message } from '../types';
 import { chatService } from '../services/chatService';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const ChatScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -33,7 +34,13 @@ const ChatScreen: React.FC = () => {
   const [isInConversation, setIsInConversation] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
-  const [hasConversationHistory, setHasConversationHistory] = useState(false);
+  const [showRecentChats, setShowRecentChats] = useState(false);
+  const [recentChats] = useState([
+    { id: 1, title: "Coffee shops in Ponsonby", preview: "Best coffee shops in Ponsonby?" },
+    { id: 2, title: "Kid-friendly restaurants", preview: "Kid-friendly restaurants with play areas" },
+    { id: 3, title: "Plumber services", preview: "Plumber for blocked drains" },
+    { id: 4, title: "House cleaning", preview: "House cleaner for weekly visits" },
+  ]);
   
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -70,7 +77,7 @@ const ChatScreen: React.FC = () => {
     setIsInConversation(true);
     setIsTyping(true);
     setChatInput('');
-    setHasConversationHistory(true);
+    setShowRecentChats(false);
 
     try {
       const response = await chatService.sendMessage(query);
@@ -104,10 +111,27 @@ const ChatScreen: React.FC = () => {
     }
   };
 
-  const handleBackToMain = () => {
+  const handleNewChat = () => {
+    setMessages([{
+      type: 'assistant',
+      content: "G'day! What can I help you find today?",
+      assistant: 'lifex'
+    }]);
     setIsInConversation(false);
     setFollowUpQuestions([]);
+    setShowRecentChats(false);
   };
+
+  const handleRecentChatSelect = (chat: any) => {
+    // Simulate loading a previous chat
+    setMessages([
+      { type: 'user', content: chat.preview },
+      { type: 'assistant', content: "I remember helping you with that! Here's what I found..." }
+    ]);
+    setIsInConversation(true);
+    setShowRecentChats(false);
+  };
+
 
   // Updated quick prompts based on the image
   const quickPrompts = [
@@ -125,12 +149,6 @@ const ChatScreen: React.FC = () => {
     "Gym with personal trainers"
   ];
 
-  // Updated recent discoveries based on the image
-  const recentDiscoveries = [
-    { text: "Best brunch spots in Mt Eden with outdoor seating" },
-    { text: "Affordable personal trainer near Albany for beginners" },
-    { text: "Emergency vet open late nights in West Auckland" }
-  ];
 
   const styles = StyleSheet.create({
     container: {
@@ -150,10 +168,6 @@ const ChatScreen: React.FC = () => {
       flexDirection: 'row',
       alignItems: 'center',
       flex: 1,
-    },
-    backButton: {
-      padding: spacing.sm,
-      marginRight: spacing.sm,
     },
     logo: {
       width: 32,
@@ -290,6 +304,7 @@ const ChatScreen: React.FC = () => {
     followUpQuestionText: {
       fontSize: typography.fontSize.sm,
       color: colors.text,
+      textAlign: 'left',
     },
     inputContainer: {
       padding: spacing.sm,
@@ -301,50 +316,6 @@ const ChatScreen: React.FC = () => {
       color: colors.text,
       fontSize: typography.fontSize.md,
       fontWeight: '500',
-    },
-    // Main landing page styles - based on the image design
-    mainContent: {
-      flex: 1,
-      paddingHorizontal: spacing.xs,
-      paddingVertical: spacing.sm,
-    },
-    heroSection: {
-      alignItems: 'center',
-      marginBottom: spacing.md,
-      paddingTop: spacing.sm,
-    },
-    chatBubble: {
-      backgroundColor: colors.surface,
-      borderRadius: borderRadius.xl,
-      paddingVertical: spacing.xl * 2,
-      paddingHorizontal: spacing.lg,
-      marginHorizontal: 2,
-      borderWidth: 1,
-      borderColor: colors.border,
-      maxWidth: width * 0.98,
-      minHeight: 120,
-      shadowColor: '#000',
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
-      shadowOpacity: 0.1,
-      shadowRadius: 8,
-      elevation: 4,
-    },
-    chatBubbleMessage: {
-      fontSize: typography.fontSize.lg,
-      fontWeight: '700',
-      color: colors.text,
-      textAlign: 'center',
-      lineHeight: typography.fontSize.lg * 1.3,
-    },
-    inputSection: {
-      backgroundColor: 'transparent',
-      borderRadius: borderRadius.lg,
-      padding: spacing.xs,
-      marginHorizontal: 0,
-      marginBottom: 0,
     },
     inputRow: {
       flexDirection: 'row',
@@ -383,154 +354,279 @@ const ChatScreen: React.FC = () => {
       alignItems: 'center',
       justifyContent: 'center',
     },
+    // Main page styles - simplified like Claude
+    mainContent: {
+      flex: 1,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+    },
+    greetingSection: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingVertical: spacing.md,
+    },
+    greetingText: {
+      fontSize: typography.fontSize.xl,
+      fontWeight: '600',
+      color: colors.text,
+      textAlign: 'center',
+      marginBottom: spacing.lg,
+      lineHeight: typography.fontSize.xl * 1.4,
+    },
     quickPromptsContainer: {
-      marginBottom: spacing.md,
+      marginTop: spacing.xs,
+      paddingBottom: spacing.xs,
+    },
+    quickPromptsScrollView: {
+      maxHeight: 140,
+    },
+    quickPromptsScrollContent: {
+      paddingHorizontal: spacing.md,
+    },
+    quickPromptsRowsContainer: {
+      flexDirection: 'column',
+      gap: spacing.xs,
     },
     quickPromptsRow: {
-      marginBottom: spacing.sm,
-    },
-    quickPromptsRowContent: {
-      paddingHorizontal: spacing.xs,
-      gap: spacing.xs,
+      flexDirection: 'row',
+      gap: spacing.sm,
     },
     quickPrompt: {
       backgroundColor: colors.surface,
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      borderRadius: borderRadius.full,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.lg,
       borderWidth: 1,
       borderColor: colors.border,
+      height: 60,
       minWidth: 120,
-      alignItems: 'center',
+      maxWidth: 180,
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+      shadowColor: colors.primary,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+      elevation: 2,
     },
     quickPromptText: {
       fontSize: typography.fontSize.sm,
       color: colors.text,
-      textAlign: 'center',
+      textAlign: 'left',
+      lineHeight: typography.fontSize.sm * 1.3,
+      flexWrap: 'wrap',
     },
-    recentDiscoveriesContainer: {
-      marginTop: spacing.xl * 2,
-      marginBottom: spacing.md,
-    },
-    recentDiscoveriesHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: spacing.sm,
-      paddingHorizontal: spacing.xs,
-    },
-    recentDiscoveriesTitle: {
-      fontSize: typography.fontSize.xl,
-      fontWeight: '700',
-      color: colors.text,
-    },
-    seeAllLink: {
-      fontSize: typography.fontSize.md,
-      color: '#FFFFFF',
-      fontWeight: '500',
-    },
-    recentDiscoveriesList: {
-      paddingHorizontal: spacing.xs,
-    },
-    recentDiscovery: {
+    inputSection: {
       backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
       padding: spacing.sm,
-      borderRadius: borderRadius.md,
+      marginTop: spacing.sm,
+      marginBottom: spacing.xs,
       borderWidth: 1,
       borderColor: colors.border,
-      marginBottom: spacing.xs,
+      shadowColor: colors.primary,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+      elevation: 2,
     },
-    recentDiscoveryText: {
-      fontSize: typography.fontSize.sm,
-      color: colors.text,
-      lineHeight: typography.fontSize.sm * 1.3,
+    // Recent chats modal styles
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'flex-start',
+      paddingTop: 100,
     },
-    legalContainer: {
-      alignItems: 'center',
-      paddingVertical: spacing.lg,
-      paddingHorizontal: spacing.md,
-      marginTop: spacing.xl,
-    },
-    legalText: {
-      fontSize: typography.fontSize.sm,
-      color: colors.textSecondary,
-      textAlign: 'center',
-      lineHeight: typography.fontSize.sm * 1.5,
-    },
-    legalLink: {
-      color: colors.primary,
-      textDecorationLine: 'underline',
-    },
-    // Main container with background
-    mainContainer: {
-      backgroundColor: '#1A1625',
-      borderRadius: borderRadius.xl,
-      margin: spacing.sm,
-      padding: spacing.lg,
+    modalContent: {
+      backgroundColor: colors.surface,
+      marginHorizontal: spacing.md,
+      borderRadius: borderRadius.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
       shadowColor: '#000',
       shadowOffset: {
         width: 0,
         height: 4,
       },
-      shadowOpacity: 0.1,
+      shadowOpacity: 0.25,
       shadowRadius: 8,
-      elevation: 4,
+      elevation: 8,
+      marginTop: spacing.xl,
     },
-    // Greeting container styles - matching the design
-    greetingContainer: {
-      paddingHorizontal: 0,
-      paddingTop: 0,
-      marginBottom: spacing.sm,
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
     },
-    greetingText: {
-      fontSize: typography.fontSize.xl,
-      fontWeight: 'normal',
-      color: '#FFFFFF',
-      textAlign: 'left',
-      lineHeight: typography.fontSize.xl * 1.3,
-    },
-    conversationScrollView: {
-      maxHeight: 200,
-      marginBottom: spacing.xs,
-    },
-    compactMessageContainer: {
-      marginBottom: spacing.xs,
-    },
-    compactMessage: {
-      padding: spacing.sm,
-      borderRadius: borderRadius.md,
-      maxWidth: '90%',
-    },
-    compactUserMessage: {
-      alignSelf: 'flex-end',
-      backgroundColor: colors.secondary,
-      marginLeft: 'auto',
-    },
-    compactAssistantMessage: {
-      alignSelf: 'flex-start',
-      backgroundColor: 'transparent',
-      marginRight: 'auto',
-    },
-    compactMessageText: {
-      fontSize: typography.fontSize.sm,
-      lineHeight: typography.fontSize.sm * 1.4,
-    },
-    compactUserMessageText: {
-      color: '#FFFFFF',
-    },
-    compactAssistantMessageText: {
+    modalTitle: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: '600',
       color: colors.text,
     },
+    modalCloseButton: {
+      padding: spacing.sm,
+    },
+    recentChatItem: {
+      padding: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    recentChatTitle: {
+      fontSize: typography.fontSize.md,
+      fontWeight: '500',
+      color: colors.text,
+      marginBottom: spacing.xs,
+    },
+    recentChatPreview: {
+      fontSize: typography.fontSize.sm,
+      color: colors.textSecondary,
+      lineHeight: typography.fontSize.sm * 1.3,
+    },
+    newChatModalItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      backgroundColor: colors.surface,
+      marginHorizontal: 0,
+      marginVertical: spacing.sm,
+      borderRadius: borderRadius.lg,
+      minHeight: 60,
+    },
+    newChatContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    newChatIcon: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      backgroundColor: colors.secondary + '20',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: spacing.md,
+    },
+    newChatText: {
+      fontSize: typography.fontSize.md,
+      fontWeight: '500',
+      color: colors.text,
+    },
+    recentChatsSection: {
+      marginTop: spacing.sm,
+    },
+    recentChatsSectionTitle: {
+      fontSize: typography.fontSize.sm,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    // Recent chats button styles
+    recentChatsButtonContainer: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      backgroundColor: colors.background,
+      alignItems: 'flex-start',
+    },
+    recentChatsButton: {
+      width: 32,
+      height: 32,
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: colors.primary,
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
+    },
   });
+
+  // Render recent chats modal
+  const renderRecentChatsModal = () => {
+    return (
+      <Modal
+        visible={showRecentChats}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowRecentChats(false)}
+      >
+      <TouchableOpacity 
+        style={styles.modalOverlay}
+        activeOpacity={1}
+        onPress={() => setShowRecentChats(false)}
+      >
+        <TouchableOpacity style={styles.modalContent} activeOpacity={1}>
+          
+          {/* New Chat Option - At the top */}
+          <View style={styles.newChatModalItem}>
+            <TouchableOpacity
+              style={styles.newChatContent}
+              onPress={() => {
+                handleNewChat();
+                setShowRecentChats(false);
+              }}
+            >
+              <View style={styles.newChatIcon}>
+                <Ionicons name="add" size={20} color={colors.primary} />
+              </View>
+              <Text style={styles.newChatText}>New Chat</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.modalCloseButton}
+              onPress={() => setShowRecentChats(false)}
+            >
+              <Ionicons name="close" size={24} color={colors.text} />
+            </TouchableOpacity>
+          </View>
+          
+          {/* Recent Chats Section */}
+          <View style={styles.recentChatsSection}>
+            <Text style={styles.recentChatsSectionTitle}>Recent Chats</Text>
+            {recentChats.map((chat) => (
+              <TouchableOpacity
+                key={chat.id}
+                style={styles.recentChatItem}
+                onPress={() => handleRecentChatSelect(chat)}
+              >
+                <Text style={styles.recentChatTitle}>{chat.title}</Text>
+                <Text style={styles.recentChatPreview}>{chat.preview}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </TouchableOpacity>
+    </Modal>
+    );
+  };
 
   if (isInConversation) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <TouchableOpacity onPress={handleBackToMain} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={20} color={colors.primary} />
-            </TouchableOpacity>
             <View style={styles.logo}>
               <Text style={styles.logoText}>LX</Text>
             </View>
@@ -547,6 +643,16 @@ const ChatScreen: React.FC = () => {
               <Ionicons name="person-outline" size={20} color={colors.primary} />
             </TouchableOpacity>
           </View>
+        </View>
+
+        {/* Recent Chats Button - Below Header */}
+        <View style={styles.recentChatsButtonContainer}>
+          <TouchableOpacity 
+            onPress={() => setShowRecentChats(true)} 
+            style={styles.recentChatsButton}
+          >
+            <Ionicons name="menu" size={20} color={colors.primary} />
+          </TouchableOpacity>
         </View>
 
         <ScrollView 
@@ -612,7 +718,7 @@ const ChatScreen: React.FC = () => {
               style={styles.textInput}
               value={chatInput}
               onChangeText={setChatInput}
-              placeholder="Ask me anything about New Zealand..."
+              placeholder=""
               placeholderTextColor="#9CA3AF"
               multiline
             />
@@ -621,167 +727,116 @@ const ChatScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
+
+        {renderRecentChatsModal()}
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header 
-        title="LifeX" 
-        subtitle="Explore Kiwi's hidden gems with AI"
-        onSearchPress={handleSearchPress}
-        onProfilePress={handleProfilePress}
-      />
-
-      <ScrollView style={styles.mainContent} contentContainerStyle={{ paddingBottom: spacing.sm }}>
-        {/* Main container with background */}
-        <View style={styles.mainContainer}>
-          {/* Greeting or Conversation History */}
-          <View style={styles.greetingContainer}>
-            {hasConversationHistory ? (
-              <ScrollView 
-                style={styles.conversationScrollView}
-                showsVerticalScrollIndicator={true}
-                nestedScrollEnabled={true}
-              >
-                {messages.map((message, index) => (
-                  <View key={index} style={styles.compactMessageContainer}>
-                    <View style={[
-                      styles.compactMessage,
-                      message.type === 'user' ? styles.compactUserMessage : styles.compactAssistantMessage
-                    ]}>
-                      <Text style={[
-                        styles.compactMessageText,
-                        message.type === 'user' ? styles.compactUserMessageText : styles.compactAssistantMessageText
-                      ]}>
-                        {message.content}
-                      </Text>
-                    </View>
-                  </View>
-                ))}
-              </ScrollView>
-            ) : (
-              <Text style={styles.greetingText}>
-                G'day! What can I help you find today?
-              </Text>
-            )}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <View style={styles.logo}>
+            <Text style={styles.logoText}>LX</Text>
           </View>
-
-          {/* Input Section - based on image */}
-          <View style={styles.inputSection}>
-            <View style={styles.inputRow}>
-              <TouchableOpacity style={styles.addButton}>
-                <Ionicons name="add" size={20} color={colors.secondary} />
-              </TouchableOpacity>
-              <TextInput
-                style={styles.textInput}
-                value={chatInput}
-                onChangeText={setChatInput}
-                placeholder="Type your message..."
-                placeholderTextColor="#9CA3AF"
-              />
-              <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
-                <Ionicons name="send" size={20} color="#FFFFFF" />
-              </TouchableOpacity>
-            </View>
+          <View>
+            <Text style={styles.headerTitle}>LifeX</Text>
+            <Text style={styles.headerSubtitle}>Your AI companion</Text>
           </View>
         </View>
-
-        {/* Quick Prompts Section - based on image */}
-        <View style={styles.quickPromptsContainer}>
-          {/* First Row */}
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            style={styles.quickPromptsRow}
-            contentContainerStyle={styles.quickPromptsRowContent}
-          >
-            {quickPrompts.slice(0, 4).map((prompt, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.quickPrompt}
-                onPress={() => handleQuickPrompt(prompt)}
-              >
-                <Text style={styles.quickPromptText}>{prompt}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-
-          {/* Second Row */}
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            style={styles.quickPromptsRow}
-            contentContainerStyle={styles.quickPromptsRowContent}
-          >
-            {quickPrompts.slice(4, 8).map((prompt, index) => (
-              <TouchableOpacity
-                key={index + 4}
-                style={styles.quickPrompt}
-                onPress={() => handleQuickPrompt(prompt)}
-              >
-                <Text style={styles.quickPromptText}>{prompt}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-
-          {/* Third Row */}
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            style={styles.quickPromptsRow}
-            contentContainerStyle={styles.quickPromptsRowContent}
-          >
-            {quickPrompts.slice(8, 12).map((prompt, index) => (
-              <TouchableOpacity
-                key={index + 8}
-                style={styles.quickPrompt}
-                onPress={() => handleQuickPrompt(prompt)}
-              >
-                <Text style={styles.quickPromptText}>{prompt}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+        <View style={styles.headerRight}>
+          <TouchableOpacity style={styles.headerButton} onPress={handleSearchPress}>
+            <Ionicons name="search-outline" size={20} color={colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.headerButton} onPress={handleProfilePress}>
+            <Ionicons name="person-outline" size={20} color={colors.primary} />
+          </TouchableOpacity>
         </View>
+      </View>
 
-        {/* Recent Discoveries Section - based on image */}
-        <View style={styles.recentDiscoveriesContainer}>
-          <View style={styles.recentDiscoveriesHeader}>
-            <Text style={styles.recentDiscoveriesTitle}>Recent Discoveries</Text>
-            <TouchableOpacity>
-              <Text style={styles.seeAllLink}>See all</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.recentDiscoveriesList}>
-            {recentDiscoveries.map((discovery, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.recentDiscovery}
-                onPress={() => handleQuickPrompt(discovery.text)}
-              >
-                <Text style={styles.recentDiscoveryText}>{discovery.text}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+      {/* Recent Chats Button - Below Header */}
+      <View style={styles.recentChatsButtonContainer}>
+        <TouchableOpacity 
+          onPress={() => setShowRecentChats(true)} 
+          style={styles.recentChatsButton}
+        >
+          <Ionicons name="menu" size={20} color={colors.primary} />
+        </TouchableOpacity>
+      </View>
 
-        {/* Legal Links */}
-        <View style={styles.legalContainer}>
-          <Text style={styles.legalText}>
-            By using LifeX, you agree to our{' '}
-            <Text style={styles.legalLink} onPress={handleNavigateToTerms}>
-              Terms of Service
-            </Text>
-            {' '}and{' '}
-            <Text style={styles.legalLink} onPress={handleNavigateToPrivacy}>
-              Privacy Policy
-            </Text>
+      <View style={styles.mainContent}>
+        {/* Greeting Section */}
+        <View style={styles.greetingSection}>
+          <Text style={styles.greetingText}>
+            G'day! What can I help you find today?
           </Text>
         </View>
-      </ScrollView>
+
+        {/* Input Section */}
+        <View style={styles.inputSection}>
+          <View style={styles.inputRow}>
+            <TouchableOpacity style={styles.addButton}>
+              <Ionicons name="add" size={20} color={colors.secondary} />
+            </TouchableOpacity>
+            <TextInput
+              style={styles.textInput}
+              value={chatInput}
+              onChangeText={setChatInput}
+              placeholder="Ask me anything about New Zealand..."
+              placeholderTextColor="#9CA3AF"
+              onSubmitEditing={handleSendMessage}
+              returnKeyType="send"
+            />
+            <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
+              <Ionicons name="send" size={20} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Quick Prompts - Two Rows Layout */}
+        <View style={styles.quickPromptsContainer}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.quickPromptsScrollContent}
+            style={styles.quickPromptsScrollView}
+          >
+            {/* Container for both rows */}
+            <View style={styles.quickPromptsRowsContainer}>
+              {/* First Row */}
+              <View style={styles.quickPromptsRow}>
+                {quickPrompts.slice(0, 4).map((prompt, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.quickPrompt}
+                    onPress={() => handleQuickPrompt(prompt)}
+                  >
+                    <Text style={styles.quickPromptText}>{prompt}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              
+              {/* Second Row */}
+              <View style={styles.quickPromptsRow}>
+                {quickPrompts.slice(4, 8).map((prompt, index) => (
+                  <TouchableOpacity
+                    key={index + 4}
+                    style={styles.quickPrompt}
+                    onPress={() => handleQuickPrompt(prompt)}
+                  >
+                    <Text style={styles.quickPromptText}>{prompt}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          </ScrollView>
+        </View>
+      </View>
+
+      {renderRecentChatsModal()}
     </SafeAreaView>
   );
-};
+}
 
 export default ChatScreen;
