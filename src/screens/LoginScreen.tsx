@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { AuthTextInput } from '../components/AuthTextInput';
 import { AuthButton } from '../components/AuthButton';
 import { colors, spacing, typography } from '../constants/theme';
@@ -49,9 +50,16 @@ const LoginScreen: React.FC<any> = ({ navigation }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={styles.inner}>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={28} color={colors.text} />
+        </TouchableOpacity>
+
         <View style={styles.header}>
-          <Text style={styles.title}>Welcome back</Text>
-          <Text style={styles.subtitle}>Log in to continue</Text>
+          <Text style={styles.title}>Log in to LifeX</Text>
+          <Text style={styles.subtitle}>Enter your credentials to continue</Text>
         </View>
 
         <View style={styles.form}>
@@ -103,8 +111,13 @@ const styles = StyleSheet.create({
   inner: {
     flex: 1,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xxl,
+    paddingTop: spacing.md,
     justifyContent: 'space-between',
+  },
+  backButton: {
+    padding: spacing.sm,
+    marginBottom: spacing.md,
+    alignSelf: 'flex-start',
   },
   header: {
     marginBottom: spacing.lg,

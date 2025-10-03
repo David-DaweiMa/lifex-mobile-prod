@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { AuthTextInput } from '../components/AuthTextInput';
 import { AuthButton } from '../components/AuthButton';
 import { colors, spacing, typography } from '../constants/theme';
@@ -60,6 +61,13 @@ const RegisterScreen: React.FC<any> = ({ navigation }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.inner} keyboardShouldPersistTaps="handled">
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={28} color={colors.text} />
+        </TouchableOpacity>
+
         <View style={styles.header}>
           <Text style={styles.title}>Create account</Text>
           <Text style={styles.subtitle}>Join LifeX today</Text>
@@ -121,8 +129,13 @@ const styles = StyleSheet.create({
   inner: {
     flexGrow: 1,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xxl,
+    paddingTop: spacing.md,
     paddingBottom: spacing.xl,
+  },
+  backButton: {
+    padding: spacing.sm,
+    marginBottom: spacing.md,
+    alignSelf: 'flex-start',
   },
   header: {
     marginBottom: spacing.lg,
