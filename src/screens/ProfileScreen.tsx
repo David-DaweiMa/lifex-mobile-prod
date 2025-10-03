@@ -22,14 +22,29 @@ const ProfileScreen: React.FC = () => {
 
   const handleMenuPress = (itemId: string) => {
     switch (itemId) {
+      case 'favorites':
+        navigation.navigate('Favorites' as never);
+        break;
+      case 'history':
+        navigation.navigate('History' as never);
+        break;
+      case 'subscription':
+        navigation.navigate('Membership' as never);
+        break;
       case 'privacy':
         navigation.navigate('PrivacyPolicy' as never);
         break;
       case 'terms':
         navigation.navigate('TermsOfService' as never);
         break;
-      case 'subscription':
-        navigation.navigate('Membership' as never); // 导航到Membership页面
+      case 'settings':
+        navigation.navigate('Settings' as never);
+        break;
+      case 'help':
+        navigation.navigate('Help' as never);
+        break;
+      case 'about':
+        navigation.navigate('About' as never);
         break;
       default:
         console.log(`Menu item pressed: ${itemId}`);

@@ -19,6 +19,11 @@ import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import VerifyEmailScreen from '../screens/VerifyEmailScreen';
 import PasswordResetScreen from '../screens/PasswordResetScreen';
+import FavoritesScreen from '../screens/FavoritesScreen';
+import HistoryScreen from '../screens/HistoryScreen';
+import SettingsScreen from '../screens/SettingsScreen';
+import HelpScreen from '../screens/HelpScreen';
+import AboutScreen from '../screens/AboutScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -103,6 +108,11 @@ export default function AppNavigator() {
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="Membership" component={MembershipScreen} />
       <Stack.Screen name="Subscription" component={SubscriptionScreen} />
+      <Stack.Screen name="Favorites" component={FavoritesScreen} />
+      <Stack.Screen name="History" component={HistoryScreen} />
+      <Stack.Screen name="Settings" component={SettingsScreen} />
+      <Stack.Screen name="Help" component={HelpScreen} />
+      <Stack.Screen name="About" component={AboutScreen} />
       <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
       <Stack.Screen name="TermsOfService" component={TermsOfServiceScreen} />
       <Stack.Screen name="Search" component={SearchScreen} />
