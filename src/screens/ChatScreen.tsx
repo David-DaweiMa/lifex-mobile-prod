@@ -69,7 +69,11 @@ const ChatScreen: React.FC = () => {
   };
 
   const handleProfilePress = () => {
-    navigation.navigate('Profile' as never);
+    if (user) {
+      navigation.navigate('Profile' as never);
+    } else {
+      navigation.navigate('Login' as never);
+    }
   };
 
   const scrollToBottom = () => {
@@ -657,25 +661,12 @@ const ChatScreen: React.FC = () => {
   if (isInConversation) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <View style={styles.logo}>
-              <Text style={styles.logoText}>LX</Text>
-            </View>
-            <View>
-              <Text style={styles.headerTitle}>LifeX AI</Text>
-              <Text style={styles.headerSubtitle}>Your AI companion</Text>
-            </View>
-          </View>
-          <View style={styles.headerRight}>
-            <TouchableOpacity style={styles.headerButton}>
-              <Ionicons name="notifications-outline" size={20} color={colors.primary} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.headerButton}>
-              <Ionicons name="person-outline" size={20} color={colors.primary} />
-            </TouchableOpacity>
-          </View>
-        </View>
+        <Header
+          title="LifeX Chat"
+          subtitle="Personalised recommendations in real time"
+          onSearchPress={handleSearchPress}
+          onProfilePress={handleProfilePress}
+        />
 
         {/* Recent Chats Button - Below Header */}
         <View style={styles.recentChatsButtonContainer}>
@@ -767,25 +758,12 @@ const ChatScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <View style={styles.logo}>
-            <Text style={styles.logoText}>LX</Text>
-          </View>
-          <View>
-            <Text style={styles.headerTitle}>LifeX</Text>
-            <Text style={styles.headerSubtitle}>Your AI companion</Text>
-          </View>
-        </View>
-        <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.headerButton} onPress={handleSearchPress}>
-            <Ionicons name="search-outline" size={20} color={colors.primary} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.headerButton} onPress={handleProfilePress}>
-            <Ionicons name="person-outline" size={20} color={colors.primary} />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <Header
+        title="LifeX"
+        subtitle="Your AI companion"
+        onSearchPress={handleSearchPress}
+        onProfilePress={handleProfilePress}
+      />
 
       {/* Recent Chats Button - Below Header */}
       <View style={styles.recentChatsButtonContainer}>
