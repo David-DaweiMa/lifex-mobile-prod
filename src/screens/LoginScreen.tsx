@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthTextInput } from '../components/AuthTextInput';
 import { AuthButton } from '../components/AuthButton';
@@ -45,24 +46,25 @@ const LoginScreen: React.FC<any> = ({ navigation }) => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <View style={styles.inner}>
-        <TouchableOpacity 
-          style={styles.backButton} 
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={28} color={colors.text} />
-        </TouchableOpacity>
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <View style={styles.inner}>
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="arrow-back" size={28} color={colors.text} />
+          </TouchableOpacity>
 
-        <View style={styles.header}>
-          <Text style={styles.title}>Log in to LifeX</Text>
-          <Text style={styles.subtitle}>Enter your credentials to continue</Text>
-        </View>
+          <View style={styles.header}>
+            <Text style={styles.title}>Log in to LifeX</Text>
+            <Text style={styles.subtitle}>Enter your credentials to continue</Text>
+          </View>
 
-        <View style={styles.form}>
+          <View style={styles.form}>
           <AuthTextInput
             label="Email"
             value={email}
@@ -92,14 +94,15 @@ const LoginScreen: React.FC<any> = ({ navigation }) => {
           <AuthButton title="Log In" onPress={handleLogin} loading={isLoading} />
         </View>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account?</Text>
-          <TouchableOpacity onPress={goToRegister}>
-            <Text style={styles.signupLink}>Sign up</Text>
-          </TouchableOpacity>
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Don't have an account?</Text>
+            <TouchableOpacity onPress={goToRegister}>
+              <Text style={styles.signupLink}>Sign up</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
@@ -108,10 +111,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  keyboardView: {
+    flex: 1,
+  },
   inner: {
     flex: 1,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
+    paddingTop: spacing.sm,
     justifyContent: 'space-between',
   },
   backButton: {
