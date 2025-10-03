@@ -21,7 +21,7 @@ export async function registerUser({
       password,
       options: {
         data: metadata,
-        emailRedirectTo,
+        ...(emailRedirectTo ? { emailRedirectTo } : {}),
       },
     });
 
@@ -118,7 +118,7 @@ export async function sendPasswordReset(email: string): Promise<AuthResponse> {
   try {
     const redirectTo = process.env.EXPO_PUBLIC_PASSWORD_RESET_REDIRECT;
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo,
+      ...(redirectTo ? { redirectTo } : {}),
     });
 
     if (error) {

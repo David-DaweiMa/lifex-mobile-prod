@@ -66,13 +66,13 @@ const ProfileScreen: React.FC = () => {
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>👤</Text>
           </View>
-          <View style={styles.userInfo}>
-            <Text style={styles.userName}>{user?.full_name || 'LifeX Explorer'}</Text>
-            <Text style={styles.userEmail}>{user?.email}</Text>
-            <View style={styles.userBadge}>
-              <Text style={styles.userBadgeText}>{user?.subscription_level || 'Free Plan'}</Text>
-            </View>
+        <View style={styles.userInfo}>
+          <Text style={styles.userName}>{user?.full_name || 'LifeX Explorer'}</Text>
+          <Text style={styles.userEmail}>{user?.email || 'Guest user'}</Text>
+          <View style={styles.userBadge}>
+            <Text style={styles.userBadgeText}>{user?.subscription_level || 'Guest Access'}</Text>
           </View>
+        </View>
         </View>
 
         {/* Quick Stats */}
@@ -136,9 +136,18 @@ const ProfileScreen: React.FC = () => {
         </View>
 
         {/* Logout Button */}
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>Sign Out</Text>
-        </TouchableOpacity>
+        {user ? (
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutButtonText}>Sign Out</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={[styles.logoutButton, styles.loginButton]}
+            onPress={() => navigation.navigate('Login' as never)}
+          >
+            <Text style={styles.loginButtonText}>Sign In</Text>
+          </TouchableOpacity>
+        )}
 
         {/* App Info */}
         <View style={styles.appInfoContainer}>
@@ -361,10 +370,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.xl,
   },
+  loginButton: {
+    borderColor: colors.primary,
+  },
   logoutButtonText: {
     fontSize: typography.fontSize.md,
     fontWeight: typography.fontWeight.medium,
     color: colors.error,
+  },
+  loginButtonText: {
+    fontSize: typography.fontSize.md,
+    fontWeight: typography.fontWeight.medium,
+    color: colors.primary,
   },
   appInfoContainer: {
     alignItems: 'center',

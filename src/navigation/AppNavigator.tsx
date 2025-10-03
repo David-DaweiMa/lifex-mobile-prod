@@ -4,8 +4,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, typography } from '../constants/theme';
-
-// Import screens
 import TrendingScreen from '../screens/TrendingScreen';
 import DiscoverScreen from '../screens/DiscoverScreen';
 import SpecialsScreen from '../screens/SpecialsScreen';

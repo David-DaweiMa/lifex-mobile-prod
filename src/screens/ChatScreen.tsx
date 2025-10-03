@@ -18,11 +18,13 @@ import Header from '../components/Header';
 import { Message } from '../types';
 import { chatService } from '../services/chatService';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
+import { useAuthContext } from '../context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 
 const ChatScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { user } = useAuthContext();
   const [messages, setMessages] = useState<Message[]>([
     {
       type: 'assistant',
@@ -35,6 +37,17 @@ const ChatScreen: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const [showRecentChats, setShowRecentChats] = useState(false);
+  const [guestMessageCount, setGuestMessageCount] = useState(0);
+  const [guestNotice, setGuestNotice] = useState<string | null>(null);
+  useEffect(() => {
+    if (user) {
+      setGuestNotice(null);
+      setGuestMessageCount(0);
+    } else {
+      setGuestNotice(`Guest mode: ${guestQuota - guestMessageCount} chats remaining today.`);
+    }
+  }, [user]);
+  const guestQuota = 5;
   const [recentChats] = useState([
     { id: 1, title: "Coffee shops in Ponsonby", preview: "Best coffee shops in Ponsonby?" },
     { id: 2, title: "Kid-friendly restaurants", preview: "Kid-friendly restaurants with play areas" },
@@ -43,7 +56,6 @@ const ChatScreen: React.FC = () => {
   ]);
   
   const scrollViewRef = useRef<ScrollView>(null);
-
   const handleNavigateToPrivacy = () => {
     navigation.navigate('PrivacyPolicy' as never);
   };
@@ -72,6 +84,11 @@ const ChatScreen: React.FC = () => {
 
 
   const handleUserQuery = async (query: string) => {
+    if (!user && guestMessageCount >= guestQuota) {
+      setGuestNotice('Guest limit reached. Sign in for unlimited chat.');
+      return;
+    }
+
     const userMessage: Message = { type: 'user', content: query };
     setMessages(prev => [...prev, userMessage]);
     setIsInConversation(true);
@@ -80,7 +97,7 @@ const ChatScreen: React.FC = () => {
     setShowRecentChats(false);
 
     try {
-      const response = await chatService.sendMessage(query);
+      const response = await chatService.sendMessage(query, user?.id);
       const assistantMessage: Message = {
         type: 'assistant',
         content: response.message,
@@ -88,6 +105,17 @@ const ChatScreen: React.FC = () => {
       };
       setMessages(prev => [...prev, assistantMessage]);
       setFollowUpQuestions(response.followUpQuestions || []);
+      if (!user) {
+        setGuestMessageCount(count => {
+          const next = count + 1;
+          if (next >= guestQuota) {
+            setGuestNotice('Guest limit reached. Sign in for unlimited chat.');
+          } else {
+            setGuestNotice(`Guest mode: ${guestQuota - next} chats remaining today.`);
+          }
+          return next;
+        });
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage: Message = {
@@ -120,6 +148,10 @@ const ChatScreen: React.FC = () => {
     setIsInConversation(false);
     setFollowUpQuestions([]);
     setShowRecentChats(false);
+    if (!user) {
+      setGuestMessageCount(0);
+      setGuestNotice(`Guest mode: ${guestQuota} chats remaining today.`);
+    }
   };
 
   const handleRecentChatSelect = (chat: any) => {
