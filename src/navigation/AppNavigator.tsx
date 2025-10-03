@@ -1,5 +1,4 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Text } from 'react-native';
@@ -95,19 +94,16 @@ function MainTabs() {
   );
 }
 
-// Main App Navigator
 export default function AppNavigator() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="MainTabs" component={MainTabs} />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
-        <Stack.Screen name="Membership" component={MembershipScreen} />
-        <Stack.Screen name="Subscription" component={SubscriptionScreen} />
-        <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
-        <Stack.Screen name="TermsOfService" component={TermsOfServiceScreen} />
-        <Stack.Screen name="Search" component={SearchScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MainTabs" component={MainTabs} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="Membership" component={MembershipScreen} />
+      <Stack.Screen name="Subscription" component={SubscriptionScreen} />
+      <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+      <Stack.Screen name="TermsOfService" component={TermsOfServiceScreen} />
+      <Stack.Screen name="Search" component={SearchScreen} />
+    </Stack.Navigator>
   );
 }

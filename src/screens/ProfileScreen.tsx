@@ -10,13 +10,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
+import { useAuthContext } from '../context/AuthContext';
 
 const ProfileScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { user, logout, loading } = useAuthContext();
 
   const handleLogout = () => {
-    console.log('Logout pressed');
-    // TODO: Implement logout logic
+    logout();
   };
 
   const handleMenuPress = (itemId: string) => {
@@ -66,10 +67,10 @@ const ProfileScreen: React.FC = () => {
             <Text style={styles.avatarText}>👤</Text>
           </View>
           <View style={styles.userInfo}>
-            <Text style={styles.userName}>Guest User</Text>
-            <Text style={styles.userEmail}>guest@lifex.co.nz</Text>
+            <Text style={styles.userName}>{user?.full_name || 'LifeX Explorer'}</Text>
+            <Text style={styles.userEmail}>{user?.email}</Text>
             <View style={styles.userBadge}>
-              <Text style={styles.userBadgeText}>Free Plan</Text>
+              <Text style={styles.userBadgeText}>{user?.subscription_level || 'Free Plan'}</Text>
             </View>
           </View>
         </View>

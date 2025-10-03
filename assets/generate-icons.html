@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeX App Icon Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Playfair Display', serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .icon-preview {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        .icon {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .icon:hover {
+            transform: scale(1.05);
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 LifeX App Icon Generator</h1>
+        
+        <div class="instructions">
+            <h3>📋 使用说明</h3>
+            <ol>
+                <li>右键点击下面的图标</li>
+                <li>选择"图片另存为"</li>
+                <li>保存为对应的文件名</li>
+            </ol>
+        </div>
+
+        <h3>📱 应用商店图标</h3>
+        <div class="icon-preview">
+            <canvas id="icon1024" width="1024" height="1024" class="icon" style="width: 200px; height: 200px;"></canvas>
+            <div>1024×1024<br>iOS App Store</div>
+        </div>
+
+        <div class="icon-preview">
+            <canvas id="icon512" width="512" height="512" class="icon" style="width: 200px; height: 200px;"></canvas>
+            <div>512×512<br>Android Google Play</div>
+        </div>
+
+        <h3>📱 设备图标</h3>
+        <div class="icon-preview">
+            <canvas id="icon180" width="180" height="180" class="icon" style="width: 150px; height: 150px;"></canvas>
+            <div>180×180<br>iOS 设备</div>
+        </div>
+
+        <div class="icon-preview">
+            <canvas id="icon192" width="192" height="192" class="icon" style="width: 150px; height: 150px;"></canvas>
+            <div>192×192<br>Android 设备</div>
+        </div>
+
+        <div class="instructions">
+            <h3>💾 保存文件</h3>
+            <p>请将图标保存为以下文件名：</p>
+            <ul>
+                <li><strong>icon-1024.png</strong> - iOS App Store</li>
+                <li><strong>icon-512.png</strong> - Android Google Play</li>
+                <li><strong>icon-180.png</strong> - iOS 设备</li>
+                <li><strong>icon-192.png</strong> - Android 设备</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function createIcon(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // 设置canvas尺寸
+            canvas.width = size;
+            canvas.height = size;
+            
+            // 创建渐变背景
+            const bgGradient = ctx.createLinearGradient(0, 0, size, size);
+            bgGradient.addColorStop(0, '#8B5CF6');
+            bgGradient.addColorStop(1, '#A855F7');
+            
+            // 绘制圆角背景
+            const radius = size * 0.18;
+            ctx.fillStyle = bgGradient;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, radius);
+            ctx.fill();
+            
+            // 计算中心点和尺寸
+            const centerX = size / 2;
+            const centerY = size / 2;
+
+            // 绘制 LX 字母组合（大号，高雅字体）
+            const letterFontSize = size * 0.52;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0,0,0,0.22)';
+            ctx.shadowBlur = size * 0.02;
+
+            ctx.font = `700 ${letterFontSize}px "Playfair Display"`;
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillText('LX', centerX, centerY + size * 0.02);
+
+            ctx.shadowBlur = 0;
+            
+            // 移除装饰点，保持简洁标志
+        }
+        
+        document.fonts.ready.then(() => {
+            createIcon('icon1024', 1024);
+            createIcon('icon512', 512);
+            createIcon('icon180', 180);
+            createIcon('icon192', 192);
+        });
+    </script>
+</body>
+</html>
