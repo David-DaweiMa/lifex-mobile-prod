@@ -127,7 +127,10 @@ const ProfileScreen: React.FC = () => {
         <View style={styles.subscriptionContainer}>
           <View style={styles.subscriptionHeader}>
             <Text style={styles.subscriptionTitle}>Subscription</Text>
-            <TouchableOpacity style={styles.upgradeButton}>
+            <TouchableOpacity 
+              style={styles.upgradeButton}
+              onPress={() => navigation.navigate('Membership' as never)}
+            >
               <Text style={styles.upgradeButtonText}>Upgrade</Text>
             </TouchableOpacity>
           </View>
