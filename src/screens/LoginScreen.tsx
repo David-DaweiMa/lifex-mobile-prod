@@ -6,10 +6,11 @@ import { colors, spacing, typography } from '../constants/theme';
 import { useAuthContext } from '../context/AuthContext';
 
 const LoginScreen: React.FC<any> = ({ navigation }) => {
-  const { login, error, loading } = useAuthContext();
+  const { login, error } = useAuthContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [formError, setFormError] = useState<string | undefined>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -18,10 +19,19 @@ const LoginScreen: React.FC<any> = ({ navigation }) => {
     }
 
     setFormError(undefined);
-    const result = await login(email, password);
+    setIsLoading(true);
+    
+    try {
+      const result = await login(email, password);
 
-    if (result.error) {
-      setFormError(result.error);
+      if (result.error) {
+        setFormError(result.error);
+      } else {
+        // 登录成功,返回上一页
+        navigation.goBack();
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -65,7 +75,7 @@ const LoginScreen: React.FC<any> = ({ navigation }) => {
 
           {(formError || error) && <Text style={styles.error}>{formError || error}</Text>}
 
-          <AuthButton title="Log In" onPress={handleLogin} loading={loading} />
+          <AuthButton title="Log In" onPress={handleLogin} loading={isLoading} />
 
           <TouchableOpacity onPress={goToForgotPassword}>
             <Text style={styles.link}>Forgot password?</Text>

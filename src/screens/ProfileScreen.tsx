@@ -14,7 +14,7 @@ import { useAuthContext } from '../context/AuthContext';
 
 const ProfileScreen: React.FC = () => {
   const navigation = useNavigation();
-  const { user, logout, loading } = useAuthContext();
+  const { user, logout } = useAuthContext();
 
   const handleLogout = () => {
     logout();

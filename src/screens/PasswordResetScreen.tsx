@@ -6,9 +6,10 @@ import { colors, spacing, typography } from '../constants/theme';
 import { useAuthContext } from '../context/AuthContext';
 
 const PasswordResetScreen: React.FC<any> = ({ navigation }) => {
-  const { sendPasswordReset, clearError, error, loading } = useAuthContext();
+  const { sendPasswordReset, clearError, error } = useAuthContext();
   const [email, setEmail] = useState('');
   const [feedback, setFeedback] = useState<string | undefined>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleReset = async () => {
     if (!email) {
@@ -18,14 +19,20 @@ const PasswordResetScreen: React.FC<any> = ({ navigation }) => {
 
     setFeedback(undefined);
     clearError();
-    const result = await sendPasswordReset(email);
+    setIsLoading(true);
 
-    if (result.error) {
-      setFeedback(result.error);
-      return;
+    try {
+      const result = await sendPasswordReset(email);
+
+      if (result.error) {
+        setFeedback(result.error);
+        return;
+      }
+
+      setFeedback('Check your inbox for password reset instructions');
+    } finally {
+      setIsLoading(false);
     }
-
-    setFeedback('Check your inbox for password reset instructions');
   };
 
   return (
@@ -48,7 +55,7 @@ const PasswordResetScreen: React.FC<any> = ({ navigation }) => {
 
         {(feedback || error) && <Text style={styles.feedback}>{feedback || error}</Text>}
 
-        <AuthButton title="Send reset link" onPress={handleReset} loading={loading} />
+        <AuthButton title="Send reset link" onPress={handleReset} loading={isLoading} />
         <AuthButton
           title="Back to login"
           onPress={() => navigation.navigate('Login')}

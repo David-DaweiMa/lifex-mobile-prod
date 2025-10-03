@@ -6,12 +6,13 @@ import { colors, spacing, typography } from '../constants/theme';
 import { useAuthContext } from '../context/AuthContext';
 
 const RegisterScreen: React.FC<any> = ({ navigation }) => {
-  const { register, error, loading } = useAuthContext();
+  const { register, error } = useAuthContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [formError, setFormError] = useState<string | undefined>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async () => {
     if (!email || !password) {
@@ -24,18 +25,29 @@ const RegisterScreen: React.FC<any> = ({ navigation }) => {
       return;
     }
 
-    setFormError(undefined);
-
-    const result = await register(email, password, {
-      full_name: fullName,
-    });
-
-    if (result.error) {
-      setFormError(result.error);
+    if (password.length < 6) {
+      setFormError('Password must be at least 6 characters');
       return;
     }
 
-    navigation.navigate('VerifyEmail', { email });
+    setFormError(undefined);
+    setIsLoading(true);
+
+    try {
+      const result = await register(email, password, {
+        full_name: fullName,
+      });
+
+      if (result.error) {
+        setFormError(result.error);
+        return;
+      }
+
+      // 注册成功,返回上一页
+      navigation.goBack();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const goToLogin = () => {
@@ -87,7 +99,7 @@ const RegisterScreen: React.FC<any> = ({ navigation }) => {
 
           {(formError || error) && <Text style={styles.error}>{formError || error}</Text>}
 
-          <AuthButton title="Sign Up" onPress={handleRegister} loading={loading} />
+          <AuthButton title="Sign Up" onPress={handleRegister} loading={isLoading} />
         </View>
 
         <View style={styles.footer}>
