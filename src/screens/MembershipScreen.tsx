@@ -8,6 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
 
 interface MembershipScreenProps {
@@ -89,8 +90,11 @@ const MembershipScreen: React.FC<MembershipScreenProps> = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-        <TouchableOpacity onPress={handleNavigateBack} style={styles.backButton}>
-          <Text style={styles.backButtonText}>←</Text>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={handleNavigateBack}
+        >
+          <Ionicons name="arrow-back" size={28} color={colors.text} />
         </TouchableOpacity>
         
         <View style={styles.header}>
@@ -223,11 +227,6 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     marginBottom: spacing.md,
     alignSelf: 'flex-start',
-  },
-  backButtonText: {
-    fontSize: typography.fontSize.xxl,
-    color: colors.text,
-    fontWeight: typography.fontWeight.bold,
   },
   header: {
     marginBottom: spacing.xl,
