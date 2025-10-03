@@ -53,14 +53,14 @@ const ProfileScreen: React.FC = () => {
   };
 
   const menuItems = [
-    { id: 'favorites', title: 'Favorites', icon: '❤️', description: 'Your saved businesses and places' },
-    { id: 'history', title: 'History', icon: '📜', description: 'Your past searches and recommendations' },
-    { id: 'subscription', title: 'Subscription', icon: '💎', description: 'Manage your plan and upgrade features' },
-    { id: 'privacy', title: 'Privacy Policy', icon: '🔒', description: 'How we protect your data' },
-    { id: 'terms', title: 'Terms of Service', icon: '📋', description: 'Terms and conditions' },
-    { id: 'settings', title: 'Settings', icon: '⚙️', description: 'App preferences and notifications' },
-    { id: 'help', title: 'Help & Support', icon: '❓', description: 'Get help or contact support' },
-    { id: 'about', title: 'About LifeX', icon: 'ℹ️', description: 'Learn more about our app' },
+    { id: 'favorites', title: 'Favorites', icon: 'heart-outline', description: 'Your saved businesses and places' },
+    { id: 'history', title: 'History', icon: 'time-outline', description: 'Your past searches and recommendations' },
+    { id: 'subscription', title: 'Subscription', icon: 'diamond-outline', description: 'Manage your plan and upgrade features' },
+    { id: 'privacy', title: 'Privacy Policy', icon: 'shield-checkmark-outline', description: 'How we protect your data' },
+    { id: 'terms', title: 'Terms of Service', icon: 'document-text-outline', description: 'Terms and conditions' },
+    { id: 'settings', title: 'Settings', icon: 'settings-outline', description: 'App preferences and notifications' },
+    { id: 'help', title: 'Help & Support', icon: 'help-circle-outline', description: 'Get help or contact support' },
+    { id: 'about', title: 'About LifeX', icon: 'information-circle-outline', description: 'Learn more about our app' },
   ];
 
   return (
@@ -112,13 +112,13 @@ const ProfileScreen: React.FC = () => {
               onPress={() => handleMenuPress(item.id)}
             >
               <View style={styles.menuIcon}>
-                <Text style={styles.menuIconText}>{item.icon}</Text>
+                <Ionicons name={item.icon as any} size={24} color={colors.primary} />
               </View>
               <View style={styles.menuContent}>
                 <Text style={styles.menuTitle}>{item.title}</Text>
                 <Text style={styles.menuDescription}>{item.description}</Text>
               </View>
-              <Text style={styles.menuArrow}>›</Text>
+              <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
             </TouchableOpacity>
           ))}
         </View>
@@ -297,16 +297,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   menuIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.primary + '20',
+    marginRight: spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  menuIconText: {
-    fontSize: typography.fontSize.md,
   },
   menuContent: {
     flex: 1,
@@ -320,11 +313,6 @@ const styles = StyleSheet.create({
   menuDescription: {
     fontSize: typography.fontSize.sm,
     color: colors.textSecondary,
-  },
-  menuArrow: {
-    fontSize: typography.fontSize.lg,
-    color: colors.textSecondary,
-    fontWeight: typography.fontWeight.bold,
   },
   subscriptionContainer: {
     backgroundColor: colors.surface,
