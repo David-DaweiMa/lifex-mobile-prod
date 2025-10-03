@@ -50,8 +50,8 @@ const LoginScreen: React.FC<any> = ({ navigation }) => {
     >
       <View style={styles.inner}>
         <View style={styles.header}>
-          <Text style={styles.title}>Welcome back to LifeX</Text>
-          <Text style={styles.subtitle}>Log in to discover the best local experiences</Text>
+          <Text style={styles.title}>Welcome back</Text>
+          <Text style={styles.subtitle}>Log in to continue</Text>
         </View>
 
         <View style={styles.form}>
@@ -73,19 +73,21 @@ const LoginScreen: React.FC<any> = ({ navigation }) => {
             textContentType="password"
           />
 
+          <View style={styles.passwordFooter}>
+            <TouchableOpacity onPress={goToForgotPassword}>
+              <Text style={styles.forgotLink}>Forgot password?</Text>
+            </TouchableOpacity>
+          </View>
+
           {(formError || error) && <Text style={styles.error}>{formError || error}</Text>}
 
           <AuthButton title="Log In" onPress={handleLogin} loading={isLoading} />
-
-          <TouchableOpacity onPress={goToForgotPassword}>
-            <Text style={styles.link}>Forgot password?</Text>
-          </TouchableOpacity>
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Don’t have an account?</Text>
+          <Text style={styles.footerText}>Don't have an account?</Text>
           <TouchableOpacity onPress={goToRegister}>
-            <Text style={styles.link}>Sign up</Text>
+            <Text style={styles.signupLink}>Sign up</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -101,44 +103,55 @@ const styles = StyleSheet.create({
   inner: {
     flex: 1,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
+    paddingTop: spacing.xxl,
+    justifyContent: 'space-between',
   },
   header: {
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
   },
   title: {
     color: colors.text,
-    fontSize: typography.fontSize.xxxl,
+    fontSize: 28,
     fontWeight: typography.fontWeight.bold,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   subtitle: {
     color: colors.textSecondary,
-    fontSize: typography.fontSize.md,
+    fontSize: typography.fontSize.sm,
+    lineHeight: 20,
   },
   form: {
-    flexGrow: 1,
+    flex: 1,
+  },
+  passwordFooter: {
+    alignItems: 'flex-end',
+    marginTop: -spacing.xs,
+    marginBottom: spacing.md,
+  },
+  forgotLink: {
+    color: colors.primary,
+    fontSize: typography.fontSize.sm,
   },
   error: {
     color: colors.error,
     marginBottom: spacing.md,
     fontSize: typography.fontSize.sm,
   },
-  link: {
-    color: colors.primary,
-    fontSize: typography.fontSize.md,
-    marginTop: spacing.sm,
-  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing.xl,
+    paddingBottom: spacing.xl,
   },
   footerText: {
     color: colors.textSecondary,
-    fontSize: typography.fontSize.md,
+    fontSize: typography.fontSize.sm,
     marginRight: spacing.xs,
+  },
+  signupLink: {
+    color: colors.primary,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
   },
 });
 

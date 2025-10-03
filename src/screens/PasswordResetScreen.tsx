@@ -41,8 +41,10 @@ const PasswordResetScreen: React.FC<any> = ({ navigation }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={styles.inner}>
-        <Text style={styles.title}>Reset your password</Text>
-        <Text style={styles.subtitle}>Enter your email address and we’ll send you a reset link.</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>Reset password</Text>
+          <Text style={styles.subtitle}>Enter your email to receive a reset link</Text>
+        </View>
 
         <AuthTextInput
           label="Email"
@@ -74,18 +76,21 @@ const styles = StyleSheet.create({
   inner: {
     flex: 1,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
+    paddingTop: spacing.xxl,
+  },
+  header: {
+    marginBottom: spacing.xl,
   },
   title: {
     color: colors.text,
-    fontSize: typography.fontSize.xxl,
+    fontSize: 28,
     fontWeight: typography.fontWeight.bold,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   subtitle: {
     color: colors.textSecondary,
-    fontSize: typography.fontSize.md,
-    marginBottom: spacing.xl,
+    fontSize: typography.fontSize.sm,
+    lineHeight: 20,
   },
   feedback: {
     color: colors.info,

@@ -61,8 +61,8 @@ const RegisterScreen: React.FC<any> = ({ navigation }) => {
     >
       <ScrollView contentContainerStyle={styles.inner} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
-          <Text style={styles.title}>Create your LifeX account</Text>
-          <Text style={styles.subtitle}>Start exploring curated local experiences across New Zealand</Text>
+          <Text style={styles.title}>Create account</Text>
+          <Text style={styles.subtitle}>Join LifeX today</Text>
         </View>
 
         <View style={styles.form}>
@@ -105,7 +105,7 @@ const RegisterScreen: React.FC<any> = ({ navigation }) => {
         <View style={styles.footer}>
           <Text style={styles.footerText}>Already have an account?</Text>
           <TouchableOpacity onPress={goToLogin}>
-            <Text style={styles.link}>Log in</Text>
+            <Text style={styles.loginLink}>Log in</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -119,24 +119,28 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   inner: {
+    flexGrow: 1,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
+    paddingTop: spacing.xxl,
     paddingBottom: spacing.xl,
   },
   header: {
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
   },
   title: {
     color: colors.text,
-    fontSize: typography.fontSize.xxxl,
+    fontSize: 28,
     fontWeight: typography.fontWeight.bold,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   subtitle: {
     color: colors.textSecondary,
-    fontSize: typography.fontSize.md,
+    fontSize: typography.fontSize.sm,
+    lineHeight: 20,
   },
-  form: {},
+  form: {
+    flex: 1,
+  },
   error: {
     color: colors.error,
     marginBottom: spacing.md,
@@ -147,15 +151,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: spacing.lg,
+    paddingBottom: spacing.md,
   },
   footerText: {
     color: colors.textSecondary,
-    fontSize: typography.fontSize.md,
+    fontSize: typography.fontSize.sm,
     marginRight: spacing.xs,
   },
-  link: {
+  loginLink: {
     color: colors.primary,
-    fontSize: typography.fontSize.md,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
   },
 });
 
