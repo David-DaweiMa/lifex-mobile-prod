@@ -89,14 +89,13 @@ const MembershipScreen: React.FC<MembershipScreenProps> = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+        <TouchableOpacity onPress={handleNavigateBack} style={styles.backButton}>
+          <Text style={styles.backButtonText}>←</Text>
+        </TouchableOpacity>
+        
         <View style={styles.header}>
-          <TouchableOpacity onPress={handleNavigateBack} style={styles.backButton}>
-            <Text style={styles.backButtonText}>←</Text>
-          </TouchableOpacity>
-          <View style={styles.headerContent}>
-            <Text style={styles.title}>Choose Your Plan</Text>
-            <Text style={styles.subtitle}>Unlock the full potential of LifeX</Text>
-          </View>
+          <Text style={styles.title}>Choose Your Plan</Text>
+          <Text style={styles.subtitle}>Unlock the full potential of LifeX</Text>
         </View>
 
         {/* Benefits Section */}
@@ -220,22 +219,18 @@ const styles = StyleSheet.create({
   content: {
     padding: spacing.md,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.xl,
-  },
   backButton: {
     padding: spacing.sm,
-    marginRight: spacing.sm,
+    marginBottom: spacing.md,
+    alignSelf: 'flex-start',
   },
   backButtonText: {
-    fontSize: typography.fontSize.lg,
-    color: colors.primary,
+    fontSize: typography.fontSize.xxl,
+    color: colors.text,
     fontWeight: typography.fontWeight.bold,
   },
-  headerContent: {
-    flex: 1,
+  header: {
+    marginBottom: spacing.xl,
   },
   title: {
     fontSize: typography.fontSize.xxl,
