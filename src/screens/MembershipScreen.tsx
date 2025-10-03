@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
@@ -19,8 +20,33 @@ const MembershipScreen: React.FC<MembershipScreenProps> = ({ navigation }) => {
   };
 
   const handleSelectPlan = (planType: string) => {
-    console.log(`Selected plan: ${planType}`);
-    // TODO: Implement plan selection logic
+    const planName = planType === 'essential' ? 'Essential ($9.99/month)' : 'Premium ($19.99/month)';
+    
+    Alert.alert(
+      'Confirm Subscription',
+      `You're about to subscribe to the ${planName} plan. This is a demo version, so no actual payment will be processed.`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        },
+        {
+          text: 'Confirm',
+          onPress: () => {
+            Alert.alert(
+              'Success!',
+              `You've successfully subscribed to the ${planName} plan! (Demo mode - no actual charge)`,
+              [
+                {
+                  text: 'OK',
+                  onPress: () => navigation?.goBack()
+                }
+              ]
+            );
+          }
+        }
+      ]
+    );
   };
 
   const plans = [
@@ -99,13 +125,12 @@ const MembershipScreen: React.FC<MembershipScreenProps> = ({ navigation }) => {
         {/* Plans */}
         <View style={styles.plansContainer}>
           {plans.map((plan) => (
-            <TouchableOpacity
+            <View
               key={plan.id}
               style={[
                 styles.planCard,
                 plan.popular && styles.popularPlanCard
               ]}
-              onPress={() => handleSelectPlan(plan.id)}
             >
               {plan.popular && (
                 <View style={styles.popularBadge}>
@@ -132,15 +157,18 @@ const MembershipScreen: React.FC<MembershipScreenProps> = ({ navigation }) => {
                 ))}
               </View>
               
-              <TouchableOpacity style={[
-                styles.selectButton,
-                { backgroundColor: plan.color }
-              ]}>
+              <TouchableOpacity 
+                style={[
+                  styles.selectButton,
+                  { backgroundColor: plan.color }
+                ]}
+                onPress={() => handleSelectPlan(plan.id)}
+              >
                 <Text style={styles.selectButtonText}>
                   {plan.id === 'essential' ? 'Start Essential' : 'Go Premium'}
                 </Text>
               </TouchableOpacity>
-            </TouchableOpacity>
+            </View>
           ))}
         </View>
 
