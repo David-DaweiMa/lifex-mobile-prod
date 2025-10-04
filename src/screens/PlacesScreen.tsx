@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -16,15 +16,20 @@ import FloatingActionButton from '../components/FloatingActionButton';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
 import { mockBusinessList, mockFeaturedPlaces } from '../utils/mockData';
 import { BusinessExtended } from '../types';
+import { BusinessesService } from '../services/businessesService';
+import { useFavorites } from '../contexts/FavoritesContext';
 
 const { width } = Dimensions.get('window');
 const cardWidth = (width - spacing.md * 2 - spacing.sm) / 2;
 
-const DiscoverScreen: React.FC = () => {
+const PlacesScreen: React.FC = () => {
   const navigation = useNavigation();
   const [selectedMainCategory, setSelectedMainCategory] = useState('Nearby');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [currentPlacePage, setCurrentPlacePage] = useState(0);
+  const [businesses, setBusinesses] = useState<any[]>([]);
+  const [isLoadingBusinesses, setIsLoadingBusinesses] = useState(true);
+  const { favoriteEventsList, toggleFavorite, isFavorite } = useFavorites();
 
   const handleSearchPress = () => {
     navigation.navigate('Search' as never);
@@ -33,6 +38,55 @@ const DiscoverScreen: React.FC = () => {
   const handleProfilePress = () => {
     navigation.navigate('Profile' as never);
   };
+
+  // 加载商家数据
+  const loadBusinesses = async () => {
+    try {
+      setIsLoadingBusinesses(true);
+      const data = await BusinessesService.getActiveBusinesses();
+      
+      if (data && data.length > 0) {
+        // 转换数据库字段到UI格式
+        const formattedData = data.map(business => ({
+          id: business.id,
+          name: business.name,
+          description: business.description || '',
+          category: business.category,
+          rating: business.rating,
+          reviewCount: business.review_count,
+          image: business.cover_image_url || business.logo_url || 'https://via.placeholder.com/80',
+          location: business.address,
+          isVerified: business.is_verified,
+          isFeatured: business.is_verified && business.rating >= 4.5,
+          // 添加UI需要的其他字段
+          type: business.category,
+          price: '$$',
+          distance: '1.2 km',
+          address: business.address ? 
+            (typeof business.address === 'string' ? business.address : 
+            (business.address as any).street || (business.address as any).address || 'Address not available') : 
+            'Address not available',
+          isOpen: true,
+          openingHours: 'Open now',
+          highlights: business.description ? [business.description.substring(0, 50)] : ['Great place to visit'],
+        }));
+        setBusinesses(formattedData);
+        console.log('Loaded businesses from database:', formattedData.length);
+      } else {
+        console.log('No businesses in database, using mock data');
+        setBusinesses(mockFeaturedPlaces);
+      }
+    } catch (error) {
+      console.error('Error loading businesses:', error);
+      setBusinesses(mockFeaturedPlaces);
+    } finally {
+      setIsLoadingBusinesses(false);
+    }
+  };
+
+  useEffect(() => {
+    loadBusinesses();
+  }, []);
 
 
   // Handle scroll events for places banner dots indicator
@@ -43,8 +97,8 @@ const DiscoverScreen: React.FC = () => {
     setCurrentPlacePage(roundIndex);
   };
 
-  // Featured places for hero banner
-  const featuredPlaces = mockFeaturedPlaces.filter(place => place.isFeatured).slice(0, 3);
+  // Featured places for hero banner (前5个)
+  const featuredPlaces = businesses.slice(0, 5);
 
   const categories = [
     { id: 'all', name: 'All' },
@@ -112,6 +166,7 @@ const DiscoverScreen: React.FC = () => {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
+      gap: spacing.sm,
     },
     heroPrice: {
       fontSize: typography.fontSize.md,
@@ -123,6 +178,11 @@ const DiscoverScreen: React.FC = () => {
       color: '#FFFFFF',
       flexDirection: 'row',
       alignItems: 'center',
+    },
+    heroFavoriteButton: {
+      padding: spacing.xs,
+      borderRadius: borderRadius.sm,
+      backgroundColor: 'rgba(0, 0, 0, 0.3)',
     },
     heroBadge: {
       position: 'absolute',
@@ -417,7 +477,19 @@ const DiscoverScreen: React.FC = () => {
     businessFooter: {
       flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'space-between',
       marginTop: spacing.xs,
+    },
+    businessFavoriteButton: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      minWidth: 32,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     statusContainer: {
       flexDirection: 'row',
@@ -480,11 +552,17 @@ const DiscoverScreen: React.FC = () => {
             scrollEventThrottle={16}
             style={styles.heroScrollView}
           >
-            {featuredPlaces.map((place) => (
-              <TouchableOpacity key={place.id} style={styles.heroCard}>
+            {featuredPlaces.map((place, index) => (
+              <TouchableOpacity 
+                key={place.id} 
+                style={styles.heroCard}
+                onPress={() => console.log('Place detail:', place.id)}
+              >
                 <Image source={{ uri: place.image }} style={styles.heroImage} />
                 <View style={styles.heroBadge}>
-                  <Text style={styles.heroBadgeText}>⭐ FEATURED</Text>
+                  <Text style={styles.heroBadgeText}>
+                    {index === 0 ? '⭐ TOP RATED' : index === 1 ? '🔥 POPULAR' : '💎 FEATURED'}
+                  </Text>
                 </View>
                 <View style={styles.heroOverlay}>
                   <Text style={styles.heroTitle}>{place.name}</Text>
@@ -493,8 +571,22 @@ const DiscoverScreen: React.FC = () => {
                     <Text style={styles.heroPrice}>{place.price}</Text>
                     <View style={styles.heroRating}>
                       <Ionicons name="star" size={14} color="#FFD700" />
-                      <Text style={{ marginLeft: 4 }}>{place.rating}</Text>
+                      <Text style={{ color: '#FFFFFF', marginLeft: 4 }}>{place.rating}</Text>
                     </View>
+                    <TouchableOpacity
+                      style={styles.heroFavoriteButton}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(place.id, place);
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons 
+                        name={isFavorite(place.id) ? "heart" : "heart-outline"} 
+                        size={16} 
+                        color={isFavorite(place.id) ? "#FF6B6B" : "#FFFFFF"} 
+                      />
+                    </TouchableOpacity>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -571,7 +663,7 @@ const DiscoverScreen: React.FC = () => {
         </View>
 
         {/* Business Listings */}
-        {mockBusinessList.map((business) => (
+        {businesses.map((business) => (
           <TouchableOpacity key={business.id} style={styles.businessCard}>
             <View style={styles.businessLeft}>
               <Image source={{ uri: business.image }} style={styles.businessImage} />
@@ -602,7 +694,7 @@ const DiscoverScreen: React.FC = () => {
               <Text style={styles.businessAddress} numberOfLines={1}>{business.address}</Text>
               
               <View style={styles.businessHighlights}>
-                {business.highlights.slice(0, 1).map((highlight: string, index: number) => (
+                {business.highlights?.slice(0, 1).map((highlight: string, index: number) => (
                   <Text key={index} style={styles.highlightText} numberOfLines={1}>• {highlight}</Text>
                 ))}
               </View>
@@ -613,6 +705,20 @@ const DiscoverScreen: React.FC = () => {
                   <Text style={styles.statusText}>{business.isOpen ? 'Open' : 'Closed'}</Text>
                   {business.openingHours && <Text style={styles.waitTime}>{business.openingHours}</Text>}
                 </View>
+                <TouchableOpacity 
+                  style={styles.businessFavoriteButton}
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(business.id, business);
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons 
+                    name={isFavorite(business.id) ? "heart" : "heart-outline"} 
+                    size={14} 
+                    color={isFavorite(business.id) ? "#FF6B6B" : colors.textSecondary} 
+                  />
+                </TouchableOpacity>
               </View>
             </View>
           </TouchableOpacity>
@@ -624,4 +730,4 @@ const DiscoverScreen: React.FC = () => {
   );
 };
 
-export default DiscoverScreen;
+export default PlacesScreen;

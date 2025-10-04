@@ -118,6 +118,67 @@ export interface SpecialsData {
   description: string;
 }
 
+// Special type from Supabase
+export interface Special {
+  id: string;
+  business_id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  discount: string;
+  original_price: string;
+  new_price: string;
+  valid_until: string;
+  image_url: string | null;
+  terms: string | null;
+  is_featured: boolean;
+  is_active: boolean;
+  view_count: number;
+  claim_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// Events types
+export interface Event {
+  id: string;
+  title: string;
+  description: string | null;
+  date: string;
+  time: string;
+  location: string;
+  category: string;
+  price: string;
+  attendees: number;
+  image_url: string | null;
+  tags: string[] | null;
+  is_hot: boolean;
+  organizer_id: string | null;
+  business_id: string | null;
+  is_active: boolean;
+  view_count: number;
+  like_count: number;
+  share_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// For UI display (legacy format compatibility)
+export interface EventDisplay {
+  id: number | string;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  category: string;
+  price: string;
+  attendees: string;
+  image: string;
+  description: string;
+  tags: string[];
+  isHot: boolean;
+}
+
 export interface Category {
   id: string;
   name: string;

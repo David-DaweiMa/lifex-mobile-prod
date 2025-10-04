@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,8 @@ import FloatingActionButton from '../components/FloatingActionButton';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
 import { mockSpecialsData } from '../utils/mockData';
 import { SpecialsData } from '../types';
+import { SpecialsService } from '../services/specialsService';
+import { useFavorites } from '../contexts/FavoritesContext';
 
 const { width } = Dimensions.get('window');
 const cardWidth = (width - spacing.md * 3) / 2;
@@ -25,6 +27,9 @@ const SpecialsScreen: React.FC = () => {
   const [selectedMainCategory, setSelectedMainCategory] = useState('Featured');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [currentPage, setCurrentPage] = useState(0);
+  const [specials, setSpecials] = useState<any[]>([]);
+  const [isLoadingSpecials, setIsLoadingSpecials] = useState(true);
+  const { favoriteEventsList, toggleFavorite, isFavorite } = useFavorites();
 
   const handleSearchPress = () => {
     navigation.navigate('Search' as never);
@@ -33,6 +38,45 @@ const SpecialsScreen: React.FC = () => {
   const handleProfilePress = () => {
     navigation.navigate('Profile' as never);
   };
+
+  // 加载特惠数据
+  const loadSpecials = async () => {
+    try {
+      setIsLoadingSpecials(true);
+      const data = await SpecialsService.getActiveSpecials();
+      
+      if (data && data.length > 0) {
+        // 转换数据库字段到UI格式
+        const formattedData = data.map((special, index) => ({
+          id: special.id,
+          title: special.title,
+          business: 'Business Name', // 需要关联business表
+          category: special.category,
+          discount: special.discount,
+          originalPrice: special.original_price,
+          newPrice: special.new_price,
+          validUntil: special.valid_until,
+          description: special.description,
+          // 添加图片URL，优先使用数据库的image_url，否则使用默认图片
+          image: special.image_url || specialImages[index % specialImages.length],
+        }));
+        setSpecials(formattedData);
+        console.log('Loaded specials from database:', formattedData.length);
+      } else {
+        console.log('No specials in database, using mock data');
+        setSpecials(mockSpecialsData);
+      }
+    } catch (error) {
+      console.error('Error loading specials:', error);
+      setSpecials(mockSpecialsData);
+    } finally {
+      setIsLoadingSpecials(false);
+    }
+  };
+
+  useEffect(() => {
+    loadSpecials();
+  }, []);
 
 
   // Handle scroll events for dots indicator
@@ -53,11 +97,11 @@ const SpecialsScreen: React.FC = () => {
     'https://images.unsplash.com/photo-1563298723-dcfebaa392e3?w=300&h=200&fit=crop&crop=center&auto=format&q=60', // Car wash
   ];
 
-  // Featured specials for hero banner
-  const featuredSpecials = mockSpecialsData.slice(0, 3);
+  // Featured specials for hero banner (前6个用于轮播)
+  const featuredSpecials = specials.slice(0, 6);
 
-  // Waterfall heights for different cards
-  const waterfallHeights = [100, 80, 110, 90, 105, 85]; // Different heights for waterfall effect
+  // Waterfall heights for different cards - 统一高度确保一致性
+  const waterfallHeights = [200, 200, 200, 200, 200, 200, 200, 200]; // Uniform height for consistency
 
   const categories = [
     { id: 'all', name: 'All' },
@@ -323,6 +367,7 @@ const SpecialsScreen: React.FC = () => {
     },
     waterfallImageContainer: {
       position: 'relative',
+      overflow: 'hidden',
       // Height will be set dynamically in JSX
     },
     waterfallImage: {
@@ -367,23 +412,24 @@ const SpecialsScreen: React.FC = () => {
       color: colors.text,
     },
     waterfallContent: {
-      padding: spacing.md,
+      padding: spacing.sm,
     },
     waterfallTitle: {
       fontSize: typography.fontSize.sm,
-      fontWeight: '500',
+      fontWeight: '600',
       color: colors.text,
-      marginBottom: spacing.xs,
+      marginBottom: spacing.xs / 2,
+      lineHeight: typography.fontSize.sm * 1.3,
     },
     waterfallBusiness: {
-      fontSize: typography.fontSize.sm,
+      fontSize: typography.fontSize.xs,
       color: colors.textSecondary,
-      marginBottom: spacing.xs,
+      marginBottom: spacing.xs / 2,
     },
     waterfallPriceContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: spacing.sm,
+      marginBottom: spacing.xs,
     },
     waterfallOriginalPrice: {
       fontSize: typography.fontSize.sm,
@@ -399,12 +445,11 @@ const SpecialsScreen: React.FC = () => {
     waterfallTimer: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: spacing.sm,
     },
     waterfallTimerText: {
-      fontSize: typography.fontSize.sm,
+      fontSize: typography.fontSize.xs,
       color: '#ff4444',
-      marginLeft: spacing.xs,
+      marginLeft: spacing.xs / 2,
       fontWeight: '600',
     },
     waterfallClaimButton: {
@@ -425,7 +470,7 @@ const SpecialsScreen: React.FC = () => {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginTop: spacing.xs,
+      marginTop: 0,
     },
     waterfallFavoriteButton: {
       flexDirection: 'row',
@@ -447,9 +492,10 @@ const SpecialsScreen: React.FC = () => {
       elevation: 2,
     },
     waterfallFavoriteCount: {
-      fontSize: typography.fontSize.sm,
+      fontSize: typography.fontSize.xs,
       fontWeight: '600',
       color: colors.text,
+      marginLeft: spacing.xs / 2,
     },
   });
 
@@ -475,38 +521,62 @@ const SpecialsScreen: React.FC = () => {
             onScroll={handleScroll}
             scrollEventThrottle={16}
           >
-            {mockSpecialsData.slice(0, 6).map((special, index) => (
-              <TouchableOpacity key={special.id} style={styles.heroCard}>
-                <Image source={{ uri: specialImages[index] }} style={styles.heroImage} />
-                <View style={styles.heroOverlay}>
-                  <View style={styles.heroBadge}>
-                    <Text style={styles.heroBadgeText}>
-                      {index === 0 ? '🔥 HOT DEAL' : index === 1 ? '⚡ NEW' : '💎 SPECIAL'}
-                    </Text>
-                  </View>
-                  <View style={styles.heroContent}>
-                    <Text style={styles.heroTitle} numberOfLines={2}>{special.title}</Text>
-                    <Text style={styles.heroDiscount}>{special.discount} OFF</Text>
-                    <Text style={styles.heroBusiness}>{special.business}</Text>
-                    <View style={styles.heroTimerContainer}>
-                      <View style={styles.heroTimer}>
-                        <Ionicons name="time-outline" size={14} color="#ff4444" />
-                        <Text style={styles.heroTimerText}>Ends in {index + 1} day{index > 0 ? 's' : ''}</Text>
+            {featuredSpecials.map((special, index) => {
+              const isFavorited = isFavorite(special.id);
+              // Calculate days remaining
+              const daysRemaining = Math.ceil((new Date(special.validUntil).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+              
+              return (
+                <TouchableOpacity 
+                  key={special.id} 
+                  style={styles.heroCard}
+                  onPress={() => navigation.navigate('SpecialDetail', { specialId: special.id })}
+                >
+                  <Image source={{ uri: special.image || specialImages[index % specialImages.length] }} style={styles.heroImage} />
+                  <View style={styles.heroOverlay}>
+                    <View style={styles.heroBadge}>
+                      <Text style={styles.heroBadgeText}>
+                        {index === 0 ? '🔥 HOT DEAL' : index === 1 ? '⚡ NEW' : '💎 SPECIAL'}
+                      </Text>
+                    </View>
+                    <View style={styles.heroContent}>
+                      <Text style={styles.heroTitle} numberOfLines={2}>{special.title}</Text>
+                      <Text style={styles.heroDiscount}>{special.discount} OFF</Text>
+                      <Text style={styles.heroBusiness}>{special.business}</Text>
+                      <View style={styles.heroTimerContainer}>
+                        <View style={styles.heroTimer}>
+                          <Ionicons name="time-outline" size={14} color="#ff4444" />
+                          <Text style={styles.heroTimerText}>
+                            {daysRemaining > 0 ? `Ends in ${daysRemaining} day${daysRemaining > 1 ? 's' : ''}` : 'Expired'}
+                          </Text>
+                        </View>
+                        <TouchableOpacity 
+                          style={styles.heroFavoriteButton}
+                          onPress={(e) => {
+                            e.stopPropagation();
+                            toggleFavorite({ id: special.id, title: special.title });
+                          }}
+                        >
+                          <Ionicons 
+                            name={isFavorited ? "heart" : "heart-outline"} 
+                            size={14} 
+                            color="#ff4444" 
+                          />
+                          <Text style={styles.heroFavoriteCount}>
+                            {isFavorite(special.id) ? '1' : '0'}
+                          </Text>
+                        </TouchableOpacity>
                       </View>
-                      <TouchableOpacity style={styles.heroFavoriteButton}>
-                        <Ionicons name="heart-outline" size={14} color="#ff4444" />
-                        <Text style={styles.heroFavoriteCount}>{18 + index * 2}</Text>
-                      </TouchableOpacity>
                     </View>
                   </View>
-                </View>
-              </TouchableOpacity>
-            ))}
+                </TouchableOpacity>
+              );
+            })}
           </ScrollView>
           
           {/* Dots Indicator */}
           <View style={styles.dotsIndicator}>
-            {mockSpecialsData.slice(0, 6).map((_, index) => (
+            {featuredSpecials.map((_, index) => (
               <View key={index} style={[styles.dot, index === currentPage && styles.activeDot]} />
             ))}
           </View>
@@ -577,10 +647,14 @@ const SpecialsScreen: React.FC = () => {
         {/* Specials Content - Waterfall Layout */}
         <View style={styles.waterfallContainer}>
           <View style={styles.waterfallColumn}>
-            {mockSpecialsData.filter((_, index) => index % 2 === 0).map((special, index) => (
-              <TouchableOpacity key={special.id} style={[styles.waterfallCard, { marginBottom: spacing.xs }]}>
-                <View style={[styles.waterfallImageContainer, { height: waterfallHeights[index * 2] }]}>
-                  <Image source={{ uri: specialImages[special.id - 1] }} style={styles.waterfallImage} />
+            {specials.filter((_, index) => index % 2 === 0).map((special, index) => (
+              <TouchableOpacity 
+                key={special.id} 
+                style={[styles.waterfallCard, { marginBottom: spacing.xs }]}
+                onPress={() => navigation.navigate('SpecialDetail', { specialId: special.id })}
+              >
+                <View style={[styles.waterfallImageContainer, { height: waterfallHeights[(index * 2) % waterfallHeights.length] }]}>
+                  <Image source={{ uri: special.image || specialImages[index % specialImages.length] }} style={styles.waterfallImage} />
                   <View style={styles.waterfallDiscountBadge}>
                     <Text style={styles.waterfallDiscountText}>{special.discount}</Text>
                     <Text style={styles.waterfallOffText}>OFF</Text>
@@ -606,9 +680,19 @@ const SpecialsScreen: React.FC = () => {
                       <Ionicons name="time-outline" size={12} color="#ff4444" />
                       <Text style={styles.waterfallTimerText}>Ends in {index + 2} days</Text>
                     </View>
-                    <TouchableOpacity style={styles.waterfallFavoriteButton}>
-                      <Ionicons name="heart-outline" size={14} color="#ff4444" />
-                      <Text style={styles.waterfallFavoriteCount}>{24 + index * 3}</Text>
+                    <TouchableOpacity 
+                      style={styles.waterfallFavoriteButton}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(special.id, special);
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons 
+                        name={isFavorite(special.id) ? "heart" : "heart-outline"} 
+                        size={14} 
+                        color={isFavorite(special.id) ? "#FF6B6B" : "#ff4444"} 
+                      />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -617,10 +701,14 @@ const SpecialsScreen: React.FC = () => {
           </View>
           
           <View style={styles.waterfallColumn}>
-            {mockSpecialsData.filter((_, index) => index % 2 === 1).map((special, index) => (
-              <TouchableOpacity key={special.id} style={[styles.waterfallCard, { marginBottom: spacing.xs }]}>
-                <View style={[styles.waterfallImageContainer, { height: waterfallHeights[index * 2 + 1] }]}>
-                  <Image source={{ uri: specialImages[special.id - 1] }} style={styles.waterfallImage} />
+            {specials.filter((_, index) => index % 2 === 1).map((special, index) => (
+              <TouchableOpacity 
+                key={special.id} 
+                style={[styles.waterfallCard, { marginBottom: spacing.xs }]}
+                onPress={() => navigation.navigate('SpecialDetail', { specialId: special.id })}
+              >
+                <View style={[styles.waterfallImageContainer, { height: waterfallHeights[(index * 2 + 1) % waterfallHeights.length] }]}>
+                  <Image source={{ uri: special.image || specialImages[index % specialImages.length] }} style={styles.waterfallImage} />
                   <View style={styles.waterfallDiscountBadge}>
                     <Text style={styles.waterfallDiscountText}>{special.discount}</Text>
                     <Text style={styles.waterfallOffText}>OFF</Text>
@@ -646,9 +734,19 @@ const SpecialsScreen: React.FC = () => {
                       <Ionicons name="time-outline" size={12} color="#ff4444" />
                       <Text style={styles.waterfallTimerText}>Ends in {index + 3} days</Text>
                     </View>
-                    <TouchableOpacity style={styles.waterfallFavoriteButton}>
-                      <Ionicons name="heart-outline" size={14} color="#ff4444" />
-                      <Text style={styles.waterfallFavoriteCount}>{27 + index * 4}</Text>
+                    <TouchableOpacity 
+                      style={styles.waterfallFavoriteButton}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(special.id, special);
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons 
+                        name={isFavorite(special.id) ? "heart" : "heart-outline"} 
+                        size={14} 
+                        color={isFavorite(special.id) ? "#FF6B6B" : "#ff4444"} 
+                      />
                     </TouchableOpacity>
                   </View>
                 </View>

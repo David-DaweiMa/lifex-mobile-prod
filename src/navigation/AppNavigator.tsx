@@ -4,8 +4,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, typography } from '../constants/theme';
-import TrendingScreen from '../screens/TrendingScreen';
-import DiscoverScreen from '../screens/DiscoverScreen';
+import EventsScreen from '../screens/EventsScreen';
+import PlacesScreen from '../screens/PlacesScreen';
 import SpecialsScreen from '../screens/SpecialsScreen';
 import ChatScreen from '../screens/ChatScreen';
 import MembershipScreen from '../screens/MembershipScreen';
@@ -24,6 +24,8 @@ import HistoryScreen from '../screens/HistoryScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import HelpScreen from '../screens/HelpScreen';
 import AboutScreen from '../screens/AboutScreen';
+import EventDetailScreen from '../screens/EventDetailScreen';
+import SpecialDetailScreen from '../screens/SpecialDetailScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -71,7 +73,7 @@ function MainTabs() {
       />
       <Tab.Screen
         name="Events"
-        component={TrendingScreen}
+        component={EventsScreen}
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="people-outline" focused={focused} />,
         }}
@@ -85,7 +87,7 @@ function MainTabs() {
       />
       <Tab.Screen
         name="Places"
-        component={DiscoverScreen}
+        component={PlacesScreen}
         options={{
           tabBarIcon: ({ focused }) => <TabIcon name="storefront-outline" focused={focused} />,
         }}
@@ -116,6 +118,8 @@ export default function AppNavigator() {
       <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
       <Stack.Screen name="TermsOfService" component={TermsOfServiceScreen} />
       <Stack.Screen name="Search" component={SearchScreen} />
+      <Stack.Screen name="EventDetail" component={EventDetailScreen} />
+      <Stack.Screen name="SpecialDetail" component={SpecialDetailScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="VerifyEmail" component={VerifyEmailScreen} />

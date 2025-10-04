@@ -11,10 +11,12 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
 import { useAuthContext } from '../context/AuthContext';
+import { useFavorites } from '../contexts/FavoritesContext';
 
 const ProfileScreen: React.FC = () => {
   const navigation = useNavigation();
   const { user, logout } = useAuthContext();
+  const { favoriteEventsList } = useFavorites();
 
   const handleLogout = () => {
     logout();
@@ -93,12 +95,12 @@ const ProfileScreen: React.FC = () => {
         {/* Quick Stats */}
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>12</Text>
-            <Text style={styles.statLabel}>Discoveries</Text>
+            <Text style={styles.statNumber}>0</Text>
+            <Text style={styles.statLabel}>Viewed</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>8</Text>
+            <Text style={styles.statNumber}>{favoriteEventsList.length}</Text>
             <Text style={styles.statLabel}>Favorites</Text>
           </View>
         </View>

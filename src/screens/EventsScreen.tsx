@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -15,16 +16,59 @@ import Header from '../components/Header';
 import FloatingActionButton from '../components/FloatingActionButton';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
 import { mockTrendingData, mockEventsData } from '../utils/mockData';
-import { TrendingData } from '../types';
+import { TrendingData, EventDisplay } from '../types';
+import EventsService from '../services/eventsService';
+import { eventsToDisplay } from '../utils/eventHelpers';
+import { useFavorites } from '../contexts/FavoritesContext';
 
 const { width } = Dimensions.get('window');
 const cardWidth = (width - spacing.md * 2 - spacing.sm) / 2;
 
-const TrendingScreen: React.FC = () => {
+const EventsScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { favoriteEvents, toggleFavorite: toggleFavoriteContext } = useFavorites();
   const [selectedMainCategory, setSelectedMainCategory] = useState('Hot');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [currentEventPage, setCurrentEventPage] = useState(0);
+  const [events, setEvents] = useState<EventDisplay[]>([]);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(true);
+  const [eventsError, setEventsError] = useState<string | null>(null);
+
+  // Load events from database
+  useEffect(() => {
+    loadEvents();
+  }, []);
+
+  const loadEvents = async () => {
+    try {
+      setIsLoadingEvents(true);
+      setEventsError(null);
+
+      // 获取热门events
+      const { data, error } = await EventsService.getUpcomingEvents(20);
+
+      if (error) {
+        console.error('Error loading events:', error);
+        setEventsError('Failed to load events');
+        // Fallback to mock data
+        setEvents(mockEventsData);
+      } else if (data && data.length > 0) {
+        // 使用真实数据
+        setEvents(eventsToDisplay(data));
+      } else {
+        // 如果数据库为空，使用mock数据
+        console.log('No events in database, using mock data');
+        setEvents(mockEventsData);
+      }
+    } catch (error) {
+      console.error('Exception loading events:', error);
+      setEventsError('Failed to load events');
+      // Fallback to mock data
+      setEvents(mockEventsData);
+    } finally {
+      setIsLoadingEvents(false);
+    }
+  };
 
   const handleSearchPress = () => {
     navigation.navigate('Search' as never);
@@ -32,6 +76,10 @@ const TrendingScreen: React.FC = () => {
 
   const handleProfilePress = () => {
     navigation.navigate('Profile' as never);
+  };
+
+  const toggleFavorite = (eventId: string | number, eventData?: EventDisplay) => {
+    toggleFavoriteContext(eventId, eventData);
   };
 
   // Handle scroll events for event banner dots indicator
@@ -42,9 +90,11 @@ const TrendingScreen: React.FC = () => {
     setCurrentEventPage(roundIndex);
   };
 
-
-  // Featured events for hero banner
-  const featuredEvents = mockEventsData.filter(event => event.isHot).slice(0, 3);
+  // Featured events for hero banner - use real data or fallback to mock
+  const featuredEvents = events.filter(event => event.isHot).slice(0, 3);
+  
+  // If no hot events, use first 3 events
+  const displayEvents = featuredEvents.length > 0 ? featuredEvents : events.slice(0, 3);
 
   // Different heights for waterfall layout
   const waterfallHeights = [140, 120, 160, 130, 150, 110];
@@ -115,6 +165,14 @@ const TrendingScreen: React.FC = () => {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
+    },
+    heroFavoriteButton: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs / 2,
+      borderRadius: borderRadius.md,
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.3)',
     },
     heroPrice: {
       fontSize: typography.fontSize.md,
@@ -295,8 +353,20 @@ const TrendingScreen: React.FC = () => {
       fontWeight: '700',
       color: '#FFFFFF',
     },
+    waterfallFavoriteButton: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      minWidth: 32,  // 确保按钮有足够的点击区域
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     waterfallContent: {
       padding: spacing.xs,
+      paddingBottom: spacing.sm,  // 增加底部padding确保内容完全显示
     },
     waterfallTitle: {
       fontSize: typography.fontSize.sm,
@@ -333,6 +403,20 @@ const TrendingScreen: React.FC = () => {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
+    },
+    waterfallMetaContainer: {
+      marginTop: spacing.xs,
+    },
+    waterfallLocationRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.xs / 2,
+    },
+    waterfallDateFavoriteRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingTop: 2,
     },
     waterfallAuthor: {
       fontSize: typography.fontSize.sm,
@@ -454,8 +538,12 @@ const TrendingScreen: React.FC = () => {
             scrollEventThrottle={16}
             style={styles.heroScrollView}
           >
-            {featuredEvents.map((event) => (
-              <TouchableOpacity key={event.id} style={styles.heroCard}>
+            {displayEvents.map((event) => (
+              <TouchableOpacity 
+                key={event.id} 
+                style={styles.heroCard}
+                onPress={() => navigation.navigate('EventDetail' as never, { eventId: event.id } as never)}
+              >
                 <Image source={{ uri: event.image }} style={styles.heroImage} />
                 <View style={styles.heroBadge}>
                   <Text style={styles.heroBadgeText}>🔥 HOT EVENT</Text>
@@ -464,11 +552,27 @@ const TrendingScreen: React.FC = () => {
                   <Text style={styles.heroTitle}>{event.title}</Text>
                   <Text style={styles.heroSubtitle}>{event.location} • {event.date}</Text>
                   <View style={styles.heroMeta}>
-                    <Text style={styles.heroPrice}>{event.price}</Text>
-                    <View style={styles.heroAttendees}>
-                      <Ionicons name="people-outline" size={14} color="#FFFFFF" />
-                      <Text style={{ marginLeft: 4 }}>{event.attendees}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+                      <Text style={styles.heroPrice}>{event.price}</Text>
+                      <View style={styles.heroAttendees}>
+                        <Ionicons name="people-outline" size={14} color="#FFFFFF" />
+                        <Text style={{ marginLeft: 4 }}>{event.attendees}</Text>
+                      </View>
                     </View>
+                    <TouchableOpacity 
+                      style={styles.heroFavoriteButton}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(event.id, event);
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons 
+                        name={favoriteEvents.has(event.id) ? "heart" : "heart-outline"} 
+                        size={14} 
+                        color={favoriteEvents.has(event.id) ? "#FF6B6B" : "#FFFFFF"} 
+                      />
+                    </TouchableOpacity>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -477,7 +581,7 @@ const TrendingScreen: React.FC = () => {
           
           {/* Dots Indicator */}
           <View style={styles.dotsContainer}>
-            {featuredEvents.map((_, index) => (
+            {displayEvents.map((_, index) => (
               <View
                 key={index}
                 style={[
@@ -543,88 +647,155 @@ const TrendingScreen: React.FC = () => {
           </ScrollView>
         </View>
 
-        {/* Trending Content - Waterfall Layout */}
-        <View style={styles.waterfallContainer}>
-          <View style={styles.waterfallColumn}>
-            {mockTrendingData.filter((_, index) => index % 2 === 0).map((trend, index) => (
-              <TouchableOpacity key={trend.id} style={[styles.waterfallCard, { marginBottom: spacing.xs * 0.5 }]}>
-                <View style={[styles.waterfallImageContainer, { height: waterfallHeights[index * 2] }]}>
-                  <Image source={{ uri: 'https://picsum.photos/200/100?random=' + trend.id }} style={styles.waterfallImage} />
-                  {index === 0 && (
-                    <View style={styles.featuredBadge}>
-                      <Text style={styles.featuredBadgeText}>🔥 TRENDING</Text>
-                    </View>
-                  )}
-                </View>
-                
-                <View style={styles.waterfallContent}>
-                  <Text style={styles.waterfallTitle} numberOfLines={2} ellipsizeMode="tail">
-                    {trend.title}
-                  </Text>
-
-                  <View style={styles.waterfallTagsContainer}>
-                    {trend.tags.slice(0, 2).map((tag, tagIndex) => (
-                      <View key={tagIndex} style={styles.waterfallTag}>
-                        <Text style={styles.waterfallTagText}>#{tag}</Text>
+        {/* Events Content - Waterfall Layout */}
+        {isLoadingEvents ? (
+          <View style={{ padding: spacing.xl, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Text style={{ marginTop: spacing.md, color: colors.textSecondary }}>Loading events...</Text>
+          </View>
+        ) : (
+          <View style={styles.waterfallContainer}>
+            {/* Left Column */}
+            <View style={styles.waterfallColumn}>
+              {events.filter((_, index) => index % 2 === 0).map((event, index) => (
+                <TouchableOpacity 
+                  key={event.id} 
+                  style={[styles.waterfallCard, { marginBottom: spacing.xs * 0.5 }]}
+                  onPress={() => navigation.navigate('EventDetail' as never, { eventId: event.id } as never)}
+                >
+                  <View style={[styles.waterfallImageContainer, { height: waterfallHeights[index * 2 % waterfallHeights.length] }]}>
+                    <Image source={{ uri: event.image }} style={styles.waterfallImage} />
+                    {event.isHot && (
+                      <View style={styles.featuredBadge}>
+                        <Text style={styles.featuredBadgeText}>🔥 HOT</Text>
                       </View>
-                    ))}
-                    {trend.tags.length > 2 && (
-                      <Text style={styles.waterfallMoreTagsText}>+{trend.tags.length - 2}</Text>
                     )}
                   </View>
+                  
+                  <View style={styles.waterfallContent}>
+                    <Text style={styles.waterfallTitle} numberOfLines={2} ellipsizeMode="tail">
+                      {event.title}
+                    </Text>
 
-                  <View style={styles.waterfallFooter}>
-                    <Text style={styles.waterfallAuthor}>@{trend.author}</Text>
-                    <View style={styles.waterfallStats}>
-                      <Ionicons name="heart-outline" size={14} color="#9CA3AF" />
-                      <Text style={styles.waterfallLikes}>{trend.likes}</Text>
+                    <View style={styles.waterfallTagsContainer}>
+                      {event.tags.slice(0, 2).map((tag, tagIndex) => (
+                        <View key={tagIndex} style={styles.waterfallTag}>
+                          <Text style={styles.waterfallTagText}>#{tag}</Text>
+                        </View>
+                      ))}
+                      {event.tags.length > 2 && (
+                        <Text style={styles.waterfallMoreTagsText}>+{event.tags.length - 2}</Text>
+                      )}
+                    </View>
+
+                    <View style={styles.waterfallMetaContainer}>
+                      {/* Location */}
+                      <View style={styles.waterfallLocationRow}>
+                        <Ionicons name="location-outline" size={14} color={colors.textSecondary} />
+                        <Text style={[styles.waterfallAuthor, { marginLeft: 4, flex: 1 }]} numberOfLines={1}>
+                          {event.location}
+                        </Text>
+                      </View>
+                      {/* Date and Favorite */}
+                      <View style={styles.waterfallDateFavoriteRow}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <Ionicons name="calendar-outline" size={14} color={colors.textSecondary} />
+                          <Text style={[styles.waterfallLikes, { marginLeft: 4 }]}>
+                            {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </Text>
+                        </View>
+                        <TouchableOpacity 
+                          style={styles.waterfallFavoriteButton}
+                          onPress={(e) => {
+                            e.stopPropagation();
+                            toggleFavorite(event.id, event);
+                          }}
+                          activeOpacity={0.7}
+                        >
+                          <Ionicons 
+                            name={favoriteEvents.has(event.id) ? "heart" : "heart-outline"} 
+                            size={14} 
+                            color={favoriteEvents.has(event.id) ? "#FF6B6B" : colors.textSecondary} 
+                          />
+                        </TouchableOpacity>
+                      </View>
                     </View>
                   </View>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
+                </TouchableOpacity>
+              ))}
+            </View>
 
-          <View style={styles.waterfallColumn}>
-            {mockTrendingData.filter((_, index) => index % 2 === 1).map((trend, index) => (
-              <TouchableOpacity key={trend.id} style={[styles.waterfallCard, { marginBottom: spacing.xs * 0.5 }]}>
-                <View style={[styles.waterfallImageContainer, { height: waterfallHeights[index * 2 + 1] }]}>
-                  <Image source={{ uri: 'https://picsum.photos/200/100?random=' + trend.id }} style={styles.waterfallImage} />
-                  {index === 0 && (
-                    <View style={styles.featuredBadge}>
-                      <Text style={styles.featuredBadgeText}>⚡ POPULAR</Text>
-                    </View>
-                  )}
-                </View>
-                
-                <View style={styles.waterfallContent}>
-                  <Text style={styles.waterfallTitle} numberOfLines={2} ellipsizeMode="tail">
-                    {trend.title}
-                  </Text>
-
-                  <View style={styles.waterfallTagsContainer}>
-                    {trend.tags.slice(0, 2).map((tag, tagIndex) => (
-                      <View key={tagIndex} style={styles.waterfallTag}>
-                        <Text style={styles.waterfallTagText}>#{tag}</Text>
+            {/* Right Column */}
+            <View style={styles.waterfallColumn}>
+              {events.filter((_, index) => index % 2 === 1).map((event, index) => (
+                <TouchableOpacity 
+                  key={event.id} 
+                  style={[styles.waterfallCard, { marginBottom: spacing.xs * 0.5 }]}
+                  onPress={() => navigation.navigate('EventDetail' as never, { eventId: event.id } as never)}
+                >
+                  <View style={[styles.waterfallImageContainer, { height: waterfallHeights[(index * 2 + 1) % waterfallHeights.length] }]}>
+                    <Image source={{ uri: event.image }} style={styles.waterfallImage} />
+                    {event.isHot && (
+                      <View style={styles.featuredBadge}>
+                        <Text style={styles.featuredBadgeText}>⚡ HOT</Text>
                       </View>
-                    ))}
-                    {trend.tags.length > 2 && (
-                      <Text style={styles.waterfallMoreTagsText}>+{trend.tags.length - 2}</Text>
                     )}
                   </View>
+                  
+                  <View style={styles.waterfallContent}>
+                    <Text style={styles.waterfallTitle} numberOfLines={2} ellipsizeMode="tail">
+                      {event.title}
+                    </Text>
 
-                  <View style={styles.waterfallFooter}>
-                    <Text style={styles.waterfallAuthor}>@{trend.author}</Text>
-                    <View style={styles.waterfallStats}>
-                      <Ionicons name="heart-outline" size={14} color="#9CA3AF" />
-                      <Text style={styles.waterfallLikes}>{trend.likes}</Text>
+                    <View style={styles.waterfallTagsContainer}>
+                      {event.tags.slice(0, 2).map((tag, tagIndex) => (
+                        <View key={tagIndex} style={styles.waterfallTag}>
+                          <Text style={styles.waterfallTagText}>#{tag}</Text>
+                        </View>
+                      ))}
+                      {event.tags.length > 2 && (
+                        <Text style={styles.waterfallMoreTagsText}>+{event.tags.length - 2}</Text>
+                      )}
+                    </View>
+
+                    <View style={styles.waterfallMetaContainer}>
+                      {/* Location */}
+                      <View style={styles.waterfallLocationRow}>
+                        <Ionicons name="location-outline" size={14} color={colors.textSecondary} />
+                        <Text style={[styles.waterfallAuthor, { marginLeft: 4, flex: 1 }]} numberOfLines={1}>
+                          {event.location}
+                        </Text>
+                      </View>
+                      {/* Date and Favorite */}
+                      <View style={styles.waterfallDateFavoriteRow}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <Ionicons name="calendar-outline" size={14} color={colors.textSecondary} />
+                          <Text style={[styles.waterfallLikes, { marginLeft: 4 }]}>
+                            {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </Text>
+                        </View>
+                        <TouchableOpacity 
+                          style={styles.waterfallFavoriteButton}
+                          onPress={(e) => {
+                            e.stopPropagation();
+                            toggleFavorite(event.id, event);
+                          }}
+                          activeOpacity={0.7}
+                        >
+                          <Ionicons 
+                            name={favoriteEvents.has(event.id) ? "heart" : "heart-outline"} 
+                            size={14} 
+                            color={favoriteEvents.has(event.id) ? "#FF6B6B" : colors.textSecondary} 
+                          />
+                        </TouchableOpacity>
+                      </View>
                     </View>
                   </View>
-                </View>
-              </TouchableOpacity>
-            ))}
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-        </View>
+        )}
       </ScrollView>
       
       <FloatingActionButton onPress={() => console.log('Create post')} />
@@ -632,4 +803,4 @@ const TrendingScreen: React.FC = () => {
   );
 };
 
-export default TrendingScreen;
+export default EventsScreen;
