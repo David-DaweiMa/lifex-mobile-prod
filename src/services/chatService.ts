@@ -1,4 +1,8 @@
 import { Message, BusinessExtended, ChatServiceResponse } from '../types';
+import { supabase } from './supabase';
+
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
+const USE_AI_API = true; // Toggle to switch between AI API and mock responses
 
 export class ChatService {
   private conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }> = [];
@@ -40,17 +44,54 @@ export class ChatService {
       const sessionId = userId ? `user-${userId}` : (this.anonymousSessionId || `anon-${Date.now()}`);
       const requestUserId = userId || 'anonymous';
 
-      // For now, return a mock response
-      // TODO: Implement actual API call to backend
-      const mockResponse = this.generateMockResponse(userMessage);
+      let response: ChatServiceResponse;
+
+      if (USE_AI_API && SUPABASE_URL) {
+        // Call Supabase Edge Function for AI response with RAG
+        try {
+          const { data, error } = await supabase.functions.invoke('chat-v2', {
+            body: {
+              message: userMessage,
+              conversationHistory: this.conversationHistory.slice(-10),
+              userId: requestUserId,
+              sessionId
+            }
+          });
+
+          if (error) {
+            console.error('❌ Supabase Edge Function error:', error);
+            throw error;
+          }
+
+          response = {
+            message: data.message,
+            followUpQuestions: data.followUpQuestions || []
+          };
+
+          console.log('✅ AI Response from Supabase (chat-v2 with RAG):', {
+            messageLength: data.message?.length,
+            followUpCount: data.followUpQuestions?.length,
+            usage: data.usage,
+            debug: data.debug // Show RAG debug info
+          });
+
+        } catch (apiError) {
+          console.error('❌ AI API call failed, falling back to mock:', apiError);
+          response = this.generateMockResponse(userMessage);
+        }
+      } else {
+        // Use mock response
+        console.log('ℹ️  Using mock response (AI API disabled or not configured)');
+        response = this.generateMockResponse(userMessage);
+      }
 
       // Add AI response to history
       this.conversationHistory.push({
         role: 'assistant',
-        content: mockResponse.message
+        content: response.message
       });
 
-      return mockResponse;
+      return response;
 
     } catch (error) {
       console.error('Chat service error:', error);

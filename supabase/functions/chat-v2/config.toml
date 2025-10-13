@@ -1,0 +1,11 @@
+# Edge Function Configuration for chat-v2
+
+# Allow requests without JWT verification
+verify_jwt = false
+
+# Enable CORS
+cors = true
+
+# Timeout in seconds
+timeout = 30
+
