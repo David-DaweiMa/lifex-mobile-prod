@@ -9,7 +9,10 @@
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "privacy": "public",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -18,8 +21,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.lifex.mobile",
-      "buildNumber": "1",
-      "icon": "./assets/icon-180.png"
+      "buildNumber": "2",
+      "icon": "./assets/icon-180.png",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "icon": "./assets/icon-192.png",
@@ -38,6 +44,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b185cc69-d6fa-4768-b72b-9a252b83bc9a"
+      }
     }
   }
 }

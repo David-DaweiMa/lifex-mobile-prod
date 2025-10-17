@@ -1,23 +1,40 @@
-# LifeX Mobile App
+# 🚀 LifeX Mobile App
 
-A React Native mobile application for discovering local businesses and services in New Zealand, powered by AI recommendations.
+A React Native mobile application for discovering local businesses, events, and services in New Zealand, powered by AI recommendations with RAG (Retrieval-Augmented Generation) architecture.
 
-## Features
+## 📱 Platform Support
 
-- 🤖 **AI-Powered Chat**: Chat with LifeX AI to get personalized recommendations
-- 📈 **Trending Content**: Discover what's popular in your area
-- 🔍 **Discover**: Explore community-generated content and reviews
-- 🏷️ **Special Deals**: Find exclusive offers and discounts
-- ❤️ **Coly Subscription**: Upgrade to premium features for enhanced experience
+- ✅ iOS (TestFlight / App Store)
+- 🔄 Android (Coming soon)
+- 🌐 Web (Development only)
+
+## ✨ Features
+
+- 🤖 **AI-Powered Chat**: Chat with LifeX AI to get personalized recommendations (RAG architecture with real-time data)
+- 🏪 **Places**: Discover local businesses, restaurants, cafes, and more
+- 🎉 **Events**: Find upcoming events and activities
+- 🏷️ **Special Deals**: Exclusive offers and discounts
+- ❤️ **Favorites**: Save and organize your favorite places
 - 👤 **User Profile**: Manage your account and preferences
+- 🔐 **Authentication**: Secure login and registration with email verification
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-- **React Native** with Expo
+### Frontend
+- **React Native** with Expo SDK 52
 - **TypeScript** for type safety
-- **React Navigation** for navigation
-- **Supabase** for backend services
-- **Custom UI Components** with dark theme
+- **React Navigation** v7 for navigation
+- Custom UI Components with modern design
+
+### Backend
+- **Supabase** (PostgreSQL + Edge Functions)
+- **OpenAI API** (GPT-4o-mini for chat)
+- **RAG Architecture** (Retrieval-Augmented Generation)
+
+### Services
+- **Expo Application Services (EAS)** for builds
+- **TestFlight** for beta distribution
+- **Google Places API** (planned for data acquisition)
 
 ## Project Structure
 
@@ -148,13 +165,38 @@ npm run lint
 npm run type-check
 ```
 
-## Deployment
+## 📦 Deployment
 
-The app can be deployed to:
+### EAS Build
+```bash
+# Build for iOS (production)
+eas build --platform ios --profile production
 
-- **Expo Application Services (EAS)** for app store distribution
-- **Expo Go** for development and testing
-- **Web** for browser-based testing
+# Submit to TestFlight
+eas submit --platform ios
+```
+
+### Environment Variables (EAS Secrets)
+```bash
+# Set Supabase URL
+eas secret:create --scope project --name EXPO_PUBLIC_SUPABASE_URL --value your_url
+
+# Set Supabase Anon Key
+eas secret:create --scope project --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value your_key
+```
+
+## 📚 Documentation
+
+For detailed information about the project architecture and implementation strategies:
+
+- **[Project Roadmap](PROJECT_ROADMAP.md)** - Current status and future plans
+- **[System Architecture](SYSTEM_ARCHITECTURE_OVERVIEW.md)** - High-level system design
+- **[Data Acquisition Strategy](DATA_ACQUISITION_STRATEGY.md)** - How we collect business data
+- **[Data Update Strategy](DATA_UPDATE_STRATEGY.md)** - Keeping data fresh
+- **[Data Retrieval Optimization](DATA_RETRIEVAL_OPTIMIZATION.md)** - Search and recommendation algorithms
+- **[Advanced Recommendation System](ADVANCED_RECOMMENDATION_SYSTEM.md)** - Personalized recommendations
+- **[Google API Compliance](GOOGLE_API_COMPLIANCE_GUIDE.md)** - Google Places API usage guidelines
+- **[Git Branch Strategy](GIT_BRANCH_STRATEGY.md)** - Version control workflow
 
 ## Contributing
 
