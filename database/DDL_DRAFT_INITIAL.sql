@@ -325,7 +325,7 @@ LEFT JOIN (
 WHERE b.is_active = true;
 
 CREATE OR REPLACE VIEW public.events_page AS
-SELECT e.*, b.name AS business_name, l.city, l.country
+SELECT e.*, b.name AS business_name, l.city AS venue_city, l.country AS venue_country
 FROM catalog.events e
 LEFT JOIN catalog.businesses b ON b.id = e.venue_business_id
 LEFT JOIN LATERAL (
