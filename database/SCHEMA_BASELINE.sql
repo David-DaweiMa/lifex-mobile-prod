@@ -1,0 +1,120 @@
+-- Domain schema baseline for LifeX
+-- Purpose: create core domain schemas and apply secure, least-privilege defaults.
+-- Safe to run multiple times (idempotent GRANT/REVOKE/CREATE IF NOT EXISTS).
+
+-- 1) Create domain schemas
+CREATE SCHEMA IF NOT EXISTS core;      -- user profiles, accounts, notifications, ops metadata
+CREATE SCHEMA IF NOT EXISTS catalog;   -- businesses, categories, specials, events, hours, locations
+CREATE SCHEMA IF NOT EXISTS content;   -- reviews, media, editorial content, scraped raw
+CREATE SCHEMA IF NOT EXISTS social;    -- favorites, follows, watchlists, reminders
+
+-- 2) Lock down schema access (deny by default)
+REVOKE ALL ON SCHEMA core    FROM PUBLIC;
+REVOKE ALL ON SCHEMA catalog FROM PUBLIC;
+REVOKE ALL ON SCHEMA content FROM PUBLIC;
+REVOKE ALL ON SCHEMA social  FROM PUBLIC;
+
+REVOKE ALL ON SCHEMA core    FROM anon, authenticated;
+REVOKE ALL ON SCHEMA catalog FROM anon, authenticated;
+REVOKE ALL ON SCHEMA content FROM anon, authenticated;
+REVOKE ALL ON SCHEMA social  FROM anon, authenticated;
+
+GRANT USAGE ON SCHEMA core    TO postgres, service_role;
+GRANT USAGE ON SCHEMA catalog TO postgres, service_role;
+GRANT USAGE ON SCHEMA content TO postgres, service_role;
+GRANT USAGE ON SCHEMA social  TO postgres, service_role;
+
+-- 3) Default privileges for future objects created by postgres in each schema
+-- Tables
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA core
+  REVOKE ALL ON TABLES FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA core
+  REVOKE ALL ON TABLES FROM anon, authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA core
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO service_role;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA catalog
+  REVOKE ALL ON TABLES FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA catalog
+  REVOKE ALL ON TABLES FROM anon, authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA catalog
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO service_role;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA content
+  REVOKE ALL ON TABLES FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA content
+  REVOKE ALL ON TABLES FROM anon, authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA content
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO service_role;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA social
+  REVOKE ALL ON TABLES FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA social
+  REVOKE ALL ON TABLES FROM anon, authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA social
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO service_role;
+
+-- Sequences
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA core
+  REVOKE ALL ON SEQUENCES FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA core
+  REVOKE ALL ON SEQUENCES FROM anon, authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA core
+  GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO service_role;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA catalog
+  REVOKE ALL ON SEQUENCES FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA catalog
+  REVOKE ALL ON SEQUENCES FROM anon, authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA catalog
+  GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO service_role;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA content
+  REVOKE ALL ON SEQUENCES FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA content
+  REVOKE ALL ON SEQUENCES FROM anon, authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA content
+  GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO service_role;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA social
+  REVOKE ALL ON SEQUENCES FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA social
+  REVOKE ALL ON SEQUENCES FROM anon, authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA social
+  GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO service_role;
+
+-- Functions
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA core
+  REVOKE ALL ON FUNCTIONS FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA core
+  REVOKE ALL ON FUNCTIONS FROM anon, authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA core
+  GRANT EXECUTE ON FUNCTIONS TO service_role;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA catalog
+  REVOKE ALL ON FUNCTIONS FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA catalog
+  REVOKE ALL ON FUNCTIONS FROM anon, authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA catalog
+  GRANT EXECUTE ON FUNCTIONS TO service_role;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA content
+  REVOKE ALL ON FUNCTIONS FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA content
+  REVOKE ALL ON FUNCTIONS FROM anon, authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA content
+  GRANT EXECUTE ON FUNCTIONS TO service_role;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA social
+  REVOKE ALL ON FUNCTIONS FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA social
+  REVOKE ALL ON FUNCTIONS FROM anon, authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA social
+  GRANT EXECUTE ON FUNCTIONS TO service_role;
+
+-- Notes:
+-- - Application access should be via public views (SELECT only) and RPCs (EXECUTE only).
+-- - Enable RLS per-table when creating objects in these schemas.
+-- - service_role is intended for trusted backend/ingest operations only.
+
+

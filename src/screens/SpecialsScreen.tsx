@@ -533,23 +533,23 @@ const SpecialsScreen: React.FC = () => {
                   onPress={() => navigation.navigate('SpecialDetail', { specialId: special.id })}
                 >
                   <Image source={{ uri: special.image || specialImages[index % specialImages.length] }} style={styles.heroImage} />
-                  <View style={styles.heroOverlay}>
-                    <View style={styles.heroBadge}>
-                      <Text style={styles.heroBadgeText}>
-                        {index === 0 ? '🔥 HOT DEAL' : index === 1 ? '⚡ NEW' : '💎 SPECIAL'}
-                      </Text>
-                    </View>
-                    <View style={styles.heroContent}>
-                      <Text style={styles.heroTitle} numberOfLines={2}>{special.title}</Text>
-                      <Text style={styles.heroDiscount}>{special.discount} OFF</Text>
-                      <Text style={styles.heroBusiness}>{special.business}</Text>
-                      <View style={styles.heroTimerContainer}>
-                        <View style={styles.heroTimer}>
-                          <Ionicons name="time-outline" size={14} color="#ff4444" />
+                <View style={styles.heroOverlay}>
+                  <View style={styles.heroBadge}>
+                    <Text style={styles.heroBadgeText}>
+                      {index === 0 ? '🔥 HOT DEAL' : index === 1 ? '⚡ NEW' : '💎 SPECIAL'}
+                    </Text>
+                  </View>
+                  <View style={styles.heroContent}>
+                    <Text style={styles.heroTitle} numberOfLines={2}>{special.title}</Text>
+                    <Text style={styles.heroDiscount}>{special.discount} OFF</Text>
+                    <Text style={styles.heroBusiness}>{special.business}</Text>
+                    <View style={styles.heroTimerContainer}>
+                      <View style={styles.heroTimer}>
+                        <Ionicons name="time-outline" size={14} color="#ff4444" />
                           <Text style={styles.heroTimerText}>
                             {daysRemaining > 0 ? `Ends in ${daysRemaining} day${daysRemaining > 1 ? 's' : ''}` : 'Expired'}
                           </Text>
-                        </View>
+                      </View>
                         <TouchableOpacity 
                           style={styles.heroFavoriteButton}
                           onPress={(e) => {
@@ -565,11 +565,11 @@ const SpecialsScreen: React.FC = () => {
                           <Text style={styles.heroFavoriteCount}>
                             {isFavorite(special.id) ? '1' : '0'}
                           </Text>
-                        </TouchableOpacity>
-                      </View>
+                      </TouchableOpacity>
                     </View>
                   </View>
-                </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
               );
             })}
           </ScrollView>

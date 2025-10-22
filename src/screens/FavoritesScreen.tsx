@@ -117,12 +117,12 @@ const FavoritesScreen: React.FC = () => {
         </ScrollView>
 
         {displayList.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="heart-outline" size={80} color={colors.textSecondary} />
+        <View style={styles.emptyState}>
+          <Ionicons name="heart-outline" size={80} color={colors.textSecondary} />
             <Text style={styles.emptyTitle}>
               {selectedCategory === 'all' ? 'No favorites yet' : `No ${selectedCategory} saved`}
             </Text>
-            <Text style={styles.emptyDescription}>
+          <Text style={styles.emptyDescription}>
               {selectedCategory === 'all' 
                 ? 'Start exploring and save your favorites by tapping the heart icon'
                 : `Save ${selectedCategory} by tapping the heart icon to see them here`}
@@ -196,8 +196,8 @@ const FavoritesScreen: React.FC = () => {
                         day: 'numeric',
                         year: 'numeric'
                       })}
-                    </Text>
-                  </View>
+          </Text>
+        </View>
                 </View>
               </TouchableOpacity>
             ))}
