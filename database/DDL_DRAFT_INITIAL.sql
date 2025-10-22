@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS catalog.business_locations (
     latitude double precision,
     longitude double precision,
     is_primary boolean NOT NULL DEFAULT true,
+    hours jsonb,
     created_at timestamptz NOT NULL DEFAULT now()
 );
 
@@ -91,15 +92,7 @@ CREATE INDEX IF NOT EXISTS gist_business_locations_geom
 CREATE INDEX IF NOT EXISTS idx_business_locations_business ON catalog.business_locations(business_id);
 CREATE INDEX IF NOT EXISTS idx_business_locations_city ON catalog.business_locations(city);
 
-CREATE TABLE IF NOT EXISTS catalog.business_hours (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    business_id uuid NOT NULL REFERENCES catalog.businesses(id) ON DELETE CASCADE,
-    day_of_week smallint NOT NULL CHECK (day_of_week BETWEEN 0 AND 6),
-    open_time time,
-    close_time time
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS uq_business_hours_business_dow ON catalog.business_hours(business_id, day_of_week);
+-- business_hours merged into business_locations.hours (JSONB)
 
 CREATE TABLE IF NOT EXISTS catalog.business_category_links (
     business_id uuid NOT NULL REFERENCES catalog.businesses(id) ON DELETE CASCADE,
@@ -152,7 +145,6 @@ CREATE TABLE IF NOT EXISTS catalog.specials (
 ALTER TABLE catalog.categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE catalog.businesses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE catalog.business_locations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE catalog.business_hours ENABLE ROW LEVEL SECURITY;
 ALTER TABLE catalog.business_category_links ENABLE ROW LEVEL SECURITY;
 ALTER TABLE catalog.events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE catalog.specials ENABLE ROW LEVEL SECURITY;
@@ -170,11 +162,6 @@ DO $$ BEGIN
     SELECT 1 FROM pg_policies WHERE schemaname='catalog' AND tablename='business_locations' AND policyname='read_all_auth'
   ) THEN
     CREATE POLICY read_all_auth ON catalog.business_locations FOR SELECT TO authenticated USING (true);
-  END IF;
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE schemaname='catalog' AND tablename='business_hours' AND policyname='read_all_auth'
-  ) THEN
-    CREATE POLICY read_all_auth ON catalog.business_hours FOR SELECT TO authenticated USING (true);
   END IF;
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE schemaname='catalog' AND tablename='categories' AND policyname='read_all_auth'
