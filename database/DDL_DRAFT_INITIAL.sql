@@ -996,6 +996,7 @@ CREATE OR REPLACE FUNCTION public.submit_event_submission(p_business_id uuid, p_
 RETURNS uuid
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public, pg_temp
 AS $$
 DECLARE
   v_id uuid;
@@ -1011,6 +1012,7 @@ CREATE OR REPLACE FUNCTION public.submit_special_submission(p_business_id uuid, 
 RETURNS uuid
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public, pg_temp
 AS $$
 DECLARE
   v_id uuid;
@@ -1026,6 +1028,7 @@ CREATE OR REPLACE FUNCTION public.moderate_event_submission(p_submission_id uuid
 RETURNS uuid
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public, pg_temp
 AS $$
 DECLARE
   v_id uuid;
@@ -1068,6 +1071,7 @@ CREATE OR REPLACE FUNCTION public.moderate_special_submission(p_submission_id uu
 RETURNS uuid
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public, pg_temp
 AS $$
 DECLARE
   v_id uuid;
