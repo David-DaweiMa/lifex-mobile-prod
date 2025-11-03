@@ -30,6 +30,7 @@ jobs:
       - name: Render and extract events, then upsert to Supabase (dry-run by default)
         shell: bash
         run: |
+          npm i playwright@1
           node - <<'NODE'
           const { chromium } = require('playwright');
 
