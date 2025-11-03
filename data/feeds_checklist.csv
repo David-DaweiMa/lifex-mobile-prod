@@ -1,0 +1,27 @@
+# category,name,city_scope,type,url,frequency,owner,status,notes
+# Events
+Events,Auckland Council What's On,Auckland,HTML,https://ourauckland.aucklandcouncil.govt.nz/events/,daily,,researching,Site-wide or category calendars
+Events,Auckland Live (The Civic/Aotea),Auckland,HTML,https://www.aucklandlive.co.nz/whats-on,daily,,researching,Venue calendars
+Events,Auckland Museum,Auckland,HTML,https://www.aucklandmuseum.com/visit/whats-on,daily,,researching,
+Events,Auckland Art Gallery,Auckland,HTML,https://www.aucklandartgallery.com/whats-on,daily,,researching,
+Events,Auckland Libraries (network),Auckland,HTML,https://www.aucklandlibraries.govt.nz/pages/events.aspx,daily,,researching,
+Events,Auckland Buddhist Centre,Auckland,ICS,https://aucklandbuddhistcentre.org/abc.ics,daily,,pending,Immediate test feed
+Events,University of Auckland (Academic Year),Auckland,ICS,https://www.calendar.auckland.ac.nz/icalendar/academic-year.ics,daily,,pending,Immediate test feed
+Events,WellingtonNZ Events,Wellington,ICS,,daily,,pending,
+Events,Te Papa Museum,Wellington,ICS,,daily,,pending,
+Events,Wellington City Libraries,Wellington,ICS,,daily,,pending,
+Events,Christchurch City Council What's On,Christchurch,ICS,,daily,,pending,
+Events,Christchurch City Libraries,Christchurch,ICS,,daily,,pending,
+Events,University of Auckland,Auckland,ICS,,daily,,pending,Campus events
+Events,University of Canterbury,Christchurch,ICS,,daily,,pending,Campus events
+Events,Meetup Group (multiple),Nationwide,ICS,,daily,,pending,Per-group iCal
+Events,Eventbrite Organizer/Collection,Nationwide,RSS/ICS,,daily,,pending,Depends on organizer page
+# Specials
+Specials,Woolworths/Countdown,Nationwide,HTML,,weekly,,todo,Promotions/store pages
+Specials,New World,Nationwide,HTML,,weekly,,todo,Promotions/store pages
+Specials,PAK'nSAVE,Nationwide,HTML,,weekly,,todo,Promotions/store pages
+Specials,Brand blog/news (WordPress),Various,RSS,,daily/weekly,,pending,Append /feed
+Specials,Local venue/business Offers/News,Various,RSS/HTML,,weekly,,pending,Leads for specials
+# Places
+Places,Google Places API (New),Nationwide,API,console-key,by-strategy,platform,active,30-day cache; photos by reference
+Places,Website seeds from websiteUri,Per-business,HTML/JSON-LD,,monthly,,todo,Parse menus/tags/structured data

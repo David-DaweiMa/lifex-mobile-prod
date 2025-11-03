@@ -1,13 +1,13 @@
-[project]
-# Project ID from your Supabase dashboard
-# Replace with your actual project ID
-ref = "your-project-ref"
+project_id = "muuzilttuddlljumoiig"
 
 [api]
 port = 54321
 schemas = ["public", "graphql_public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
+
+[db]
+major_version = 15
 
 [auth]
 enabled = true
@@ -22,6 +22,16 @@ double_confirm_changes = true
 enable_confirmations = true
 
 [functions.chat]
+verify_jwt = false
+
+
+[functions.places-refresh]
+verify_jwt = false
+
+[functions."places-refresh-v2"]
+verify_jwt = false
+
+[functions."events-scrape"]
 verify_jwt = false
 
 

@@ -136,3 +136,49 @@
 - 备注：解析规则按行业定制；失败回退至摘要级信息
 
 
+
+---
+
+## Feeds Checklist (Live Sources)
+
+用途：落地“可抓取的订阅/页面清单”，用于定期更新；逐步补全 URL、负责人与状态。
+
+字段：
+- 名称 | 城市/范围 | 类型(ICS/RSS/HTML/API) | URL | 频率 | 负责人 | 状态 | 备注
+
+### A) Events（优先 ICS，其次 RSS；HTML 仅作补充）
+- Auckland Council What's On | Auckland | ICS | <待填> | 日更 | <负责人> | 待确认 | 全站或分类日历
+- Auckland Live（The Civic/Aotea 等） | Auckland | ICS | <待填> | 日更 | <负责人> | 待确认 | 场馆级日历
+- Auckland Museum | Auckland | ICS | <待填> | 日更 | <负责人> | 待确认 | 官方活动
+- Auckland Art Gallery | Auckland | ICS | <待填> | 日更 | <负责人> | 待确认 | 官方活动
+- Auckland Libraries | Auckland | ICS | <待填> | 日更 | <负责人> | 待确认 | 全网活动
+- WellingtonNZ Events | Wellington | ICS | <待填> | 日更 | <负责人> | 待确认 | 官方活动
+- Te Papa Museum | Wellington | ICS | <待填> | 日更 | <负责人> | 待确认 | 官方活动
+- Wellington City Libraries | Wellington | ICS | <待填> | 日更 | <负责人> | 待确认 | 全网活动
+- Christchurch City Council What's On | Christchurch | ICS | <待填> | 日更 | <负责人> | 待确认 | 官方活动
+- Christchurch City Libraries | Christchurch | ICS | <待填> | 日更 | <负责人> | 待确认 | 全网活动
+- University of Auckland | Auckland | ICS | <待填> | 日更 | <负责人> | 待确认 | 校园活动
+- University of Canterbury | Christchurch | ICS | <待填> | 日更 | <负责人> | 待确认 | 校园活动
+- Meetup（各 Group） | Nationwide | ICS | <待填多项> | 日更 | <负责人> | 待确认 | Group 级 iCal
+- Eventbrite（Organizer/Collection） | Nationwide | RSS/ICS | <待填> | 日更 | <负责人> | 待确认 | 依页面而定
+
+提示：站点常见“Subscribe/Add to calendar/iCal”可获得 ICS；WordPress 列表页可尝试在 URL 末尾加 `/feed` 获取 RSS。
+
+### B) Specials（品牌/门店促销；RSS 优先，无则 HTML）
+- Woolworths/Countdown | Nationwide | HTML | <待填> | 周更 | <负责人> | 待接入 | 促销/门店页
+- New World | Nationwide | HTML | <待填> | 周更 | <负责人> | 待接入 | 促销/门店页
+- PAK'nSAVE | Nationwide | HTML | <待填> | 周更 | <负责人> | 待接入 | 促销/门店页
+- 选定品牌博客/News（WordPress） | Various | RSS | <待填多项> | 日/周更 | <负责人> | 待确认 | 末尾 `/feed`
+- 本地场馆/商家“Offers/News” | Various | RSS/HTML | <待填多项> | 周更 | <负责人> | 待确认 | 作为特惠线索
+
+说明：超市普遍无 RSS；以 HTML 适配器为主。RSS 用于品牌博客/公告栏作为“特惠线索”。
+
+### C) Places（基础地点；API）
+- Google Places API（新版） | Nationwide | API | 控制台密钥 | 策略刷新 | 平台 | 使用中 | 30 天缓存；photos 仅引用
+- Website seeds（from websiteUri） | Per-business | HTML/JSON-LD | 来源于 Places detail | 月更 | <负责人> | 待接入 | 解析菜单/标签/结构化数据
+
+执行备注：
+- Events：优先填充 5–10 个 ICS 源，跑 `events-scrape` dryRun 验证覆盖面，再启用入库。
+- Specials：先选 2–3 个品牌做 HTML 适配器 MVP；RSS 源逐步补齐。
+- Places：沿用 `places-refresh`，并择优对热门商家用 websiteUri 补齐画像信息。
+

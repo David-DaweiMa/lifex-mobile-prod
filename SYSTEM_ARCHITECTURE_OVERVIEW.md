@@ -260,6 +260,63 @@ select cron.schedule(
 
 ---
 
+## 🔄 两条流水线设计（Google Places 刷新 & AI 嵌入）
+
+### Google Places 刷新流水线（设计）
+- 目标：持续获取高质量商家基础数据，并将变化最小化、幂等化地同步到规范表。
+- 输入/输出：
+  - 输入：城市/区域边界、网格或圆半径、类别/关键词、分页令牌。
+  - 写入缓存：`catalog.google_place_cache`、`catalog.place_photos_meta`（含 `provider='google'`, `external_id=place_id`, `content_hash`）。
+  - 规范化：变化时调用 `public.upsert_business_from_ingest(payload jsonb)` 更新 `catalog.businesses/*`。
+- 唯一键与幂等：
+  - 自然键：`(provider, external_id)`；缓存 `UNIQUE(provider, external_id)` 防重复。
+  - 变更检测：计算关键字段 `content_hash`，仅在 hash 变化时触发规范化。
+- 抓取策略：
+  - 区域切分：按城市网格（H3/经纬度网格）+ 主类目分批；分页保留 `next_page_token`。
+  - 去重：同一 `place_id` 多次出现归并；同一坐标+名称的潜在重复商家交由合并策略处理。
+  - 限流与重试：QPS 控制、指数退避；429/5xx 重试；永久失败写入 `ops.outbox`。
+- 调度与记录：
+  - 调度：热门城市每日、长尾每周；人工按城市/网格/类目触发。
+  - 记录：`ops.jobs` 计划，`ops.job_runs` 记录参数、起止时间、成功/失败与统计计数。
+- 可观测性：
+  - 指标：请求量、成功率、缓存新增/更新比率、触发规范化比例、单批耗时。
+  - 告警：连续失败、配额逼近、异常高的重复率或变更率。
+- 烟测（最小验证）：
+  - 选定 1 城市跑 1 批：缓存新增>0；`content_hash` 变化记录>0；`UNIQUE` 冲突=0。
+  - 规范化后抽样核对：`businesses` 与地址/坐标/类目/营业时间一致；无意外覆盖。
+
+### AI 嵌入生成流水线（设计）
+- 目标：为商家生成高质量语义向量，支持混合检索与推荐。
+- 语料与刷新：
+  - 语料：`ai.business_corpus`（物化视图，拼接名称/描述/类目/标签）。
+  - 刷新：全量 `REFRESH MATERIALIZED VIEW CONCURRENTLY`；数据变更触发增量队列。
+- 嵌入与索引：
+  - 模型/提供商：可插拔（如 OpenAI text-embedding-3 系列/替代方案）；记录 `provider/model`。
+  - 表结构：`ai.business_embeddings(business_id, provider, model, embedding, updated_at)`，`UNIQUE(business_id, provider, model)`。
+  - 向量索引：`ivfflat`（cosine/ip 视语义度量选择）；`lists` 随行数调优。
+- 任务与幂等：
+  - 任务：`ops.jobs` 建立 `embedding_generate`；payload 为 `business_id` 列表或查询。
+  - 幂等：同一 `(business_id, provider, model)` 重跑覆盖更新；失败写入 `ops.outbox` 并可重试。
+- 调度与维护：
+  - 启动：达到最小可用数据阈值即跑一次“全量嵌入（小批并发）”。
+  - 常态：增量触发 + 周/月至少一次全量校准；索引重建/ANALYZE 按需。
+- 烟测（最小验证）：
+  - 三类 RPC：keyword / vector / hybrid 均返回合理结果；P95 < 200ms（向量部分 < 120ms）。
+  - 语义准确性：抽样查询核对排序合理；空文本/缺字段样本被正确跳过或降权。
+
+### 最小可用数据（MVD）启动规则
+- 何时启动嵌入：
+  - 首批城市累计 ≥ 800–1500 家活跃商户，或覆盖 ≥ 5 个主类目；且 `ai.business_corpus` 可稳定刷新。
+  - events/specials 样本 ≥ 100 条（可提升文本丰富度，但非强依赖）。
+- 初始批量参数（建议）：
+  - 物化视图刷新：每日 1 次（凌晨低峰）。
+  - 嵌入生成：批量大小 64–128，并发 2–4；超时 30–60s；失败重试最多 3 次。
+- 成本与治理：
+  - 先抽样（如 5–10%）评估质量与成本，再放量；
+  - 设定日预算阈值，超阈值降采样或推迟到次日。
+
+---
+
 ## 🔍 数据检索与 AI 回答
 
 ### **RAG 架构 (你已在用):**

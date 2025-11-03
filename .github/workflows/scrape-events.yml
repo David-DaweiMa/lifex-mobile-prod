@@ -1,0 +1,147 @@
+name: Scrape Events (Rendered)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '25 3 * * *'
+
+jobs:
+  scrape-rendered-events:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      DRY_RUN: 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        run: |
+          npm i -g playwright@1
+          npx playwright install --with-deps chromium
+
+      - name: Render and extract events, then upsert to Supabase (dry-run by default)
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const { chromium } = require('playwright');
+
+          const SUPABASE_URL = process.env.SUPABASE_URL;
+          const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+          const DRY_RUN = String(process.env.DRY_RUN || 'true').toLowerCase() === 'true';
+
+          if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+            throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+          }
+
+          const sources = [
+            'https://ourauckland.aucklandcouncil.govt.nz/events/',
+            'https://www.aucklandlive.co.nz/whats-on',
+            'https://www.aucklandmuseum.com/visit/whats-on',
+            'https://www.aucklandartgallery.com/whats-on',
+            'https://www.aucklandlibraries.govt.nz/pages/events.aspx'
+          ];
+
+          const pathHints = [
+            '/events', '/whats-on', '/visit/whats-on', '/whatson', '/show', '/shows'
+          ];
+
+          function absolutize(href, base) {
+            try { return new URL(href, base).toString(); } catch { return href; }
+          }
+
+          function looksLikeEventUrl(u) {
+            try {
+              const { pathname } = new URL(u);
+              const p = pathname.toLowerCase();
+              return pathHints.some(h => p.includes(h));
+            } catch { return false; }
+          }
+
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            const context = await browser.newContext({ userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome Safari' });
+
+            const all = [];
+            for (const url of sources) {
+              const page = await context.newPage();
+              try {
+                await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
+                const base = url;
+
+                const items = await page.$$eval('a[href]', as => as.map(a => ({
+                  href: a.getAttribute('href'),
+                  text: (a.textContent || '').trim(),
+                })));
+
+                const uniq = new Map();
+                for (const it of items) {
+                  if (!it.href) continue;
+                  const abs = absolutize(it.href, base);
+                  if (!looksLikeEventUrl(abs)) continue;
+                  if (!uniq.has(abs)) uniq.set(abs, it.text || abs);
+                }
+
+                for (const [absUrl, title] of uniq.entries()) {
+                  all.push({
+                    source: `render:${new URL(base).host}`,
+                    external_id: absUrl,
+                    title: title || undefined,
+                    description: null,
+                    starts_at: null,
+                    ends_at: null,
+                    timezone: 'Pacific/Auckland',
+                    venue_name: null,
+                    city: null,
+                    url: absUrl,
+                    raw: { from: base }
+                  });
+                  if (all.length >= 400) break;
+                }
+              } catch (e) {
+                console.log('Render error:', url, String(e));
+              } finally {
+                await page.close();
+              }
+              if (all.length >= 400) break;
+            }
+
+            console.log('Collected items:', all.length);
+            if (DRY_RUN || all.length === 0) {
+              await browser.close();
+              console.log(JSON.stringify({ ok: true, dryRun: true, collected: all.length }));
+              return;
+            }
+
+            const rpcUrl = `${SUPABASE_URL}/rest/v1/rpc/admin_upsert_event_scrape_cache_batch`;
+            const resp = await fetch(rpcUrl, {
+              method: 'POST',
+              headers: {
+                'apikey': SUPABASE_SERVICE_ROLE_KEY,
+                'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ p_items: all })
+            });
+            if (!resp.ok) {
+              const t = await resp.text();
+              throw new Error(`RPC upsert failed ${resp.status}: ${t}`);
+            }
+            await browser.close();
+            console.log(JSON.stringify({ ok: true, dryRun: false, upserted: all.length }));
+          })().catch(err => {
+            console.error('Job failed:', err);
+            process.exit(1);
+          });
+          NODE
+
+      - name: Hints
+        run: |
+          echo "Set repository secrets SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY before enabling schedule."
+
