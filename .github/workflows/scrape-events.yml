@@ -21,9 +21,10 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Playwright
+      - name: Install Playwright (local)
         run: |
-          npm i -g playwright@1
+          npm init -y
+          npm i playwright@1
           npx playwright install --with-deps chromium
 
       - name: Render and extract events, then upsert to Supabase (dry-run by default)
