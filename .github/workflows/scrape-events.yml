@@ -21,6 +21,10 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Disable DRY_RUN on schedule
+        if: github.event_name == 'schedule'
+        run: echo "DRY_RUN=false" >> $GITHUB_ENV
+
       - name: Install Playwright (local)
         run: |
           npm init -y
