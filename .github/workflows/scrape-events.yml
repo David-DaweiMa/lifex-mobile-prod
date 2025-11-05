@@ -31,7 +31,7 @@ jobs:
           npm i playwright@1
           npx playwright install --with-deps chromium
 
-      - name: Render and extract events, then upsert to Supabase (dry-run by default)
+      - name: Render and extract events (seeds), then upsert to Supabase (dry-run by default)
         shell: bash
         run: |
           npm i playwright@1
@@ -118,10 +118,109 @@ jobs:
               if (all.length >= 400) break;
             }
 
-            console.log('Collected items:', all.length);
-            if (DRY_RUN || all.length === 0) {
+            console.log('Collected items (seed URLs):', all.length);
+
+            // Detail extraction: visit each seed URL and try to extract structured info
+            async function extractDetails(page, detailUrl) {
+              try {
+                await page.goto(detailUrl, { waitUntil: 'networkidle', timeout: 60000 });
+              } catch (e) {
+                return null;
+              }
+
+              const data = await page.evaluate(() => {
+                const result = { title: null, description: null, starts_at: null, ends_at: null, venue_name: null, city: null };
+
+                // JSON-LD Event
+                const scripts = Array.from(document.querySelectorAll('script[type="application/ld+json"]'));
+                let foundEvent = null;
+                for (const s of scripts) {
+                  let jsonText = s.textContent || '';
+                  try {
+                    const parsed = JSON.parse(jsonText.trim());
+                    const nodes = Array.isArray(parsed) ? parsed : [parsed];
+                    for (const node of nodes) {
+                      const types = Array.isArray(node['@type']) ? node['@type'] : [node['@type']];
+                      if (types && types.some(t => String(t).toLowerCase() === 'event')) {
+                        foundEvent = node;
+                        break;
+                      }
+                      if (node['@graph']) {
+                        const gnodes = Array.isArray(node['@graph']) ? node['@graph'] : [node['@graph']];
+                        for (const g of gnodes) {
+                          const gtypes = Array.isArray(g['@type']) ? g['@type'] : [g['@type']];
+                          if (gtypes && gtypes.some(t => String(t).toLowerCase() === 'event')) {
+                            foundEvent = g;
+                            break;
+                          }
+                        }
+                      }
+                    }
+                    if (foundEvent) break;
+                  } catch {}
+                }
+
+                if (foundEvent) {
+                  result.title = foundEvent.name || null;
+                  result.description = foundEvent.description || null;
+                  result.starts_at = foundEvent.startDate || null;
+                  result.ends_at = foundEvent.endDate || null;
+                  const loc = foundEvent.location;
+                  if (loc) {
+                    const first = Array.isArray(loc) ? loc[0] : loc;
+                    result.venue_name = first && (first.name || null);
+                    const addr = first && first.address;
+                    if (addr) {
+                      if (typeof addr === 'string') {
+                        result.city = null;
+                      } else {
+                        result.city = addr.addressLocality || addr.addressRegion || null;
+                      }
+                    }
+                  }
+                }
+
+                // Fallbacks
+                if (!result.title) {
+                  const ogt = document.querySelector('meta[property="og:title"]');
+                  result.title = (ogt && ogt.getAttribute('content')) || document.title || null;
+                }
+                if (!result.description) {
+                  const ogd = document.querySelector('meta[property="og:description"]');
+                  const md = document.querySelector('meta[name="description"]');
+                  result.description = (ogd && ogd.getAttribute('content')) || (md && md.getAttribute('content')) || null;
+                }
+
+                return result;
+              });
+
+              return data;
+            }
+
+            // If dry run, skip detail extraction DB writes but still probe a few for visibility
+            const detailItems = [];
+            const sampleLimit = DRY_RUN ? Math.min(all.length, 10) : all.length;
+            for (let i = 0; i < sampleLimit; i++) {
+              const item = all[i];
+              const page = await context.newPage();
+              const detail = await extractDetails(page, item.url);
+              await page.close();
+              if (!detail) continue;
+              detailItems.push({
+                ...item,
+                title: detail.title || item.title,
+                description: detail.description,
+                starts_at: detail.starts_at,
+                ends_at: detail.ends_at,
+                venue_name: detail.venue_name,
+                city: detail.city,
+              });
+            }
+
+            console.log('Detail-enriched items:', detailItems.length, 'of', all.length);
+            if (DRY_RUN || detailItems.length === 0) {
               await browser.close();
-              console.log(JSON.stringify({ ok: true, dryRun: true, collected: all.length }));
+              console.log(JSON.stringify({ ok: true, dryRun: true, collected: all.length, detailedSample: detailItems.length }));
               return;
             }
 
@@ -133,14 +232,14 @@ jobs:
                 'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
                 'Content-Type': 'application/json'
               },
-              body: JSON.stringify({ p_items: all })
+              body: JSON.stringify({ p_items: detailItems })
             });
             if (!resp.ok) {
               const t = await resp.text();
               throw new Error(`RPC upsert failed ${resp.status}: ${t}`);
             }
             await browser.close();
-            console.log(JSON.stringify({ ok: true, dryRun: false, upserted: all.length }));
+            console.log(JSON.stringify({ ok: true, dryRun: false, upserted: detailItems.length }));
           })().catch(err => {
             console.error('Job failed:', err);
             process.exit(1);
