@@ -1,0 +1,75 @@
+name: Scrape Specials
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (no DB writes)'
+        type: boolean
+        default: true
+  schedule:
+    - cron: '10 4 * * *'
+
+jobs:
+  scrape-specials:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_FUNCTIONS_URL: ${{ secrets.SUPABASE_FUNCTIONS_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      DRY_RUN: 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Disable DRY_RUN on schedule
+        if: github.event_name == 'schedule'
+        run: echo "DRY_RUN=false" >> $GITHUB_ENV
+
+      - name: Apply manual inputs
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "DRY_RUN=${{ inputs.dry_run }}" >> $GITHUB_ENV
+
+      - name: Invoke specials-scrape Edge Function
+        shell: bash
+        run: |
+          if [ -z "$SUPABASE_FUNCTIONS_URL" ]; then
+            echo "Missing SUPABASE_FUNCTIONS_URL secret (e.g. https://<ref>.functions.supabase.co)" >&2
+            exit 1
+          fi
+          node - <<'NODE'
+          const DRY_RUN = String(process.env.DRY_RUN || 'true').toLowerCase() === 'true';
+          const base = process.env.SUPABASE_FUNCTIONS_URL;
+          const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+          const payload = {
+            dryRun: DRY_RUN,
+            sources: [
+              { type: 'html', url: 'https://www.priceme.co.nz/specials', city: 'Auckland', retailer: 'PriceMe' },
+              { type: 'html', url: 'https://www.harrisons.co.nz/specials', city: 'Auckland', retailer: 'Harrisons' }
+            ]
+          };
+          const target = `${base.replace(/\/$/, '')}/specials-scrape`;
+          fetch(target, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${key}`, 'content-type': 'application/json' },
+            body: JSON.stringify(payload)
+          }).then(async r => {
+            const text = await r.text();
+            if (!r.ok) throw new Error(`${r.status} ${text}`);
+            console.log(text);
+          }).catch(err => {
+            console.error('Invoke failed:', err);
+            process.exit(1);
+          });
+          NODE
+
+      - name: Hints
+        run: |
+          echo "Set repository secrets SUPABASE_FUNCTIONS_URL and SUPABASE_SERVICE_ROLE_KEY."
+
+
