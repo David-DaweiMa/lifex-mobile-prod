@@ -1,0 +1,38 @@
+name: Deploy Specials Edge Function
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Supabase CLI
+        run: |
+          curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+          npm i -g supabase@2
+
+      - name: Validate secrets
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ] || [ -z "$SUPABASE_PROJECT_REF" ]; then
+            echo "Missing SUPABASE_ACCESS_TOKEN or SUPABASE_PROJECT_REF secrets" >&2
+            exit 1
+          fi
+
+      - name: Deploy specials-scrape
+        run: |
+          supabase login --token "$SUPABASE_ACCESS_TOKEN"
+          supabase functions deploy specials-scrape --project-ref "$SUPABASE_PROJECT_REF"
+
+
