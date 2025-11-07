@@ -7,6 +7,8 @@ type RunParams = {
   businessIds?: string[]
   sampleLimit?: number
   dryRun?: boolean
+  // When true, never call Google Places; only scrape when website already exists in DB.
+  requireWebsite?: boolean
 }
 
 const PLACES_BASE = 'https://places.googleapis.com/v1'
@@ -179,6 +181,8 @@ serve(async (req) => {
     const limit = Math.max(1, Math.min(p.sampleLimit ?? 50, 200))
     const dryRun = p.dryRun === true
     const nowIso = new Date().toISOString()
+    const requireWebsite = p.requireWebsite === true
+    const allowPlacesLookup = !requireWebsite
 
     const targets: Array<{ businessId?: string; placeId?: string }> = []
     for (const id of placeIds.slice(0, limit)) targets.push({ placeId: id })
@@ -196,7 +200,7 @@ serve(async (req) => {
         let name: string | undefined
         let formattedAddress: string | undefined
 
-        if (placeId && placesKey) {
+        if (placeId && placesKey && allowPlacesLookup) {
           const detail = await withRetries(() => fetchPlaceDetail(placesKey, placeId))
           name = detail?.displayName?.text || undefined
           formattedAddress = detail?.formattedAddress || undefined
@@ -230,7 +234,7 @@ serve(async (req) => {
             placeId = placeId || bRow.google_place_id || undefined
           }
         }
-        if (!website && placeId && placesKey) {
+        if (!website && placeId && placesKey && allowPlacesLookup) {
           const detail = await withRetries(() => fetchPlaceDetail(placesKey, placeId))
           website = detail?.websiteUri || undefined
           name = name || detail?.displayName?.text || undefined

@@ -3,6 +3,10 @@ name: Business Website Extract
 on:
   workflow_dispatch:
     inputs:
+      require_website:
+        description: 'Only scrape when website exists in DB (no Places lookup)'
+        required: false
+        default: 'true'
       place_ids:
         description: 'Comma-separated place IDs'
         required: false
@@ -56,12 +60,15 @@ jobs:
           BUSINESS_IDS="${{ github.event.inputs.business_ids }}"
           SAMPLE_LIMIT="${{ github.event.inputs.sample_limit }}"
           DRY_RUN="${{ github.event.inputs.dry_run }}"
+          REQUIRE_WEBSITE="${{ github.event.inputs.require_website }}"
           if [ -z "$SAMPLE_LIMIT" ]; then SAMPLE_LIMIT="50"; fi
           if [ -z "$DRY_RUN" ]; then DRY_RUN="true"; fi
+          if [ -z "$REQUIRE_WEBSITE" ]; then REQUIRE_WEBSITE="true"; fi
           echo "place_ids=$PLACE_IDS" >> $GITHUB_OUTPUT
           echo "business_ids=$BUSINESS_IDS" >> $GITHUB_OUTPUT
           echo "sample_limit=$SAMPLE_LIMIT" >> $GITHUB_OUTPUT
           echo "dry_run=$DRY_RUN" >> $GITHUB_OUTPUT
+          echo "require_website=$REQUIRE_WEBSITE" >> $GITHUB_OUTPUT
 
       - name: Invoke business-website-extract
         shell: bash
@@ -81,7 +88,8 @@ jobs:
             --argjson businessIds "$BUSINESS_IDS_JSON" \
             --arg sample "${{ steps.prep.outputs.sample_limit }}" \
             --arg dry "${{ steps.prep.outputs.dry_run }}" \
-            '{placeIds: $placeIds, businessIds: $businessIds, sampleLimit: ($sample|tonumber), dryRun: ($dry|ascii_downcase=="true")}')
+            --arg req "${{ steps.prep.outputs.require_website }}" \
+            '{placeIds: $placeIds, businessIds: $businessIds, sampleLimit: ($sample|tonumber), dryRun: ($dry|ascii_downcase=="true"), requireWebsite: ($req|ascii_downcase=="true")}')
           curl -sS -X POST "${SUPABASE_FUNCTIONS_URL%/}/business-website-extract" \
             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
             -H "Content-Type: application/json" \
