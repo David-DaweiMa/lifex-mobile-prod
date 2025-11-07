@@ -31,6 +31,23 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
+      - name: Derive FUNCTIONS_URL if missing
+        shell: bash
+        env:
+          SUPABASE_FUNCTIONS_URL: ${{ secrets.SUPABASE_FUNCTIONS_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        run: |
+          if [ -z "$SUPABASE_FUNCTIONS_URL" ] && [ -n "$SUPABASE_URL" ]; then
+            host=$(echo "$SUPABASE_URL" | sed -E 's#https?://([^/]+)/?.*#\1#')
+            ref="${host%%.supabase.co}"
+            if [ -n "$ref" ]; then
+              echo "SUPABASE_FUNCTIONS_URL=https://${ref}.functions.supabase.co" >> $GITHUB_ENV
+            fi
+          fi
+          if [ -z "${SUPABASE_FUNCTIONS_URL:-}" ]; then
+            echo "Missing SUPABASE_FUNCTIONS_URL (or SUPABASE_URL to derive)"; exit 1
+          fi
+
       - name: Prepare inputs
         id: prep
         shell: bash
@@ -49,7 +66,7 @@ jobs:
       - name: Invoke business-website-extract
         shell: bash
         env:
-          SUPABASE_FUNCTIONS_URL: ${{ secrets.SUPABASE_FUNCTIONS_URL }}
+          SUPABASE_FUNCTIONS_URL: ${{ env.SUPABASE_FUNCTIONS_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -e

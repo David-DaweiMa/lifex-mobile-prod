@@ -34,6 +34,23 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Derive FUNCTIONS_URL if missing
+        shell: bash
+        env:
+          SUPABASE_FUNCTIONS_URL: ${{ secrets.SUPABASE_FUNCTIONS_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        run: |
+          if [ -z "$SUPABASE_FUNCTIONS_URL" ] && [ -n "$SUPABASE_URL" ]; then
+            host=$(echo "$SUPABASE_URL" | sed -E 's#https?://([^/]+)/?.*#\1#')
+            ref="${host%%.supabase.co}"
+            if [ -n "$ref" ]; then
+              echo "SUPABASE_FUNCTIONS_URL=https://${ref}.functions.supabase.co" >> $GITHUB_ENV
+            fi
+          fi
+          if [ -z "${SUPABASE_FUNCTIONS_URL:-}" ]; then
+            echo "Missing SUPABASE_FUNCTIONS_URL (or SUPABASE_URL to derive)"; exit 1
+          fi
+
       - name: Collect ICS feed URLs
         id: collect
         run: |
@@ -56,7 +73,7 @@ jobs:
 
       - name: Invoke events-scrape with ICS feeds
         env:
-          SUPABASE_FUNCTIONS_URL: ${{ secrets.SUPABASE_FUNCTIONS_URL }}
+          SUPABASE_FUNCTIONS_URL: ${{ env.SUPABASE_FUNCTIONS_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           WINDOW_DAYS: ${{ steps.prep.outputs.window_days }}
           DRY_RUN: ${{ steps.prep.outputs.dry_run }}
