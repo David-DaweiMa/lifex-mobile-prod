@@ -74,29 +74,17 @@ jobs:
             echo "Missing SUPABASE_FUNCTIONS_URL or SUPABASE_SERVICE_ROLE_KEY"
             exit 1
           fi
-          PLACE_IDS_JSON="[]"
-          BUSINESS_IDS_JSON="[]"
-          if [ -n "${{ steps.prep.outputs.place_ids }}" ]; then
-            PLACE_IDS_JSON=$(python - <<'PY'
-import os, json
-s=os.getenv("INPUT","")
-arr=[x.strip() for x in s.split(",") if x.strip()]
-print(json.dumps(arr))
-PY
-            INPUT="${{ steps.prep.outputs.place_ids }}")
-          fi
-          if [ -n "${{ steps.prep.outputs.business_ids }}" ]; then
-            BUSINESS_IDS_JSON=$(python - <<'PY'
-import os, json
-s=os.getenv("INPUT","")
-arr=[x.strip() for x in s.split(",") if x.strip()]
-print(json.dumps(arr))
-PY
-            INPUT="${{ steps.prep.outputs.business_ids }}")
-          fi
-          curl -sS -X POST "$SUPABASE_FUNCTIONS_URL/business-website-extract" \
+          PLACE_IDS_JSON=$(jq -Rn --arg s "${{ steps.prep.outputs.place_ids }}" '$s | split(",") | map(gsub("^\\s+|\\s+$";"")) | map(select(length>0))')
+          BUSINESS_IDS_JSON=$(jq -Rn --arg s "${{ steps.prep.outputs.business_ids }}" '$s | split(",") | map(gsub("^\\s+|\\s+$";"")) | map(select(length>0))')
+          DATA=$(jq -n \
+            --argjson placeIds "$PLACE_IDS_JSON" \
+            --argjson businessIds "$BUSINESS_IDS_JSON" \
+            --arg sample "${{ steps.prep.outputs.sample_limit }}" \
+            --arg dry "${{ steps.prep.outputs.dry_run }}" \
+            '{placeIds: $placeIds, businessIds: $businessIds, sampleLimit: ($sample|tonumber), dryRun: ($dry|ascii_downcase=="true")}')
+          curl -sS -X POST "${SUPABASE_FUNCTIONS_URL%/}/business-website-extract" \
             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
             -H "Content-Type: application/json" \
-            --data "{\"placeIds\": $PLACE_IDS_JSON, \"businessIds\": $BUSINESS_IDS_JSON, \"sampleLimit\": ${{ steps.prep.outputs.sample_limit }}, \"dryRun\": ${{ steps.prep.outputs.dry_run }}}"
+            --data "$DATA"
 
 
