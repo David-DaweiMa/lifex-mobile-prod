@@ -1,0 +1,91 @@
+name: Events ICS Batch (Edge)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (true/false)'
+        required: false
+        default: 'true'
+      window_days:
+        description: 'Window days for ICS ingestion'
+        required: false
+        default: '90'
+      max_urls:
+        description: 'Max ICS URLs to include'
+        required: false
+        default: '80'
+  schedule:
+    - cron: '50 2 * * *' # before rendered scraping, staggered
+
+concurrency:
+  group: events-ics-batch
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Collect ICS feed URLs
+        id: collect
+        run: |
+          mkdir -p tmp
+          node scripts/generate_ics_payload.js --max "${{ github.event.inputs.max_urls || 80 }}" > tmp/ics_feeds.json
+          echo "count=$(jq 'length' tmp/ics_feeds.json)" >> $GITHUB_OUTPUT
+          echo "Sample:"
+          head -c 300 tmp/ics_feeds.json || true
+
+      - name: Prepare params
+        id: prep
+        shell: bash
+        run: |
+          DRY_RUN="${{ github.event.inputs.dry_run }}"
+          WINDOW_DAYS="${{ github.event.inputs.window_days }}"
+          if [ -z "$DRY_RUN" ]; then DRY_RUN="true"; fi
+          if [ -z "$WINDOW_DAYS" ]; then WINDOW_DAYS="90"; fi
+          echo "dry_run=$DRY_RUN" >> $GITHUB_OUTPUT
+          echo "window_days=$WINDOW_DAYS" >> $GITHUB_OUTPUT
+
+      - name: Invoke events-scrape with ICS feeds
+        env:
+          SUPABASE_FUNCTIONS_URL: ${{ secrets.SUPABASE_FUNCTIONS_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          WINDOW_DAYS: ${{ steps.prep.outputs.window_days }}
+          DRY_RUN: ${{ steps.prep.outputs.dry_run }}
+        run: |
+          set -e
+          if [ -z "$SUPABASE_FUNCTIONS_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "Missing SUPABASE_FUNCTIONS_URL or SUPABASE_SERVICE_ROLE_KEY" >&2
+            exit 1
+          fi
+          # Chunk into groups of 25
+          CHUNK=25
+          COUNT=$(jq 'length' tmp/ics_feeds.json)
+          if [ "$COUNT" -eq 0 ]; then
+            echo "No ICS URLs found. Exiting."
+            exit 0
+          fi
+          i=0
+          while [ $i -lt $COUNT ]; do
+            START=$i
+            END=$((i+CHUNK))
+            FEEDS=$(jq -c --argjson s "$START" --argjson e "$END" '.[$s:$e]' tmp/ics_feeds.json)
+            PAYLOAD=$(jq -c --argjson wd "$WINDOW_DAYS" --argjson dr "$DRY_RUN" --argjson feeds "$FEEDS" \
+              -n '{ source: "free-ics", feedUrls: $feeds, windowDays: $wd, dryRun: $dr }')
+            curl -sS -X POST "${SUPABASE_FUNCTIONS_URL%/}/events-scrape" \
+              -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+              -H "Content-Type: application/json" \
+              --data "$PAYLOAD"
+            i=$((i+CHUNK))
+            sleep 1
+          done
+
+

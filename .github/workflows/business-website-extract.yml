@@ -23,6 +23,10 @@ on:
     # Daily at 18:00 UTC (adjust as needed)
     - cron: '0 18 * * *'
 
+concurrency:
+  group: business-website-extract
+  cancel-in-progress: false
+
 jobs:
   run:
     runs-on: ubuntu-latest

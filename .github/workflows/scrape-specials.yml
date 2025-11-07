@@ -10,6 +10,10 @@ on:
   schedule:
     - cron: '10 4 * * *'
 
+concurrency:
+  group: scrape-specials
+  cancel-in-progress: false
+
 jobs:
   scrape-specials:
     runs-on: ubuntu-latest
@@ -71,5 +75,9 @@ jobs:
       - name: Hints
         run: |
           echo "Set repository secrets SUPABASE_FUNCTIONS_URL and SUPABASE_SERVICE_ROLE_KEY."
+
+
+
+
 
 

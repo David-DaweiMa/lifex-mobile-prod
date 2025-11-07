@@ -11,8 +11,20 @@ on:
         description: 'Detail sample size in dry-run'
         type: number
         default: 10
+      concurrency:
+        description: 'Detail extraction concurrency'
+        type: number
+        default: 3
+      max_retries:
+        description: 'Max retries for detail extraction'
+        type: number
+        default: 2
   schedule:
     - cron: '25 3 * * *'
+
+concurrency:
+  group: scrape-events-rendered
+  cancel-in-progress: false
 
 jobs:
   scrape-rendered-events:
@@ -22,6 +34,8 @@ jobs:
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       DRY_RUN: 'true'
       SAMPLE_LIMIT: '10'
+      CONCURRENCY: '3'
+      MAX_RETRIES: '2'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,6 +54,8 @@ jobs:
         run: |
           echo "DRY_RUN=${{ inputs.dry_run }}" >> $GITHUB_ENV
           echo "SAMPLE_LIMIT=${{ inputs.sample_limit }}" >> $GITHUB_ENV
+          echo "CONCURRENCY=${{ inputs.concurrency }}" >> $GITHUB_ENV
+          echo "MAX_RETRIES=${{ inputs.max_retries }}" >> $GITHUB_ENV
 
       - name: Install Playwright (local)
         run: |
@@ -58,6 +74,39 @@ jobs:
           const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
           const DRY_RUN = String(process.env.DRY_RUN || 'true').toLowerCase() === 'true';
           const SAMPLE_LIMIT = parseInt(process.env.SAMPLE_LIMIT || '10', 10);
+          const CONCURRENCY = Math.max(1, parseInt(process.env.CONCURRENCY || '3', 10));
+          const MAX_RETRIES = Math.max(0, parseInt(process.env.MAX_RETRIES || '2', 10));
+          const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+
+          async function withRetries(fn, maxRetries, baseDelayMs = 1000) {
+            let attempt = 0;
+            while (true) {
+              try {
+                return await fn();
+              } catch (e) {
+                if (attempt >= maxRetries) throw e;
+                const delay = baseDelayMs * Math.pow(2, attempt); // backoff
+                await sleep(delay);
+                attempt++;
+              }
+            }
+          }
+
+          async function runWithConcurrency(tasks, concurrency) {
+            const results = new Array(tasks.length);
+            let next = 0;
+            async function worker() {
+              while (true) {
+                const i = next++;
+                if (i >= tasks.length) break;
+                results[i] = await tasks[i]();
+              }
+            }
+            const workers = Array.from({ length: concurrency }, () => worker());
+            await Promise.all(workers);
+            return results;
+          }
+
 
           if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
             throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
@@ -215,24 +264,34 @@ jobs:
             }
 
             // If dry run, skip detail extraction DB writes but still probe a few for visibility
-            const detailItems = [];
             const sampleLimit = DRY_RUN ? Math.min(all.length, Number.isFinite(SAMPLE_LIMIT) ? SAMPLE_LIMIT : 10) : all.length;
+            const tasks = [];
             for (let i = 0; i < sampleLimit; i++) {
               const item = all[i];
-              const page = await context.newPage();
-              const detail = await extractDetails(page, item.url);
-              await page.close();
-              if (!detail) continue;
-              detailItems.push({
-                ...item,
-                title: detail.title || item.title,
-                description: detail.description,
-                starts_at: detail.starts_at,
-                ends_at: detail.ends_at,
-                venue_name: detail.venue_name,
-                city: detail.city,
+              tasks.push(async () => {
+                const runner = async () => {
+                  const page = await context.newPage();
+                  try {
+                    const detail = await extractDetails(page, item.url);
+                    if (!detail) return null;
+                    return {
+                      ...item,
+                      title: detail.title || item.title,
+                      description: detail.description,
+                      starts_at: detail.starts_at,
+                      ends_at: detail.ends_at,
+                      venue_name: detail.venue_name,
+                      city: detail.city,
+                    };
+                  } finally {
+                    await page.close();
+                  }
+                };
+                return await withRetries(runner, MAX_RETRIES, 800);
               });
             }
+            const detailResults = await runWithConcurrency(tasks, CONCURRENCY);
+            const detailItems = detailResults.filter(Boolean);
 
             console.log('Detail-enriched items:', detailItems.length, 'of', all.length);
             if (DRY_RUN || detailItems.length === 0) {
