@@ -1,0 +1,100 @@
+name: Places Refresh (Google)
+
+on:
+  workflow_dispatch:
+    inputs:
+      city:
+        description: 'City center preset (Auckland/Wellington/Christchurch)'
+        required: false
+        default: 'Auckland'
+      radius_meters:
+        description: 'Search radius in meters'
+        required: false
+        default: '3000'
+      category:
+        description: 'Included type (e.g., restaurant, cafe)'
+        required: false
+        default: ''
+      max_pages:
+        description: 'Max pages (1..5)'
+        required: false
+        default: '1'
+      page_size:
+        description: 'Page size (1..20)'
+        required: false
+        default: '20'
+      dry_run:
+        description: 'Dry run (true/false)'
+        required: false
+        default: 'true'
+  schedule:
+    - cron: '20 2 * * 1' # weekly Monday UTC
+
+concurrency:
+  group: places-refresh
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Derive FUNCTIONS_URL if missing
+        shell: bash
+        env:
+          SUPABASE_FUNCTIONS_URL: ${{ secrets.SUPABASE_FUNCTIONS_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        run: |
+          if [ -z "$SUPABASE_FUNCTIONS_URL" ] && [ -n "$SUPABASE_URL" ]; then
+            host=$(echo "$SUPABASE_URL" | sed -E 's#https?://([^/]+)/?.*#\1#')
+            ref="${host%%.supabase.co}"
+            if [ -n "$ref" ]; then
+              echo "SUPABASE_FUNCTIONS_URL=https://${ref}.functions.supabase.co" >> $GITHUB_ENV
+            fi
+          fi
+          if [ -z "${SUPABASE_FUNCTIONS_URL:-}" ]; then
+            echo "Missing SUPABASE_FUNCTIONS_URL (or SUPABASE_URL to derive)"; exit 1
+          fi
+
+      - name: Prepare inputs
+        id: prep
+        shell: bash
+        run: |
+          CITY="${{ github.event.inputs.city }}"
+          RADIUS="${{ github.event.inputs.radius_meters }}"
+          CATEGORY="${{ github.event.inputs.category }}"
+          MAX_PAGES="${{ github.event.inputs.max_pages }}"
+          PAGE_SIZE="${{ github.event.inputs.page_size }}"
+          DRY_RUN="${{ github.event.inputs.dry_run }}"
+          if [ -z "$CITY" ]; then CITY="Auckland"; fi
+          if [ -z "$RADIUS" ]; then RADIUS="3000"; fi
+          if [ -z "$MAX_PAGES" ]; then MAX_PAGES="1"; fi
+          if [ -z "$PAGE_SIZE" ]; then PAGE_SIZE="20"; fi
+          if [ -z "$DRY_RUN" ]; then DRY_RUN="true"; fi
+          echo "city=$CITY" >> $GITHUB_OUTPUT
+          echo "radius=$RADIUS" >> $GITHUB_OUTPUT
+          echo "category=$CATEGORY" >> $GITHUB_OUTPUT
+          echo "max_pages=$MAX_PAGES" >> $GITHUB_OUTPUT
+          echo "page_size=$PAGE_SIZE" >> $GITHUB_OUTPUT
+          echo "dry_run=$DRY_RUN" >> $GITHUB_OUTPUT
+
+      - name: Invoke places-refresh
+        shell: bash
+        env:
+          SUPABASE_FUNCTIONS_URL: ${{ env.SUPABASE_FUNCTIONS_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -e
+          DATA=$(jq -n \
+            --arg city "${{ steps.prep.outputs.city }}" \
+            --arg radius "${{ steps.prep.outputs.radius }}" \
+            --arg category "${{ steps.prep.outputs.category }}" \
+            --arg maxp "${{ steps.prep.outputs.max_pages }}" \
+            --arg psz "${{ steps.prep.outputs.page_size }}" \
+            --arg dry "${{ steps.prep.outputs.dry_run }}" \
+            '{city:$city, radiusMeters:($radius|tonumber), category: (if $category=="" then null else $category end), maxPages:($maxp|tonumber), pageSize:($psz|tonumber), dryRun: ($dry|ascii_downcase=="true") }')
+          curl -sS -X POST "${SUPABASE_FUNCTIONS_URL%/}/places-refresh" \
+            -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+            -H "Content-Type: application/json" \
+            --data "$DATA"
+
+

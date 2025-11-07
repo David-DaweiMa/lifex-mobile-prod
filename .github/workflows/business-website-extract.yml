@@ -1,4 +1,4 @@
-name: business-website-extract
+name: Business Website Extract
 
 on:
   workflow_dispatch:
