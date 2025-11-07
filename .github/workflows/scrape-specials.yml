@@ -10,11 +10,16 @@ on:
   schedule:
     - cron: '10 4 * * *'
 
+concurrency:
+  group: scrape-specials
+  cancel-in-progress: false
+
 jobs:
   scrape-specials:
     runs-on: ubuntu-latest
     env:
       SUPABASE_FUNCTIONS_URL: ${{ secrets.SUPABASE_FUNCTIONS_URL }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       DRY_RUN: 'true'
     steps:
@@ -35,13 +40,23 @@ jobs:
         run: |
           echo "DRY_RUN=${{ inputs.dry_run }}" >> $GITHUB_ENV
 
+      - name: Derive FUNCTIONS_URL if missing
+        shell: bash
+        run: |
+          if [ -z "$SUPABASE_FUNCTIONS_URL" ] && [ -n "$SUPABASE_URL" ]; then
+            host=$(echo "$SUPABASE_URL" | sed -E 's#https?://([^/]+)/?.*#\1#')
+            ref="${host%%.supabase.co}"
+            if [ -n "$ref" ]; then
+              echo "SUPABASE_FUNCTIONS_URL=https://${ref}.functions.supabase.co" >> $GITHUB_ENV
+            fi
+          fi
+          if [ -z "${SUPABASE_FUNCTIONS_URL:-}" ]; then
+            echo "Missing SUPABASE_FUNCTIONS_URL (or SUPABASE_URL to derive)"; exit 1
+          fi
+
       - name: Invoke specials-scrape Edge Function
         shell: bash
         run: |
-          if [ -z "$SUPABASE_FUNCTIONS_URL" ]; then
-            echo "Missing SUPABASE_FUNCTIONS_URL secret (e.g. https://<ref>.functions.supabase.co)" >&2
-            exit 1
-          fi
           node - <<'NODE'
           const DRY_RUN = String(process.env.DRY_RUN || 'true').toLowerCase() === 'true';
           const base = process.env.SUPABASE_FUNCTIONS_URL;
@@ -71,5 +86,9 @@ jobs:
       - name: Hints
         run: |
           echo "Set repository secrets SUPABASE_FUNCTIONS_URL and SUPABASE_SERVICE_ROLE_KEY."
+
+
+
+
 
 

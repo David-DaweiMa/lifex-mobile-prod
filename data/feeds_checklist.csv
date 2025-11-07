@@ -1,27 +1,194 @@
 # category,name,city_scope,type,url,frequency,owner,status,notes
 # Events
-Events,Auckland Council What's On,Auckland,HTML,https://ourauckland.aucklandcouncil.govt.nz/events/,daily,,researching,Site-wide or category calendars
-Events,Auckland Live (The Civic/Aotea),Auckland,HTML,https://www.aucklandlive.co.nz/whats-on,daily,,researching,Venue calendars
-Events,Auckland Museum,Auckland,HTML,https://www.aucklandmuseum.com/visit/whats-on,daily,,researching,
-Events,Auckland Art Gallery,Auckland,HTML,https://www.aucklandartgallery.com/whats-on,daily,,researching,
-Events,Auckland Libraries (network),Auckland,HTML,https://www.aucklandlibraries.govt.nz/pages/events.aspx,daily,,researching,
-Events,Auckland Buddhist Centre,Auckland,ICS,https://aucklandbuddhistcentre.org/abc.ics,daily,,pending,Immediate test feed
-Events,University of Auckland (Academic Year),Auckland,ICS,https://www.calendar.auckland.ac.nz/icalendar/academic-year.ics,daily,,pending,Immediate test feed
-Events,WellingtonNZ Events,Wellington,ICS,,daily,,pending,
-Events,Te Papa Museum,Wellington,ICS,,daily,,pending,
-Events,Wellington City Libraries,Wellington,ICS,,daily,,pending,
-Events,Christchurch City Council What's On,Christchurch,ICS,,daily,,pending,
-Events,Christchurch City Libraries,Christchurch,ICS,,daily,,pending,
-Events,University of Auckland,Auckland,ICS,,daily,,pending,Campus events
-Events,University of Canterbury,Christchurch,ICS,,daily,,pending,Campus events
-Events,Meetup Group (multiple),Nationwide,ICS,,daily,,pending,Per-group iCal
-Events,Eventbrite Organizer/Collection,Nationwide,RSS/ICS,,daily,,pending,Depends on organizer page
+Events,Auckland Council What's On,Auckland,HTML,https://ourauckland.aucklandcouncil.govt.nz/events/,daily,edge,researching,Site-wide or category calendars; priority=P1
+Events,Auckland Live (The Civic/Aotea),Auckland,HTML,https://www.aucklandlive.co.nz/whats-on,daily,edge,researching,Venue calendars; priority=P2
+Events,Auckland Museum,Auckland,HTML,https://www.aucklandmuseum.com/visit/whats-on,daily,edge,researching,priority=P2
+Events,Auckland Art Gallery,Auckland,HTML,https://www.aucklandartgallery.com/whats-on,daily,edge,researching,priority=P2
+Events,Auckland Libraries (network),Auckland,HTML,https://www.aucklandlibraries.govt.nz/pages/events.aspx,daily,edge,researching,priority=P1
+Events,Auckland Buddhist Centre,Auckland,ICS,https://aucklandbuddhistcentre.org/abc.ics,daily,edge,pending,Immediate test feed; priority=P1
+Events,University of Auckland (Academic Year),Auckland,ICS,https://www.calendar.auckland.ac.nz/icalendar/academic-year.ics,daily,edge,pending,Immediate test feed; priority=P1
+Events,WellingtonNZ Events,Wellington,ICS,,daily,edge,pending,priority=P1
+Events,Te Papa Museum,Wellington,ICS,,daily,edge,pending,priority=P1
+Events,Wellington City Libraries,Wellington,ICS,,daily,edge,pending,priority=P1
+Events,Christchurch City Council What's On,Christchurch,ICS,,daily,edge,pending,priority=P1
+Events,Christchurch City Libraries,Christchurch,ICS,,daily,edge,pending,priority=P1
+Events,University of Auckland,Auckland,ICS,,daily,edge,pending,Campus events; priority=P1
+Events,University of Canterbury,Christchurch,ICS,,daily,edge,pending,Campus events; priority=P1
+Events,Meetup Group (multiple),Nationwide,ICS,,daily,edge,pending,Per-group iCal; priority=P1
+Events,Eventbrite Organizer/Collection,Nationwide,RSS/ICS,,daily,edge,pending,Depends on organizer page; priority=P1
+# Templates and fallbacks for Events
+Events,Eventbrite Organizer (template),Nationwide,HTML,https://www.eventbrite.com/o/<organizer-id>,daily,gha,pending,Rendered; details via JSON-LD; priority=P2
+Events,Meetup Group (template),Various,ICS,https://www.meetup.com/<group-slug>/events/ical,daily,edge,pending,Per-group iCal feed; priority=P1
+Events,WellingtonNZ Events (fallback),Wellington,HTML,https://www.wellingtonnz.com/experience/events/,daily,edge,researching,Fallback if no ICS; priority=P2
+Events,Te Papa Museum (fallback),Wellington,HTML,https://www.tepapa.govt.nz/visit/whats-on,daily,edge,researching,Fallback if no ICS; priority=P2
+Events,Christchurch City Council What's On (fallback),Christchurch,HTML,https://whatson.christchurch.nz/,daily,edge,researching,Fallback if no ICS; priority=P2
+# Auckland venues
+Events,Q Theatre,Auckland,HTML,https://www.qtheatre.co.nz/whats-on,daily,edge,researching,Venue calendar; priority=P2
+Events,Spark Arena,Auckland,HTML,https://www.sparkarena.co.nz/whats-on,daily,edge,researching,Venue calendar; priority=P2
+Events,Eden Park,Auckland,HTML,https://edenpark.co.nz/whats-on/,daily,edge,researching,Venue calendar; priority=P2
+Events,ASB Waterfront Theatre,Auckland,HTML,https://www.asbwaterfronttheatre.co.nz/whats-on,daily,edge,researching,priority=P2
+Events,Basement Theatre,Auckland,HTML,https://basementtheatre.co.nz/whats-on,daily,edge,researching,priority=P2
+# Wellington venues and orgs
+Events,Venues Wellington,Wellington,HTML,https://www.venueswellington.com/whats-on/,daily,edge,researching,Aggregate; priority=P2
+Events,Michael Fowler Centre,Wellington,HTML,https://www.venueswellington.com/venues/michael-fowler-centre/whats-on/,daily,edge,researching,priority=P2
+Events,City Gallery Wellington,Wellington,HTML,https://citygallery.org.nz/whats-on/,daily,edge,researching,priority=P2
+Events,Wellington Museum,Wellington,HTML,https://www.museumswellington.org.nz/whats-on/,daily,edge,researching,priority=P2
+# Christchurch venues and orgs
+Events,ChristchurchNZ What's On,Christchurch,HTML,https://www.christchurchnz.com/see-do/whats-on/,daily,edge,researching,priority=P2
+Events,Tūranga (Central Library),Christchurch,HTML,https://my.christchurchcitylibraries.com/whats-on/,daily,edge,researching,Library network; priority=P2
+Events,Isaac Theatre Royal,Christchurch,HTML,https://www.isaactheatreroyal.co.nz/whats-on/,daily,edge,researching,priority=P2
+# Other cities
+Events,DunedinNZ What's On,Dunedin,HTML,https://www.dunedinnz.com/whats-on,daily,edge,researching,priority=P2
+Events,University of Otago,Dunedin,HTML,https://www.otago.ac.nz/news/events,daily,edge,researching,priority=P2
+Events,Hamilton & Waikato Events,Hamilton,HTML,https://www.waikatonz.com/events/,daily,edge,researching,priority=P2
+Events,Tauranga City Events,Tauranga,HTML,https://www.mytauranga.co.nz/events.aspx,daily,edge,researching,priority=P2
+Events,QueenstownNZ Events,Queenstown,HTML,https://www.queenstownnz.co.nz/whats-on/,daily,edge,researching,priority=P2
+# University events (HTML fallbacks)
+Events,Victoria University of Wellington,Wellington,HTML,https://www.wgtn.ac.nz/events,daily,edge,researching,priority=P2
+Events,AUT University,Auckland,HTML,https://www.aut.ac.nz/events,daily,edge,researching,priority=P2
+Events,Massey University,Nationwide,HTML,https://www.massey.ac.nz/about/events/,daily,edge,researching,priority=P2
+# Regional tourism/event sites (fallbacks)
+Events,NorthlandNZ Events,Northland,HTML,https://www.northlandnz.com/visit/events/,daily,edge,researching,Regional DMO; priority=P2
+Events,Hawke's Bay NZ Events,Hawke's Bay,HTML,https://www.hawkesbaynz.com/whats-on/,daily,edge,researching,Regional DMO; priority=P2
+Events,RotoruaNZ What's On,Rotorua,HTML,https://www.rotoruanz.com/visit/whats-on,daily,edge,researching,Regional DMO; priority=P2
+Events,Taranaki What's On,Taranaki,HTML,https://www.taranaki.co.nz/visit/whats-on/,daily,edge,researching,Regional DMO; priority=P2
+Events,ManawatuNZ What's On,Manawatu,HTML,https://manawatunz.co.nz/whats-on/,daily,edge,researching,Regional DMO; priority=P2
+Events,Nelson Tasman Events,Nelson Tasman,HTML,https://www.nelsontasman.nz/visit-nelson-tasman/see-do/events/,daily,edge,researching,Regional DMO; priority=P2
+Events,MarlboroughNZ Events,Marlborough,HTML,https://marlboroughnz.com/events/,daily,edge,researching,Regional DMO; priority=P2
+Events,SouthlandNZ Events,Southland,HTML,https://southlandnz.com/events,daily,edge,researching,Regional DMO; priority=P2
+Events,Lake Wānaka Events,Wānaka,HTML,https://www.lakewanaka.co.nz/whats-on/,daily,edge,researching,Regional DMO; priority=P2
+# City/District councils and libraries
+Events,Hamilton City Council What's On,Hamilton,HTML,https://www.hamilton.govt.nz/our-city/whats-on,daily,edge,researching,Council events; priority=P2
+Events,Hamilton City Libraries,Hamilton,HTML,https://hamiltonlibraries.co.nz/events,daily,edge,researching,Library network; priority=P2
+Events,Tauranga City Council Events,Tauranga,HTML,https://www.tauranga.govt.nz/explore-tauranga/whats-on,daily,edge,researching,Council events; priority=P2
+Events,Tauranga City Libraries,Tauranga,HTML,https://library.tauranga.govt.nz/whats-on,daily,edge,researching,Library network; priority=P2
+Events,Rotorua Lakes Council Events,Rotorua,HTML,https://www.rotorualakescouncil.nz/our-city/whats-on,daily,edge,researching,Council events; priority=P2
+Events,Rotorua Library,Rotorua,HTML,https://www.rotorualibrary.govt.nz/what-we-offer/events,daily,edge,researching,Library; priority=P2
+Events,Hutt City Council Events,Lower Hutt,HTML,https://www.huttcity.govt.nz/whats-on/calendar,daily,edge,researching,Council events; priority=P2
+Events,Hutt City Libraries,Lower Hutt,HTML,https://library.huttcity.govt.nz/whats-on/,daily,edge,researching,Library network; priority=P2
+Events,Upper Hutt City Events,Upper Hutt,HTML,https://www.upperhuttcity.com/Whats-On,daily,edge,researching,Council events; priority=P2
+Events,Upper Hutt Libraries,Upper Hutt,HTML,https://www.upperhuttlibrary.co.nz/whats-on/,daily,edge,researching,Library; priority=P2
+Events,Porirua City Events,Porirua,HTML,https://poriruacity.govt.nz/discover-porirua/events/,daily,edge,researching,Council events; priority=P2
+Events,Porirua Libraries,Porirua,HTML,https://porirualibrary.org.nz/whats-on/,daily,edge,researching,Library; priority=P2
+Events,Kapiti Coast What's On,Kapiti Coast,HTML,https://www.kapiticoast.govt.nz/whats-on/,daily,edge,researching,Council events; priority=P2
+Events,Kapiti Libraries,Kapiti Coast,HTML,https://www.kapiticoastlibraries.govt.nz/Whats-on/,daily,edge,researching,Library; priority=P2
+Events,New Plymouth District Events,New Plymouth,HTML,https://www.npdc.govt.nz/whats-on/,daily,edge,researching,Council events; priority=P2
+Events,Palmerston North City Events,Palmerston North,HTML,https://www.pncc.govt.nz/your-council/news-and-events/events/,daily,edge,researching,Council events; priority=P2
+Events,Napier City Events,Napier,HTML,https://www.napier.govt.nz/attractions-and-activities/whats-on/,daily,edge,researching,Council events; priority=P2
+Events,Hastings District Events,Hastings,HTML,https://www.hastingsdc.govt.nz/whats-on/,daily,edge,researching,Council events; priority=P2
+Events,Nelson City Events,Nelson,HTML,https://whatson.nelson.govt.nz/,daily,edge,researching,Council events; priority=P2
+Events,Tasman District Events,Tasman,HTML,https://www.tasman.govt.nz/my-community/events/,daily,edge,researching,Council events; priority=P2
+Events,Marlborough District Events,Blenheim,HTML,https://www.marlborough.govt.nz/our-community/events,daily,edge,researching,Council events; priority=P2
+Events,Selwyn District Events,Selwyn,HTML,https://www.selwyn.govt.nz/news-And-events/events,daily,edge,researching,District events; priority=P2
+Events,Waimakariri District Events,North Canterbury,HTML,https://www.waimakariri.govt.nz/community/events,daily,edge,researching,District events; priority=P2
+Events,Invercargill City Events,Invercargill,HTML,https://icc.govt.nz/events/,daily,edge,researching,Council events; priority=P2
+Events,Whanganui District Events,Whanganui,HTML,https://www.whanganui.govt.nz/Your-Council/News-Events/Events,daily,edge,researching,District events; priority=P2
+Events,Gisborne/Tairāwhiti Events,Gisborne,HTML,https://www.tairawhitigisborne.co.nz/whats-on/,daily,edge,researching,Regional/Council; priority=P2
+Events,Whangārei District Events,Whangarei,HTML,https://www.wdc.govt.nz/Events/,daily,edge,researching,District events; priority=P2
+Events,West Coast Events,West Coast,HTML,https://westcoast.co.nz/events/,daily,edge,researching,Regional DMO; priority=P2
+# Additional NZ venues
+Events,Claudelands Events Centre,Hamilton,HTML,https://www.claudelands.co.nz/whats-on,daily,edge,researching,Venue calendar; priority=P2
+Events,The Trusts Arena,Auckland,HTML,https://thetrustsarena.co.nz/events/,daily,edge,researching,Venue calendar; priority=P2
+Events,SkyCity Auckland (What's On),Auckland,HTML,https://www.skycityauckland.co.nz/whats-on/,daily,edge,researching,Venue group; priority=P2
+Events,Wolfbrook Arena,Christchurch,HTML,https://www.wolfbrookarena.co.nz/whats-on/,daily,edge,researching,Venue calendar; priority=P2
+Events,Due Drop Events Centre,Auckland,HTML,https://www.duedropcentre.co.nz/whats-on,daily,edge,researching,Venue calendar; priority=P2
+Events,Trustpower Baypark,Tauranga,HTML,https://www.trustpowerbaypark.co.nz/whats-on,daily,edge,researching,Venue calendar; priority=P2
+Events,Forsyth Barr Stadium,Dunedin,HTML,https://www.forsythbarrstadium.co.nz/whats-on,daily,edge,researching,Venue calendar; priority=P2
+Events,FMG Stadium Waikato,Hamilton,HTML,https://www.fmgstadiumwaikato.co.nz/whats-on,daily,edge,researching,Venue calendar; priority=P2
+# Ticketing platforms and aggregators
+Events,Ticketmaster NZ,Nationwide,HTML,https://www.ticketmaster.co.nz/discover,daily,gha,todo,Rendered listings; JSON-LD; priority=P2
+Events,Ticketek NZ,Nationwide,HTML,https://www.ticketek.co.nz/whatson/,daily,gha,todo,Rendered listings; priority=P2
+Events,Humanitix NZ,Nationwide,HTML,https://www.humanitix.com/nz/search?location=New%20Zealand,daily,gha,todo,Rendered; JSON-LD; priority=P2
+Events,iTICKET NZ,Nationwide,HTML,https://www.iticket.co.nz/events,daily,gha,todo,Rendered; priority=P2
+Events,Under The Radar (Gigs),Nationwide,HTML,https://www.undertheradar.co.nz/gig,daily,edge,researching,Music gigs; priority=P2
+Events,Moshtix NZ,Nationwide,HTML,https://www.moshtix.co.nz/v2/events,daily,gha,todo,Rendered; priority=P3
+# More museums and galleries
+Events,Canterbury Museum,Christchurch,HTML,https://www.canterburymuseum.com/whats-on,daily,edge,researching,priority=P2
+Events,Otago Museum,Dunedin,HTML,https://otagomuseum.nz/whats-on/,daily,edge,researching,priority=P2
+Events,Waikato Museum,Hamilton,HTML,https://waikatomuseum.co.nz/exhibitions-and-events/,daily,edge,researching,priority=P2
+Events,Tauranga Art Gallery,Tauranga,HTML,https://www.artgallery.org.nz/whats-on,daily,edge,researching,priority=P2
+Events,The Suter Art Gallery,Nelson,HTML,https://thesuter.org.nz/whats-on,daily,edge,researching,priority=P2
+Events,Te Manawa (Museum),Palmerston North,HTML,https://www.temanawa.co.nz/whats-on/,daily,edge,researching,priority=P2
+Events,Puke Ariki,New Plymouth,HTML,https://www.pukeariki.com/Events/,daily,edge,researching,priority=P2
+Events,Govett-Brewster Art Gallery,New Plymouth,HTML,https://govettbrewster.com/whats-on,daily,edge,researching,priority=P2
+Events,Dowse Art Museum,Lower Hutt,HTML,https://www.dowse.org.nz/exhibitions-events,daily,edge,researching,priority=P2
+Events,Pātaka Art + Museum,Porirua,HTML,https://pataka.org.nz/whats-on/,daily,edge,researching,priority=P2
+Events,Toitū Otago Settlers Museum,Dunedin,HTML,https://www.toituosm.com/whats-on,daily,edge,researching,priority=P2
+# Additional libraries
+Events,Dunedin Public Libraries,Dunedin,HTML,https://www.dunedinlibraries.govt.nz/whats-on,daily,edge,researching,Library network; priority=P2
+# Additional venues
+Events,TSB Arena,Wellington,HTML,https://www.venueswellington.com/venues/tsb-arena/whats-on/,daily,edge,researching,Venue calendar; priority=P2
+Events,St James Theatre,Wellington,HTML,https://www.venueswellington.com/venues/st-james-theatre/whats-on/,daily,edge,researching,Venue calendar; priority=P2
+Events,Opera House Wellington,Wellington,HTML,https://www.venueswellington.com/venues/opera-house/whats-on/,daily,edge,researching,Venue calendar; priority=P2
+Events,Regent Theatre Dunedin,Dunedin,HTML,https://www.regenttheatre.co.nz/showtimes/whats-on,daily,edge,researching,Venue calendar; priority=P2
+Events,Trafalgar Centre (Nelson),Nelson,HTML,https://www.nelson.govt.nz/recreation/shows-and-events/trafalgar-centre/,daily,edge,researching,Venue calendar; priority=P3
 # Specials
-Specials,Woolworths/Countdown,Nationwide,HTML,,weekly,,todo,Promotions/store pages
-Specials,New World,Nationwide,HTML,,weekly,,todo,Promotions/store pages
-Specials,PAK'nSAVE,Nationwide,HTML,,weekly,,todo,Promotions/store pages
-Specials,Brand blog/news (WordPress),Various,RSS,,daily/weekly,,pending,Append /feed
-Specials,Local venue/business Offers/News,Various,RSS/HTML,,weekly,,pending,Leads for specials
+Specials,Woolworths/Countdown,Nationwide,HTML,https://www.woolworths.co.nz/shop/specials,weekly,edge,todo,Promotions/store pages; priority=P1
+Specials,New World,Nationwide,HTML,https://www.newworld.co.nz/specials,weekly,edge,todo,Promotions/store pages; priority=P1
+Specials,PAK'nSAVE,Nationwide,HTML,https://www.paknsave.co.nz/specials,weekly,edge,todo,Promotions/store pages; priority=P1
+Specials,Brand blog/news (WordPress),Various,RSS,,daily/weekly,edge,pending,Append /feed; priority=P2
+Specials,Local venue/business Offers/News,Various,RSS/HTML,,weekly,edge,pending,Leads for specials; priority=P3
+# Additional specials sources
+Specials,PriceMe Specials,Nationwide,HTML,https://www.priceme.co.nz/specials,daily,edge,researching,General specials aggregator; priority=P1
+Specials,Harrisons Specials,Nationwide,HTML,https://www.harrisons.co.nz/specials,weekly,edge,pending,Initial adapter target; priority=P1
+# Grocery (Foodstuffs + others)
+Specials,FreshChoice,Nationwide,HTML,https://www.freshchoice.co.nz/specials,weekly,edge,todo,Foodstuffs; priority=P1
+Specials,SuperValue,Nationwide,HTML,https://www.supervalue.co.nz/specials,weekly,edge,todo,Foodstuffs; priority=P1
+Specials,Four Square,Nationwide,HTML,https://www.foursquare.co.nz/specials,weekly,edge,todo,Foodstuffs; priority=P1
+# General retail and electronics
+Specials,The Warehouse,Nationwide,HTML,https://www.thewarehouse.co.nz/c/specials,weekly,edge,todo,General retail specials; priority=P2
+Specials,Noel Leeming,Nationwide,HTML,https://www.noelleeming.co.nz/c/hot-deals,weekly,edge,todo,Electronics; priority=P2
+Specials,PB Tech,Nationwide,HTML,https://www.pbtech.co.nz/deals,daily,edge,todo,Electronics; priority=P2
+Specials,Harvey Norman,Nationwide,HTML,https://www.harveynorman.co.nz/promotions,weekly,edge,todo,Electronics/home; priority=P2
+Specials,Farmers,Nationwide,HTML,https://www.farmers.co.nz/deals,weekly,edge,todo,Department store; priority=P2
+Specials,Chemist Warehouse,Nationwide,HTML,https://www.chemistwarehouse.co.nz/specials,weekly,edge,todo,Pharmacy; priority=P2
+Specials,Mitre 10,Nationwide,HTML,https://www.mitre10.co.nz/deals,weekly,edge,todo,Hardware; priority=P2
+Specials,Bunnings,Nationwide,HTML,https://www.bunnings.co.nz/products/deals,weekly,edge,todo,Hardware; priority=P2
+Specials,JB Hi-Fi,Nationwide,HTML,https://www.jbhifi.co.nz/sale/,weekly,edge,todo,Electronics; priority=P2
+Specials,Warehouse Stationery,Nationwide,HTML,https://www.warehousestationery.co.nz/c/deals,weekly,edge,todo,Office; priority=P2
+Specials,Briscoes,Nationwide,HTML,https://www.briscoes.co.nz/sale,weekly,edge,todo,Homeware; priority=P2
+Specials,Rebel Sport,Nationwide,HTML,https://www.rebelsport.co.nz/sale,weekly,edge,todo,Sporting; priority=P2
+Specials,Hallenstein Brothers,Nationwide,HTML,https://www.hallensteins.com/nz/sale,weekly,edge,todo,Apparel; priority=P3
+Specials,Glassons,Nationwide,HTML,https://www.glassons.com/sale,weekly,edge,todo,Apparel; priority=P3
+Specials,Cotton On,Nationwide,HTML,https://cottonon.com/NZ/sale/,weekly,edge,todo,Apparel; priority=P3
+Specials,Smiths City,Nationwide,HTML,https://www.smithscity.co.nz/promotions,weekly,edge,todo,Appliances; priority=P3
+Specials,Pricespy Deals,Nationwide,HTML,https://pricespy.co.nz/offers,daily,edge,researching,Aggregator; priority=P2
+# More retail/apparel/outdoor
+Specials,Torpedo7,Nationwide,HTML,https://www.torpedo7.co.nz/deals,weekly,edge,todo,Outdoor/sports; priority=P3
+Specials,Kathmandu,Nationwide,HTML,https://www.kathmandu.co.nz/sale,weekly,edge,todo,Outdoor/apparel; priority=P3
+Specials,UNIQLO,Nationwide,HTML,https://www.uniqlo.com/nz/en/sale,weekly,edge,todo,Apparel; priority=P3
+Specials,H&M,Nationwide,HTML,https://www2.hm.com/en_nz/sale.html,weekly,edge,todo,Apparel; priority=P3
+Specials,Animates,Nationwide,HTML,https://www.animates.co.nz/promotions,weekly,edge,todo,Pets; priority=P3
+Specials,HealthPost,Nationwide,HTML,https://www.healthpost.co.nz/sale,weekly,edge,todo,Health/wellness; priority=P3
+Specials,Liquorland,Nationwide,HTML,https://www.liquorland.co.nz/specials,weekly,edge,todo,Beverages; priority=P2
+Specials,Super Liquor,Nationwide,HTML,https://www.superliquor.co.nz/specials,weekly,edge,todo,Beverages; priority=P2
+Specials,Mighty Ape Deals,Nationwide,HTML,https://www.mightyape.co.nz/daily-deals,daily,edge,todo,General e-commerce; priority=P2
+Specials,1-day Deals,Nationwide,HTML,https://www.1-day.co.nz/,daily,edge,todo,Daily deals aggregator; priority=P3
+Specials,GrabOne,Nationwide,HTML,https://new.grabone.co.nz/,daily,gha,todo,Deals aggregator; priority=P3
+# Fuel and energy
+Specials,Z Energy,Nationwide,HTML,https://www.z.co.nz/motorists/ztxt-and-promotions/,monthly,edge,todo,Fuel promos; priority=P2
+Specials,BP NZ,Nationwide,HTML,https://www.bp.co.nz/en_nz/new-zealand/offers.html,monthly,edge,todo,Fuel promos; priority=P2
+Specials,Mobil NZ,Nationwide,HTML,https://www.mobil.co.nz/en-NZ/mobil-advantages/mobilcard-offers,monthly,edge,todo,Fuel promos; priority=P3
+Specials,Gull NZ,Nationwide,HTML,https://gull.nz/promotions/,monthly,edge,todo,Fuel promos; priority=P2
+# Pharmacy chains
+Specials,Unichem,Nationwide,HTML,https://www.unichem.co.nz/promotions,monthly,edge,todo,Pharmacy; priority=P2
+Specials,Life Pharmacy,Nationwide,HTML,https://www.lifepharmacy.co.nz/promotions,monthly,edge,todo,Pharmacy; priority=P2
+# Convenience and fast food
+Specials,Night 'n Day,Nationwide,HTML,https://www.nightnday.co.nz/promotions,weekly,edge,todo,Convenience; priority=P3
+Specials,McDonald's NZ,Nationwide,HTML,https://mcdonalds.co.nz/deals,weekly,edge,todo,Food offers; priority=P3
+Specials,Burger King NZ,Nationwide,HTML,https://www.burgerking.co.nz/offers,weekly,edge,todo,Food offers; priority=P3
+Specials,KFC NZ,Nationwide,HTML,https://www.kfc.co.nz/deals,weekly,edge,todo,Food offers; priority=P3
+Specials,Subway NZ,Nationwide,HTML,https://www.subway.co.nz/en-NZ/deals,weekly,edge,todo,Food offers; priority=P3
+Specials,Domino's NZ,Nationwide,HTML,https://www.dominos.co.nz/deals,weekly,edge,todo,Food offers; priority=P3
+Specials,Pizza Hut NZ,Nationwide,HTML,https://www.pizzahut.co.nz/deals,weekly,edge,todo,Food offers; priority=P3
+# Additional retailers
+Specials,Jaycar NZ,Nationwide,HTML,https://www.jaycar.co.nz/specials,weekly,edge,todo,Electronics; priority=P3
+Specials,Supercheap Auto NZ,Nationwide,HTML,https://www.supercheapauto.co.nz/sale,weekly,edge,todo,Automotive; priority=P3
+Specials,Kmart NZ,Nationwide,HTML,https://www.kmart.co.nz/category/sale,weekly,edge,todo,General retail; priority=P3
+Specials,Bed Bath & Beyond NZ,Nationwide,HTML,https://www.bedbathandbeyond.co.nz/sale,weekly,edge,todo,Homeware; priority=P3
+Specials,Smith & Caughey's,Nationwide,HTML,https://www.smithandcaughey.co.nz/sale,weekly,edge,todo,Department store; priority=P3
+# Deals aggregators
+Specials,BookMe,Nationwide,HTML,https://www.bookme.co.nz/,daily,gha,todo,Deals aggregator; priority=P3
 # Places
 Places,Google Places API (New),Nationwide,API,console-key,by-strategy,platform,active,30-day cache; photos by reference
-Places,Website seeds from websiteUri,Per-business,HTML/JSON-LD,,monthly,,todo,Parse menus/tags/structured data
+Places,Website seeds from websiteUri,Per-business,HTML/JSON-LD,,monthly,edge,todo,Parse menus/tags/structured data; priority=P2

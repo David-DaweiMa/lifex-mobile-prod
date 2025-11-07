@@ -1,0 +1,9 @@
+category,name,city_scope,type,url,frequency,owner,priority,status,notes
+Events,Eventbrite Organizer (template),Nationwide,HTML,https://www.eventbrite.com/o/<organizer-id>,daily,gha,P2,pending,Rendered; details via JSON-LD; priority=P2
+Events,Humanitix NZ,Nationwide,HTML,https://www.humanitix.com/nz/search?location=New%20Zealand,daily,gha,P2,todo,Rendered; JSON-LD; priority=P2
+Events,iTICKET NZ,Nationwide,HTML,https://www.iticket.co.nz/events,daily,gha,P2,todo,Rendered; priority=P2
+Events,Ticketek NZ,Nationwide,HTML,https://www.ticketek.co.nz/whatson/,daily,gha,P2,todo,Rendered listings; priority=P2
+Events,Ticketmaster NZ,Nationwide,HTML,https://www.ticketmaster.co.nz/discover,daily,gha,P2,todo,Rendered listings; JSON-LD; priority=P2
+Specials,BookMe,Nationwide,HTML,https://www.bookme.co.nz/,daily,gha,P3,todo,Deals aggregator; priority=P3
+Specials,GrabOne,Nationwide,HTML,https://new.grabone.co.nz/,daily,gha,P3,todo,Deals aggregator; priority=P3
+Events,Moshtix NZ,Nationwide,HTML,https://www.moshtix.co.nz/v2/events,daily,gha,P3,todo,Rendered; priority=P3

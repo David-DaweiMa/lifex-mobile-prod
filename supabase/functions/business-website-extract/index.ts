@@ -1,0 +1,290 @@
+// @ts-nocheck
+import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
+import { getServiceClient } from '../_shared/supabaseClient.ts'
+
+type RunParams = {
+  placeIds?: string[]
+  businessIds?: string[]
+  sampleLimit?: number
+  dryRun?: boolean
+}
+
+const PLACES_BASE = 'https://places.googleapis.com/v1'
+
+function getPlacesKey(): string {
+  const key = Deno.env.get('GOOGLE_PLACES_API_KEY') || Deno.env.get('GOOGLE_MAPS_API_KEY')
+  if (!key) throw new Error('Missing GOOGLE_PLACES_API_KEY or GOOGLE_MAPS_API_KEY')
+  return key
+}
+
+function sleep(ms: number) { return new Promise((r) => setTimeout(r, ms)) }
+
+async function withRetries<T>(fn: () => Promise<T>, maxAttempts = 4, baseDelayMs = 300): Promise<T> {
+  let attempt = 0
+  let lastErr: any
+  while (attempt < maxAttempts) {
+    try { return await fn() } catch (e) {
+      lastErr = e; attempt++
+      await sleep(baseDelayMs * Math.pow(2, attempt - 1))
+    }
+  }
+  throw lastErr
+}
+
+async function fetchPlaceDetail(key: string, placeId: string) {
+  const res = await fetch(`${PLACES_BASE}/places/${encodeURIComponent(placeId)}`, {
+    method: 'GET',
+    headers: {
+      'X-Goog-Api-Key': key,
+      'X-Goog-FieldMask': [
+        'id',
+        'displayName',
+        'formattedAddress',
+        'websiteUri'
+      ].join(',')
+    }
+  })
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '')
+    throw new Error(`place detail ${res.status} ${txt}`)
+  }
+  return await res.json()
+}
+
+function extractJsonLdBlocks(html: string): any[] {
+  const blocks: any[] = []
+  const re = /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi
+  let m: RegExpExecArray | null
+  while ((m = re.exec(html)) !== null) {
+    const raw = m[1]
+    try {
+      const json = JSON.parse(raw)
+      if (Array.isArray(json)) blocks.push(...json)
+      else blocks.push(json)
+    } catch {
+      // ignore malformed block
+    }
+    if (blocks.length >= 20) break
+  }
+  // Expand @graph if present
+  const expanded: any[] = []
+  for (const b of blocks) {
+    if (b && Array.isArray(b['@graph'])) expanded.push(...b['@graph'])
+    else expanded.push(b)
+  }
+  return expanded
+}
+
+function ensureArray<T>(v: any): T[] {
+  if (v == null) return []
+  return Array.isArray(v) ? v : [v]
+}
+
+function toStr(v: any): string | undefined {
+  if (v == null) return undefined
+  if (typeof v === 'string') return v
+  if (typeof v === 'number' || typeof v === 'boolean') return String(v)
+  return undefined
+}
+
+function pickFirst<T>(...vals: Array<T | undefined>): T | undefined {
+  for (const v of vals) if (v !== undefined && v !== null) return v
+  return undefined
+}
+
+function buildAttrsFromJsonLd(nodes: any[], nowIso: string) {
+  const attrs: Array<{ name: string; value: string | null; value_json: any; source: string; confidence: number; extracted_at: string }> = []
+  const add = (name: string, value: string | null, value_json: any, confidence = 0.8) => {
+    attrs.push({ name, value, value_json, source: 'scrape', confidence, extracted_at: nowIso })
+  }
+
+  // Prefer LocalBusiness/Organization nodes
+  const candidates = nodes.filter((n) => {
+    const t = (n?.['@type'] || n?.type || '')
+    const s = Array.isArray(t) ? t.join(',') : String(t)
+    return /LocalBusiness|Organization|Restaurant|Store|Cafe|Bar|Hotel|Lodging|TouristAttraction/i.test(s)
+  })
+  const org = candidates[0] || nodes.find((n) => n?.['@type'] === 'WebSite') || null
+  if (org) {
+    const typeStr = toStr(org['@type']) || (Array.isArray(org['@type']) ? org['@type'][0] : undefined)
+    if (typeStr) add('organization.type', typeStr, null, 0.85)
+
+    const name = pickFirst<string>(org['name']?.text, org['name'])
+    if (typeof name === 'string' && name.trim()) add('organization.name', name.trim(), null, 0.9)
+
+    const telephone = toStr(org['telephone'])
+    if (telephone) add('contact.phone', telephone, null, 0.85)
+
+    const priceRange = toStr(org['priceRange'])
+    if (priceRange) add('price.range', priceRange, null, 0.75)
+
+    const servesCuisine = ensureArray<string>(org['servesCuisine']).filter(Boolean)
+    if (servesCuisine.length > 0) add('serves.cuisine', null, servesCuisine, 0.75)
+
+    const sameAs = ensureArray<string>(org['sameAs']).filter(Boolean)
+    if (sameAs.length > 0) add('social.same_as', null, sameAs, 0.8)
+
+    const address = org['address']
+    if (address) add('address.structured', null, address, 0.85)
+
+    const openingHours = org['openingHoursSpecification'] || org['openingHours']
+    if (openingHours) add('hours.jsonld', null, openingHours, 0.85)
+
+    const acceptsReservations = toStr(org['acceptsReservations'])
+    if (acceptsReservations) add('reservations.accepts', acceptsReservations, null, 0.7)
+
+    const menuUrl = toStr(org['hasMenu']) || toStr(org['menu'])
+    if (menuUrl) add('menu.url', menuUrl, null, 0.7)
+
+    const aggregateRating = org['aggregateRating']
+    if (aggregateRating) add('reviews.aggregate_rating', null, aggregateRating, 0.8)
+
+    // Keep raw snapshot (bounded)
+    add('website.jsonld', null, { organization: org }, 0.6)
+  }
+
+  // Offers (menus, promos)
+  const offers = nodes.filter((n) => {
+    const t = (n?.['@type'] || n?.type || '')
+    const s = Array.isArray(t) ? t.join(',') : String(t)
+    return /Offer|Menu|MenuItem|Service/i.test(s)
+  })
+  if (offers.length > 0) {
+    add('website.offers', null, offers.slice(0, 50), 0.6)
+  }
+  return attrs
+}
+
+async function fetchHtml(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url, { headers: { 'Accept': 'text/html,*/*' } })
+    if (!res.ok) return null
+    const text = await res.text()
+    return text
+  } catch {
+    return null
+  }
+}
+
+serve(async (req) => {
+  const supabase = getServiceClient()
+  const startedAt = new Date().toISOString()
+  let status: 'success' | 'failed' = 'success'
+  const placesKey = (() => { try { return getPlacesKey() } catch { return null } })()
+
+  try {
+    const p = (await req.json().catch(() => ({}))) as RunParams
+    const placeIds = Array.isArray(p.placeIds) ? p.placeIds.filter(Boolean) : []
+    const businessIds = Array.isArray(p.businessIds) ? p.businessIds.filter(Boolean) : []
+    const limit = Math.max(1, Math.min(p.sampleLimit ?? 50, 200))
+    const dryRun = p.dryRun === true
+    const nowIso = new Date().toISOString()
+
+    const targets: Array<{ businessId?: string; placeId?: string }> = []
+    for (const id of placeIds.slice(0, limit)) targets.push({ placeId: id })
+    for (const id of businessIds.slice(0, limit)) targets.push({ businessId: id })
+
+    let success = 0
+    let failures = 0
+    const errors: string[] = []
+
+    for (const t of targets) {
+      try {
+        let businessId: string | undefined = t.businessId
+        let placeId: string | undefined = t.placeId
+        let website: string | undefined
+        let name: string | undefined
+        let formattedAddress: string | undefined
+
+        if (placeId && placesKey) {
+          const detail = await withRetries(() => fetchPlaceDetail(placesKey, placeId))
+          name = detail?.displayName?.text || undefined
+          formattedAddress = detail?.formattedAddress || undefined
+          website = detail?.websiteUri || undefined
+
+          if (!dryRun) {
+            const rpc = await supabase.rpc('upsert_business_from_ingest', {
+              p_name: name ?? 'Unknown',
+              p_website: website ?? null,
+              p_google_place_id: detail.id,
+              p_description: formattedAddress ?? null
+            })
+            if (rpc.error) throw rpc.error
+            businessId = rpc.data as string
+          }
+        }
+
+        if (!businessId && !placeId) {
+          failures++; continue
+        }
+
+        // If still no website, try DB lookup
+        if (!website && businessId) {
+          const { data: bRow, error: bErr } = await supabase
+            .from('businesses')
+            .select('website, google_place_id')
+            .eq('id', businessId)
+            .maybeSingle()
+          if (!bErr && bRow) {
+            website = bRow.website || undefined
+            placeId = placeId || bRow.google_place_id || undefined
+          }
+        }
+        if (!website && placeId && placesKey) {
+          const detail = await withRetries(() => fetchPlaceDetail(placesKey, placeId))
+          website = detail?.websiteUri || undefined
+          name = name || detail?.displayName?.text || undefined
+          formattedAddress = formattedAddress || detail?.formattedAddress || undefined
+        }
+        if (!website) { failures++; continue }
+
+        const html = await fetchHtml(website)
+        if (!html) { failures++; continue }
+        const nodes = extractJsonLdBlocks(html)
+        if (!nodes || nodes.length === 0) { failures++; continue }
+        const attrs = buildAttrsFromJsonLd(nodes, nowIso)
+        if (attrs.length === 0) { failures++; continue }
+
+        if (!dryRun && businessId) {
+          const rpcAttrs = await supabase.rpc('admin_upsert_business_attributes_batch', {
+            p_business_id: businessId,
+            p_attrs: attrs
+          })
+          if (rpcAttrs.error) throw rpcAttrs.error
+        }
+        success++
+        await sleep(200)
+      } catch (e) {
+        failures++
+        try { errors.push(String(e)) } catch {}
+      }
+    }
+
+    await supabase.rpc('admin_log_job_run', {
+      p_job_name: 'business-website-extract',
+      p_started_at: startedAt,
+      p_finished_at: new Date().toISOString(),
+      p_status: status,
+      p_result: { success, failures, dryRun, total: targets.length, errors: errors.slice(0, 10) } as unknown as Record<string, unknown>
+    }).catch(() => null)
+
+    return new Response(JSON.stringify({ ok: true, success, failures, total: targets.length, dryRun }), {
+      headers: { 'content-type': 'application/json' }
+    })
+  } catch (e) {
+    status = 'failed'
+    await supabase.rpc('admin_log_job_run', {
+      p_job_name: 'business-website-extract',
+      p_started_at: startedAt,
+      p_finished_at: new Date().toISOString(),
+      p_status: status,
+      p_result: { error: String(e) } as unknown as Record<string, unknown>
+    }).catch(() => null)
+    return new Response(JSON.stringify({ ok: false, error: String(e) }), {
+      status: 500,
+      headers: { 'content-type': 'application/json' }
+    })
+  }
+})
+
+

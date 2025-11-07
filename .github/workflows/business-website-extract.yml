@@ -1,0 +1,90 @@
+name: Business Website Extract
+
+on:
+  workflow_dispatch:
+    inputs:
+      place_ids:
+        description: 'Comma-separated place IDs'
+        required: false
+        default: ''
+      business_ids:
+        description: 'Comma-separated business UUIDs'
+        required: false
+        default: ''
+      sample_limit:
+        description: 'Max items to process'
+        required: false
+        default: '50'
+      dry_run:
+        description: 'Dry run (true/false)'
+        required: false
+        default: 'true'
+  schedule:
+    # Daily at 18:00 UTC (adjust as needed)
+    - cron: '0 18 * * *'
+
+concurrency:
+  group: business-website-extract
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Derive FUNCTIONS_URL if missing
+        shell: bash
+        env:
+          SUPABASE_FUNCTIONS_URL: ${{ secrets.SUPABASE_FUNCTIONS_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        run: |
+          if [ -z "$SUPABASE_FUNCTIONS_URL" ] && [ -n "$SUPABASE_URL" ]; then
+            host=$(echo "$SUPABASE_URL" | sed -E 's#https?://([^/]+)/?.*#\1#')
+            ref="${host%%.supabase.co}"
+            if [ -n "$ref" ]; then
+              echo "SUPABASE_FUNCTIONS_URL=https://${ref}.functions.supabase.co" >> $GITHUB_ENV
+            fi
+          fi
+          if [ -z "${SUPABASE_FUNCTIONS_URL:-}" ]; then
+            echo "Missing SUPABASE_FUNCTIONS_URL (or SUPABASE_URL to derive)"; exit 1
+          fi
+
+      - name: Prepare inputs
+        id: prep
+        shell: bash
+        run: |
+          PLACE_IDS="${{ github.event.inputs.place_ids }}"
+          BUSINESS_IDS="${{ github.event.inputs.business_ids }}"
+          SAMPLE_LIMIT="${{ github.event.inputs.sample_limit }}"
+          DRY_RUN="${{ github.event.inputs.dry_run }}"
+          if [ -z "$SAMPLE_LIMIT" ]; then SAMPLE_LIMIT="50"; fi
+          if [ -z "$DRY_RUN" ]; then DRY_RUN="true"; fi
+          echo "place_ids=$PLACE_IDS" >> $GITHUB_OUTPUT
+          echo "business_ids=$BUSINESS_IDS" >> $GITHUB_OUTPUT
+          echo "sample_limit=$SAMPLE_LIMIT" >> $GITHUB_OUTPUT
+          echo "dry_run=$DRY_RUN" >> $GITHUB_OUTPUT
+
+      - name: Invoke business-website-extract
+        shell: bash
+        env:
+          SUPABASE_FUNCTIONS_URL: ${{ env.SUPABASE_FUNCTIONS_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -e
+          if [ -z "$SUPABASE_FUNCTIONS_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "Missing SUPABASE_FUNCTIONS_URL or SUPABASE_SERVICE_ROLE_KEY"
+            exit 1
+          fi
+          PLACE_IDS_JSON=$(jq -Rn --arg s "${{ steps.prep.outputs.place_ids }}" '$s | split(",") | map(gsub("^\\s+|\\s+$";"")) | map(select(length>0))')
+          BUSINESS_IDS_JSON=$(jq -Rn --arg s "${{ steps.prep.outputs.business_ids }}" '$s | split(",") | map(gsub("^\\s+|\\s+$";"")) | map(select(length>0))')
+          DATA=$(jq -n \
+            --argjson placeIds "$PLACE_IDS_JSON" \
+            --argjson businessIds "$BUSINESS_IDS_JSON" \
+            --arg sample "${{ steps.prep.outputs.sample_limit }}" \
+            --arg dry "${{ steps.prep.outputs.dry_run }}" \
+            '{placeIds: $placeIds, businessIds: $businessIds, sampleLimit: ($sample|tonumber), dryRun: ($dry|ascii_downcase=="true")}')
+          curl -sS -X POST "${SUPABASE_FUNCTIONS_URL%/}/business-website-extract" \
+            -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+            -H "Content-Type: application/json" \
+            --data "$DATA"
+
+
