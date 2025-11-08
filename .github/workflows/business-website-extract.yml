@@ -41,7 +41,10 @@ jobs:
           SUPABASE_FUNCTIONS_URL: ${{ secrets.SUPABASE_FUNCTIONS_URL }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         run: |
-          if [ -z "$SUPABASE_FUNCTIONS_URL" ] && [ -n "$SUPABASE_URL" ]; then
+          # Always export SUPABASE_FUNCTIONS_URL into step env for later steps
+          if [ -n "$SUPABASE_FUNCTIONS_URL" ]; then
+            echo "SUPABASE_FUNCTIONS_URL=$SUPABASE_FUNCTIONS_URL" >> $GITHUB_ENV
+          elif [ -n "$SUPABASE_URL" ]; then
             host=$(echo "$SUPABASE_URL" | sed -E 's#https?://([^/]+)/?.*#\1#')
             ref="${host%%.supabase.co}"
             if [ -n "$ref" ]; then
