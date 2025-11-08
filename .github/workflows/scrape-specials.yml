@@ -43,7 +43,9 @@ jobs:
       - name: Derive FUNCTIONS_URL if missing
         shell: bash
         run: |
-          if [ -z "$SUPABASE_FUNCTIONS_URL" ] && [ -n "$SUPABASE_URL" ]; then
+          if [ -n "$SUPABASE_FUNCTIONS_URL" ]; then
+            echo "SUPABASE_FUNCTIONS_URL=$SUPABASE_FUNCTIONS_URL" >> $GITHUB_ENV
+          elif [ -n "$SUPABASE_URL" ]; then
             host=$(echo "$SUPABASE_URL" | sed -E 's#https?://([^/]+)/?.*#\1#')
             ref="${host%%.supabase.co}"
             if [ -n "$ref" ]; then
