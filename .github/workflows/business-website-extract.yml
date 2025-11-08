@@ -76,7 +76,6 @@ jobs:
       - name: Invoke business-website-extract
         shell: bash
         env:
-          SUPABASE_FUNCTIONS_URL: ${{ env.SUPABASE_FUNCTIONS_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -e

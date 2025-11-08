@@ -73,7 +73,6 @@ jobs:
 
       - name: Invoke events-scrape with ICS feeds
         env:
-          SUPABASE_FUNCTIONS_URL: ${{ env.SUPABASE_FUNCTIONS_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           WINDOW_DAYS: ${{ steps.prep.outputs.window_days }}
           DRY_RUN: ${{ steps.prep.outputs.dry_run }}
