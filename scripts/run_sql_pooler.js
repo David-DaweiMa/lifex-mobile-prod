@@ -7,13 +7,17 @@ async function main() {
     console.error('Usage: node scripts/run_sql_pooler.js <sql-file>');
     process.exit(1);
   }
-  const url = process.env.DB_URL;
+  const url = process.env.DB_URL || process.env.DATABASE_URL;
   if (!url) {
-    console.error('Missing DB_URL env var (pooler URL)');
+    console.error('Missing DB_URL or DATABASE_URL env var (pooler/direct URL)');
     process.exit(1);
   }
   const sql = fs.readFileSync(file, 'utf8');
-  const client = new (require('pg').Client)({ connectionString: url, ssl: false });
+  const client = new (require('pg').Client)({
+    connectionString: url,
+    ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 20000,
+  });
   await client.connect();
   try {
     await client.query(sql);
@@ -24,5 +28,11 @@ async function main() {
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
+
+
+
+
+
+
 
 
