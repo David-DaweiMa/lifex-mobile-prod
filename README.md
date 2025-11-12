@@ -189,6 +189,8 @@ eas secret:create --scope project --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value y
 
 For detailed information about the project architecture and implementation strategies:
 
+- **[MCP Operations](docs/mcp-operations.md)** - Standard way to run DB SQL/migrations via Cursor MCP
+- **[DB migration via pooler (Deprecated)](docs/db-migration-via-pooler.md)** - Legacy method kept for reference
 - **[Project Roadmap](PROJECT_ROADMAP.md)** - Current status and future plans
 - **[System Architecture](SYSTEM_ARCHITECTURE_OVERVIEW.md)** - High-level system design
 - **[Data Acquisition Strategy](DATA_ACQUISITION_STRATEGY.md)** - How we collect business data
