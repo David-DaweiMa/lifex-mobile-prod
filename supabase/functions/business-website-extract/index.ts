@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
-import { getServiceClient } from '../_shared/supabaseClient.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 type RunParams = {
   placeIds?: string[]
@@ -9,6 +9,9 @@ type RunParams = {
   dryRun?: boolean
   // When true, never call Google Places; only scrape when website already exists in DB.
   requireWebsite?: boolean
+  // Optional fallbacks when function env is not set
+  supabaseUrl?: string
+  serviceRoleKey?: string
 }
 
 const PLACES_BASE = 'https://places.googleapis.com/v1'
@@ -169,13 +172,23 @@ async function fetchHtml(url: string): Promise<string | null> {
 }
 
 serve(async (req) => {
-  const supabase = getServiceClient()
   const startedAt = new Date().toISOString()
   let status: 'success' | 'failed' = 'success'
   const placesKey = (() => { try { return getPlacesKey() } catch { return null } })()
 
   try {
     const p = (await req.json().catch(() => ({}))) as RunParams
+    // Build Supabase client: prefer env, fallback to request-provided credentials
+    const envUrl = Deno.env.get('SUPABASE_URL') || undefined
+    const envKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || undefined
+    const hdrAuth = req.headers.get('authorization') || ''
+    const bearer = hdrAuth.toLowerCase().startsWith('bearer ') ? hdrAuth.slice(7).trim() : undefined
+    const supabaseUrl = envUrl || p.supabaseUrl
+    const serviceRoleKey = envKey || p.serviceRoleKey || bearer
+    if (!supabaseUrl || !serviceRoleKey) {
+      throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY (provide via env or request body)')
+    }
+    const supabase = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } })
     const placeIds = Array.isArray(p.placeIds) ? p.placeIds.filter(Boolean) : []
     const businessIds = Array.isArray(p.businessIds) ? p.businessIds.filter(Boolean) : []
     const limit = Math.max(1, Math.min(p.sampleLimit ?? 50, 200))
@@ -316,13 +329,23 @@ serve(async (req) => {
     })
   } catch (e) {
     status = 'failed'
-    await supabase.rpc('admin_log_job_run', {
-      p_job_name: 'business-website-extract',
-      p_started_at: startedAt,
-      p_finished_at: new Date().toISOString(),
-      p_status: status,
-      p_result: { error: String(e) } as unknown as Record<string, unknown>
-    }).catch(() => null)
+    try {
+      const p = (await req.json().catch(() => ({}))) as RunParams
+      const envUrl = Deno.env.get('SUPABASE_URL') || p.supabaseUrl
+      const envKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || p.serviceRoleKey
+      if (envUrl && envKey) {
+        const client = createClient(envUrl, envKey, { auth: { persistSession: false } })
+        await client.rpc('admin_log_job_run', {
+          p_job_name: 'business-website-extract',
+          p_started_at: startedAt,
+          p_finished_at: new Date().toISOString(),
+          p_status: status,
+          p_result: { error: String(e) } as unknown as Record<string, unknown>
+        })
+      }
+    } catch {
+      // ignore logging failure
+    }
     return new Response(JSON.stringify({ ok: false, error: String(e) }), {
       status: 500,
       headers: { 'content-type': 'application/json' }
