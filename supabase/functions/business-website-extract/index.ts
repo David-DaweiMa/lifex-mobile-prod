@@ -187,10 +187,22 @@ serve(async (req) => {
     const targets: Array<{ businessId?: string; placeId?: string }> = []
     for (const id of placeIds.slice(0, limit)) targets.push({ placeId: id })
     for (const id of businessIds.slice(0, limit)) targets.push({ businessId: id })
+    // If no explicit targets provided, sample 1 business with website for testing
+    if (targets.length === 0 && requireWebsite) {
+      const { data: picks } = await supabase
+        .from('businesses')
+        .select('id, website')
+        .not('website', 'is', null)
+        .limit(1)
+      if (Array.isArray(picks) && picks.length > 0) {
+        targets.push({ businessId: picks[0].id })
+      }
+    }
 
     let success = 0
     let failures = 0
     const errors: string[] = []
+    const cacheItems: any[] = []
 
     for (const t of targets) {
       try {
@@ -249,6 +261,27 @@ serve(async (req) => {
         const attrs = buildAttrsFromJsonLd(nodes, nowIso)
         if (attrs.length === 0) { failures++; continue }
 
+        // Always write scrape cache (even on dry run)
+        try {
+          const titleMatch = html.match(/<title[^>]*>([\\s\\S]*?)<\\/title>/i)
+          const pageTitle = titleMatch ? String(titleMatch[1]).trim().slice(0, 300) : null
+          const htmlLimited = html.length > 200000 ? html.slice(0, 200000) : html
+          cacheItems.push({
+            business_id: businessId ?? null,
+            source_url: website,
+            page_title: pageTitle,
+            raw_html: htmlLimited,
+            jsonld: nodes.slice(0, 50),
+            attrs,
+            status: 'ok',
+            job_name: 'business-website-extract',
+            fetched_at: nowIso,
+            extracted_at: nowIso
+          })
+        } catch (_) {
+          // ignore cache preparation errors (do not fail the run)
+        }
+
         if (!dryRun && businessId) {
           const rpcAttrs = await supabase.rpc('admin_upsert_business_attributes_batch', {
             p_business_id: businessId,
@@ -262,6 +295,17 @@ serve(async (req) => {
         failures++
         try { errors.push(String(e)) } catch {}
       }
+    }
+
+    // Flush cache items regardless of dryRun
+    if (cacheItems.length > 0) {
+      await supabase.rpc('admin_upsert_business_scrape_cache_batch', {
+        p_items: cacheItems as unknown as Record<string, unknown>[]
+      }).then((r) => {
+        if (r?.error) throw r.error
+      }).catch((err) => {
+        try { errors.push(`cache_upsert: ${String(err?.message || err)}`) } catch {}
+      })
     }
 
     await supabase.rpc('admin_log_job_run', {
