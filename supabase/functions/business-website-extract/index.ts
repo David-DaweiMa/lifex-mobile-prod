@@ -282,13 +282,8 @@ serve(async (req) => {
           // ignore cache preparation errors (do not fail the run)
         }
 
-        if (!dryRun && businessId) {
-          const rpcAttrs = await supabase.rpc('admin_upsert_business_attributes_batch', {
-            p_business_id: businessId,
-            p_attrs: attrs
-          })
-          if (rpcAttrs.error) throw rpcAttrs.error
-        }
+        // Do not ingest into catalog.business_attributes here.
+        // Attributes ingestion will be handled separately.
         success++
         await sleep(200)
       } catch (e) {
