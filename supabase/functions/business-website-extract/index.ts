@@ -323,13 +323,17 @@ serve(async (req) => {
       }
     }
 
-    await supabasePublic.rpc('admin_log_job_run', {
-      p_job_name: 'business-website-extract',
-      p_started_at: startedAt,
-      p_finished_at: new Date().toISOString(),
-      p_status: status,
-      p_result: { success, failures, dryRun, total: targets.length, errors: errors.slice(0, 10) } as unknown as Record<string, unknown>
-    }).catch(() => null)
+    try {
+      await supabasePublic.rpc('admin_log_job_run', {
+        p_job_name: 'business-website-extract',
+        p_started_at: startedAt,
+        p_finished_at: new Date().toISOString(),
+        p_status: status,
+        p_result: { success, failures, dryRun, total: targets.length, errors: errors.slice(0, 10) } as unknown as Record<string, unknown>
+      })
+    } catch {
+      // ignore logging errors
+    }
 
     return new Response(JSON.stringify({ ok: true, success, failures, total: targets.length, dryRun }), {
       headers: { 'content-type': 'application/json' }
