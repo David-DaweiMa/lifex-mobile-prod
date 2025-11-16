@@ -77,6 +77,7 @@ jobs:
         shell: bash
         env:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         run: |
           set -e
           if [ -z "$SUPABASE_FUNCTIONS_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
@@ -91,10 +92,14 @@ jobs:
             --arg sample "${{ steps.prep.outputs.sample_limit }}" \
             --arg dry "${{ steps.prep.outputs.dry_run }}" \
             --arg req "${{ steps.prep.outputs.require_website }}" \
-            '{placeIds: $placeIds, businessIds: $businessIds, sampleLimit: ($sample|tonumber), dryRun: ($dry|ascii_downcase=="true"), requireWebsite: ($req|ascii_downcase=="true")}')
+            --arg supaUrl "$SUPABASE_URL" \
+            --arg supaKey "$SUPABASE_SERVICE_ROLE_KEY" \
+            '{placeIds: $placeIds, businessIds: $businessIds, sampleLimit: ($sample|tonumber), dryRun: ($dry|ascii_downcase=="true"), requireWebsite: ($req|ascii_downcase=="true"), supabaseUrl: $supaUrl, serviceRoleKey: $supaKey}')
+          echo "Request payload:"; echo "$DATA" | jq .
+          echo "Invoking Edge Function..."
           curl -sS -X POST "${SUPABASE_FUNCTIONS_URL%/}/business-website-extract" \
             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
             -H "Content-Type: application/json" \
-            --data "$DATA"
+            --data "$DATA" | tee /dev/stderr
 
 
