@@ -185,6 +185,85 @@ function buildAttrsFromJsonLd(nodes: any[], nowIso: string) {
   return attrs
 }
 
+function extractOpenGraphMeta(html: string): Record<string, string> {
+  const out: Record<string, string> = {}
+  const re = /<meta\s+[^>]*?(property|name)=["']([^"']+)["'][^>]*?(content)=["']([^"']*)["'][^>]*?>/gi
+  let m: RegExpExecArray | null
+  while ((m = re.exec(html)) !== null) {
+    const key = m[2].trim().toLowerCase()
+    const val = m[4]
+    if (!key || !val) continue
+    if (key.startsWith('og:')) out[key] = val
+    if (key === 'description') out['meta:description'] = val
+    if (key === 'twitter:title') out['twitter:title'] = val
+    if (key === 'twitter:description') out['twitter:description'] = val
+    if (key === 'twitter:image') out['twitter:image'] = val
+  }
+  return out
+}
+
+function buildAttrsFromOpenGraph(og: Record<string, string>, nowIso: string) {
+  const attrs: Array<{ name: string; value: string | null; value_json: any; source: string; confidence: number; extracted_at: string }> = []
+  const add = (name: string, value: string | null, value_json: any, confidence = 0.6) => {
+    attrs.push({ name, value, value_json, source: 'scrape', confidence, extracted_at: nowIso })
+  }
+  const keys = Object.keys(og)
+  for (const k of keys) {
+    add(`og.${k}`, og[k], null, 0.6)
+  }
+  if (og['meta:description']) add('meta.description', og['meta:description'], null, 0.6)
+  if (og['twitter:title']) add('twitter.title', og['twitter:title'], null, 0.5)
+  if (og['twitter:description']) add('twitter.description', og['twitter:description'], null, 0.5)
+  if (og['twitter:image']) add('twitter.image', og['twitter:image'], null, 0.5)
+  return attrs
+}
+
+function extractMicrodataSimple(html: string) {
+  // Naive extraction: itemprop="x" content="y" or itemprop="x">text
+  const items: Array<{ prop: string; value: string }> = []
+  const reContent = /itemprop=["']([^"']+)["'][^>]*content=["']([^"']+)["']/gi
+  let m: RegExpExecArray | null
+  while ((m = reContent.exec(html)) !== null) {
+    items.push({ prop: m[1], value: m[2] })
+  }
+  const reText = /itemprop=["']([^"']+)["'][^>]*>([^<]{1,200})<\/[^>]+>/gi
+  while ((m = reText.exec(html)) !== null) {
+    const val = (m[2] || '').trim()
+    if (val) items.push({ prop: m[1], value: val })
+  }
+  return items
+}
+
+function buildAttrsFromMicrodata(items: Array<{ prop: string; value: string }>, nowIso: string) {
+  const attrs: Array<{ name: string; value: string | null; value_json: any; source: string; confidence: number; extracted_at: string }> = []
+  const add = (name: string, value: string | null, value_json: any, confidence = 0.55) => {
+    attrs.push({ name, value, value_json, source: 'scrape', confidence, extracted_at: nowIso })
+  }
+  // aggregate by prop
+  const grouped: Record<string, string[]> = {}
+  for (const it of items) {
+    if (!grouped[it.prop]) grouped[it.prop] = []
+    grouped[it.prop].push(it.value)
+  }
+  for (const k of Object.keys(grouped)) {
+    const vals = grouped[k]
+    if (vals.length === 1) add(`microdata.${k}`, vals[0], null, 0.55)
+    else add(`microdata.${k}`, null, vals, 0.55)
+  }
+  return attrs
+}
+
+function buildSameOriginDiscoveryList(baseUrl: string): string[] {
+  try {
+    const u = new URL(baseUrl)
+    const make = (p: string) => `${u.origin}${p}`
+    const candidates = ['/directory', '/shop', '/dine', '/visit', '/about', '/contact', '/stores', '/store-locator', '/menu']
+    return candidates.map(make)
+  } catch {
+    return []
+  }
+}
+
 function extractTitle(html: string): string | null {
   try {
     const lower = html.toLowerCase()
@@ -397,28 +476,90 @@ serve(async (req) => {
           })
           continue 
         }
-        const nodes = extractJsonLdBlocks(html)
-        if (!nodes || nodes.length === 0) { 
-          failures++; 
-          targetErrors.push('no_jsonld')
-          const pageTitle0 = extractTitle(html)
-          const htmlLimited0 = html.length > 200000 ? html.slice(0, 200000) : html
-          cacheItems.push({
-            business_id: businessId ?? null,
-            source_url: finalUrl,
-            page_title: pageTitle0,
-            raw_html: htmlLimited0,
-            jsonld: [],
-            attrs: [],
-            status: 'no_jsonld',
-            job_name: 'business-website-extract',
-            fetched_at: nowIso,
-            extracted_at: nowIso,
-            errors: targetErrors.slice(0, 5)
-          })
-          continue 
+        let nodes = extractJsonLdBlocks(html)
+        let attrs = buildAttrsFromJsonLd(nodes, nowIso)
+        // If no JSON-LD attrs, try OpenGraph/meta
+        if (!nodes || nodes.length === 0 || attrs.length === 0) {
+          const og = extractOpenGraphMeta(html)
+          const ogAttrs = buildAttrsFromOpenGraph(og, nowIso)
+          if (ogAttrs.length > 0) {
+            attrs = attrs.concat(ogAttrs)
+          }
         }
-        const attrs = buildAttrsFromJsonLd(nodes, nowIso)
+        // If still no attrs, try simple Microdata
+        if (attrs.length === 0) {
+          const mi = extractMicrodataSimple(html)
+          const miAttrs = buildAttrsFromMicrodata(mi, nowIso)
+          if (miAttrs.length > 0) {
+            attrs = miAttrs
+          }
+        }
+        // If still no attrs, try limited same-origin discovery
+        if (attrs.length === 0) {
+          const discovery = buildSameOriginDiscoveryList(finalUrl)
+          const tried: string[] = []
+          for (const durl of discovery.slice(0, 3)) {
+            tried.push(durl)
+            const sub = await fetchHtmlBestEffort(durl)
+            if (!sub.html) continue
+            const subNodes = extractJsonLdBlocks(sub.html)
+            let subAttrs = buildAttrsFromJsonLd(subNodes, nowIso)
+            if (subAttrs.length === 0) {
+              const og = extractOpenGraphMeta(sub.html)
+              const ogAttrs = buildAttrsFromOpenGraph(og, nowIso)
+              if (ogAttrs.length > 0) subAttrs = subAttrs.concat(ogAttrs)
+            }
+            if (subAttrs.length === 0) {
+              const mi = extractMicrodataSimple(sub.html)
+              const miAttrs = buildAttrsFromMicrodata(mi, nowIso)
+              if (miAttrs.length > 0) subAttrs = miAttrs
+            }
+            if (subAttrs.length > 0) {
+              attrs = subAttrs
+              nodes = subNodes
+              // Replace finalUrl/html with the successful subpage for caching context
+              const pageTitleD = extractTitle(sub.html)
+              const htmlLimitedD = sub.html.length > 200000 ? sub.html.slice(0, 200000) : sub.html
+              cacheItems.push({
+                business_id: businessId ?? null,
+                source_url: sub.finalUrl ?? durl,
+                page_title: pageTitleD,
+                raw_html: htmlLimitedD,
+                jsonld: subNodes.slice(0, 50),
+                attrs,
+                status: 'ok',
+                job_name: 'business-website-extract',
+                fetched_at: nowIso,
+                extracted_at: nowIso,
+                errors: []
+              })
+              success++
+              await sleep(200)
+              // Skip default ok write path since we already pushed an ok item
+              continue
+            }
+          }
+          if (attrs.length === 0) {
+            failures++;
+            targetErrors.push('no_jsonld_no_og_no_microdata')
+            const pageTitle0 = extractTitle(html)
+            const htmlLimited0 = html.length > 200000 ? html.slice(0, 200000) : html
+            cacheItems.push({
+              business_id: businessId ?? null,
+              source_url: finalUrl,
+              page_title: pageTitle0,
+              raw_html: htmlLimited0,
+              jsonld: [],
+              attrs: [],
+              status: 'no_jsonld',
+              job_name: 'business-website-extract',
+              fetched_at: nowIso,
+              extracted_at: nowIso,
+              errors: targetErrors.slice(0, 5)
+            })
+            continue
+          }
+        }
         if (attrs.length === 0) { 
           failures++; 
           targetErrors.push('no_attrs')
