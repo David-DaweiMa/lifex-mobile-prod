@@ -210,22 +210,44 @@ serve(async (req) => {
     for (const id of businessIds.slice(0, limit)) targets.push({ businessId: id })
     // If no explicit targets provided, sample 1 business with website for testing
     if (targets.length === 0 && requireWebsite) {
+      // Try catalog.businesses first
       const { data: picks } = await supabaseCatalog
         .from('businesses')
         .select('id, website')
         .not('website', 'is', null)
+        .neq('website', '')
         .limit(1)
       if (Array.isArray(picks) && picks.length > 0) {
         targets.push({ businessId: picks[0].id })
       } else {
-        // Fallback: sample from google_place_cache where websiteUri exists
-        const { data: gpick } = await supabaseCatalog
-          .from('google_place_cache')
-          .select('place_id, website_uri')
-          .not('website_uri', 'is', null)
+        // Try public.businesses
+        const { data: picksPub } = await supabasePublic
+          .from('businesses')
+          .select('id, website')
+          .not('website', 'is', null)
+          .neq('website', '')
           .limit(1)
-        if (Array.isArray(gpick) && gpick.length > 0) {
-          targets.push({ placeId: gpick[0].place_id, website: gpick[0].website_uri })
+        if (Array.isArray(picksPub) && picksPub.length > 0) {
+          targets.push({ businessId: picksPub[0].id })
+        } else {
+          // Fallback: sample from google_place_cache where website exists
+          const tryGpc = async (client: any) => {
+            try {
+              const { data } = await client
+                .from('google_place_cache')
+                .select('place_id, website')
+                .not('website', 'is', null)
+                .neq('website', '')
+                .limit(1)
+              return Array.isArray(data) && data.length > 0 ? data[0] : null
+            } catch {
+              return null
+            }
+          }
+          const gpc = (await tryGpc(supabaseCatalog)) || (await tryGpc(supabasePublic))
+          if (gpc) {
+            targets.push({ placeId: gpc.place_id, website: gpc.website })
+          }
         }
       }
     }
@@ -267,6 +289,7 @@ serve(async (req) => {
 
         // If still no website, try DB lookup
         if (!website && businessId) {
+          // Try catalog.businesses
           const { data: bRow, error: bErr } = await supabaseCatalog
             .from('businesses')
             .select('website, google_place_id')
@@ -275,6 +298,17 @@ serve(async (req) => {
           if (!bErr && bRow) {
             website = bRow.website || undefined
             placeId = placeId || bRow.google_place_id || undefined
+          } else {
+            // Try public.businesses
+            const { data: bRowPub, error: bErrPub } = await supabasePublic
+              .from('businesses')
+              .select('website, google_place_id')
+              .eq('id', businessId)
+              .maybeSingle()
+            if (!bErrPub && bRowPub) {
+              website = bRowPub.website || undefined
+              placeId = placeId || bRowPub.google_place_id || undefined
+            }
           }
         }
         if (!website && placeId && placesKey && allowPlacesLookup) {
