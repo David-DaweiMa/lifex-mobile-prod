@@ -205,7 +205,7 @@ serve(async (req) => {
     const requireWebsite = p.requireWebsite === true
     const allowPlacesLookup = !requireWebsite
 
-    const targets: Array<{ businessId?: string; placeId?: string }> = []
+    const targets: Array<{ businessId?: string; placeId?: string; website?: string }> = []
     for (const id of placeIds.slice(0, limit)) targets.push({ placeId: id })
     for (const id of businessIds.slice(0, limit)) targets.push({ businessId: id })
     // If no explicit targets provided, sample 1 business with website for testing
@@ -217,6 +217,16 @@ serve(async (req) => {
         .limit(1)
       if (Array.isArray(picks) && picks.length > 0) {
         targets.push({ businessId: picks[0].id })
+      } else {
+        // Fallback: sample from google_place_cache where websiteUri exists
+        const { data: gpick } = await supabaseCatalog
+          .from('google_place_cache')
+          .select('place_id, website_uri')
+          .not('website_uri', 'is', null)
+          .limit(1)
+        if (Array.isArray(gpick) && gpick.length > 0) {
+          targets.push({ placeId: gpick[0].place_id, website: gpick[0].website_uri })
+        }
       }
     }
 
@@ -229,7 +239,7 @@ serve(async (req) => {
       try {
         let businessId: string | undefined = t.businessId
         let placeId: string | undefined = t.placeId
-        let website: string | undefined
+        let website: string | undefined = t.website
         let name: string | undefined
         let formattedAddress: string | undefined
 
