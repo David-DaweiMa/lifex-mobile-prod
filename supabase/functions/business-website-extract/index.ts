@@ -210,7 +210,7 @@ serve(async (req) => {
     for (const id of businessIds.slice(0, limit)) targets.push({ businessId: id })
     // If no explicit targets provided, sample 1 business with website for testing
     if (targets.length === 0 && requireWebsite) {
-      // Try catalog.businesses first
+      // Only sample from catalog.businesses
       const { data: picks } = await supabaseCatalog
         .from('businesses')
         .select('id, website')
@@ -220,34 +220,19 @@ serve(async (req) => {
       if (Array.isArray(picks) && picks.length > 0) {
         targets.push({ businessId: picks[0].id })
       } else {
-        // Try public.businesses
-        const { data: picksPub } = await supabasePublic
-          .from('businesses')
-          .select('id, website')
-          .not('website', 'is', null)
-          .neq('website', '')
-          .limit(1)
-        if (Array.isArray(picksPub) && picksPub.length > 0) {
-          targets.push({ businessId: picksPub[0].id })
-        } else {
-          // Fallback: sample from google_place_cache where website exists
-          const tryGpc = async (client: any) => {
-            try {
-              const { data } = await client
-                .from('google_place_cache')
-                .select('place_id, website')
-                .not('website', 'is', null)
-                .neq('website', '')
-                .limit(1)
-              return Array.isArray(data) && data.length > 0 ? data[0] : null
-            } catch {
-              return null
-            }
+        // Fallback: sample from catalog.google_place_cache where website exists
+        try {
+          const { data: gpc } = await supabaseCatalog
+            .from('google_place_cache')
+            .select('place_id, website')
+            .not('website', 'is', null)
+            .neq('website', '')
+            .limit(1)
+          if (Array.isArray(gpc) && gpc.length > 0) {
+            targets.push({ placeId: gpc[0].place_id, website: gpc[0].website })
           }
-          const gpc = (await tryGpc(supabaseCatalog)) || (await tryGpc(supabasePublic))
-          if (gpc) {
-            targets.push({ placeId: gpc.place_id, website: gpc.website })
-          }
+        } catch {
+          // ignore fallback errors
         }
       }
     }
@@ -289,7 +274,7 @@ serve(async (req) => {
 
         // If still no website, try DB lookup
         if (!website && businessId) {
-          // Try catalog.businesses
+          // Lookup only in catalog.businesses
           const { data: bRow, error: bErr } = await supabaseCatalog
             .from('businesses')
             .select('website, google_place_id')
@@ -298,17 +283,6 @@ serve(async (req) => {
           if (!bErr && bRow) {
             website = bRow.website || undefined
             placeId = placeId || bRow.google_place_id || undefined
-          } else {
-            // Try public.businesses
-            const { data: bRowPub, error: bErrPub } = await supabasePublic
-              .from('businesses')
-              .select('website, google_place_id')
-              .eq('id', businessId)
-              .maybeSingle()
-            if (!bErrPub && bRowPub) {
-              website = bRowPub.website || undefined
-              placeId = placeId || bRowPub.google_place_id || undefined
-            }
           }
         }
         if (!website && placeId && placesKey && allowPlacesLookup) {
