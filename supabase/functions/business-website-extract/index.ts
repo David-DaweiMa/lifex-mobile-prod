@@ -211,37 +211,20 @@ serve(async (req) => {
     for (const id of businessIds.slice(0, limit)) targets.push({ businessId: id })
     // If no explicit targets provided, sample 1 business with website for testing
     if (targets.length === 0 && requireWebsite) {
-      // Only sample from catalog.businesses
-      const { data: picks } = await supabaseCatalog
-        .from('businesses')
-        .select('id, website')
-        .not('website', 'is', null)
-        .neq('website', '')
-        .limit(1)
-      debug['catalog_businesses_pick_count'] = Array.isArray(picks) ? picks.length : 0
-      if (Array.isArray(picks) && picks.length > 0) {
+      // Use RPCs to avoid schema header issues
+      const pickBiz = await supabasePublic.rpc('admin_pick_business_with_website')
+      const picks = Array.isArray(pickBiz.data) ? pickBiz.data : []
+      debug['catalog_businesses_pick_count'] = picks.length
+      if (picks.length > 0) {
         debug['catalog_businesses_first_website'] = picks[0]?.website ?? null
-      }
-      if (Array.isArray(picks) && picks.length > 0) {
-        targets.push({ businessId: picks[0].id })
+        targets.push({ businessId: picks[0].id, website: picks[0].website ?? undefined })
       } else {
-        // Fallback: sample from catalog.google_place_cache where website exists
-        try {
-          const { data: gpc } = await supabaseCatalog
-            .from('google_place_cache')
-            .select('place_id, website')
-            .not('website', 'is', null)
-            .neq('website', '')
-            .limit(1)
-          debug['google_place_cache_pick_count'] = Array.isArray(gpc) ? gpc.length : 0
-          if (Array.isArray(gpc) && gpc.length > 0) {
-            debug['google_place_cache_first_website'] = gpc[0]?.website ?? null
-          }
-          if (Array.isArray(gpc) && gpc.length > 0) {
-            targets.push({ placeId: gpc[0].place_id, website: gpc[0].website })
-          }
-        } catch {
-          // ignore fallback errors
+        const pickGpc = await supabasePublic.rpc('admin_pick_google_place_with_website')
+        const gpc = Array.isArray(pickGpc.data) ? pickGpc.data : []
+        debug['google_place_cache_pick_count'] = gpc.length
+        if (gpc.length > 0) {
+          debug['google_place_cache_first_website'] = gpc[0]?.website ?? null
+          targets.push({ placeId: gpc[0].place_id, website: gpc[0].website ?? undefined })
         }
       }
     }
