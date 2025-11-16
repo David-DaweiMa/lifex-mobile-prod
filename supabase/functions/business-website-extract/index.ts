@@ -188,7 +188,12 @@ serve(async (req) => {
     if (!supabaseUrl || !serviceRoleKey) {
       throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY (provide via env or request body)')
     }
-    const supabase = createClient(supabaseUrl, serviceRoleKey, {
+    // Two clients: public for RPCs; catalog for table reads
+    const supabasePublic = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false },
+      db: { schema: 'public' }
+    })
+    const supabaseCatalog = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false },
       db: { schema: 'catalog' }
     })
@@ -205,7 +210,7 @@ serve(async (req) => {
     for (const id of businessIds.slice(0, limit)) targets.push({ businessId: id })
     // If no explicit targets provided, sample 1 business with website for testing
     if (targets.length === 0 && requireWebsite) {
-      const { data: picks } = await supabase
+      const { data: picks } = await supabaseCatalog
         .from('businesses')
         .select('id, website')
         .not('website', 'is', null)
@@ -235,7 +240,7 @@ serve(async (req) => {
           website = detail?.websiteUri || undefined
 
           if (!dryRun) {
-            const rpc = await supabase.rpc('upsert_business_from_ingest', {
+            const rpc = await supabasePublic.rpc('upsert_business_from_ingest', {
               p_name: name ?? 'Unknown',
               p_website: website ?? null,
               p_google_place_id: detail.id,
@@ -252,7 +257,7 @@ serve(async (req) => {
 
         // If still no website, try DB lookup
         if (!website && businessId) {
-          const { data: bRow, error: bErr } = await supabase
+          const { data: bRow, error: bErr } = await supabaseCatalog
             .from('businesses')
             .select('website, google_place_id')
             .eq('id', businessId)
@@ -310,16 +315,15 @@ serve(async (req) => {
 
     // Flush cache items regardless of dryRun
     if (cacheItems.length > 0) {
-      await supabase.rpc('admin_upsert_business_scrape_cache_batch', {
+      const r = await supabasePublic.rpc('admin_upsert_business_scrape_cache_batch', {
         p_items: cacheItems as unknown as Record<string, unknown>[]
-      }).then((r) => {
-        if (r?.error) throw r.error
-      }).catch((err) => {
-        try { errors.push(`cache_upsert: ${String(err?.message || err)}`) } catch {}
       })
+      if (r?.error) {
+        try { errors.push(`cache_upsert: ${String(r.error.message || r.error)}`) } catch {}
+      }
     }
 
-    await supabase.rpc('admin_log_job_run', {
+    await supabasePublic.rpc('admin_log_job_run', {
       p_job_name: 'business-website-extract',
       p_started_at: startedAt,
       p_finished_at: new Date().toISOString(),
@@ -337,11 +341,11 @@ serve(async (req) => {
       const envUrl = Deno.env.get('SUPABASE_URL') || p.supabaseUrl
       const envKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || p.serviceRoleKey
       if (envUrl && envKey) {
-        const client = createClient(envUrl, envKey, {
+        const clientPublic = createClient(envUrl, envKey, {
           auth: { persistSession: false },
-          db: { schema: 'catalog' }
+          db: { schema: 'public' }
         })
-        await client.rpc('admin_log_job_run', {
+        await clientPublic.rpc('admin_log_job_run', {
           p_job_name: 'business-website-extract',
           p_started_at: startedAt,
           p_finished_at: new Date().toISOString(),
