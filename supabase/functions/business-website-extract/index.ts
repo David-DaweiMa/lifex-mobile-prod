@@ -188,7 +188,10 @@ serve(async (req) => {
     if (!supabaseUrl || !serviceRoleKey) {
       throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY (provide via env or request body)')
     }
-    const supabase = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } })
+    const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false },
+      db: { schema: 'catalog' }
+    })
     const placeIds = Array.isArray(p.placeIds) ? p.placeIds.filter(Boolean) : []
     const businessIds = Array.isArray(p.businessIds) ? p.businessIds.filter(Boolean) : []
     const limit = Math.max(1, Math.min(p.sampleLimit ?? 50, 200))
@@ -334,7 +337,10 @@ serve(async (req) => {
       const envUrl = Deno.env.get('SUPABASE_URL') || p.supabaseUrl
       const envKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || p.serviceRoleKey
       if (envUrl && envKey) {
-        const client = createClient(envUrl, envKey, { auth: { persistSession: false } })
+        const client = createClient(envUrl, envKey, {
+          auth: { persistSession: false },
+          db: { schema: 'catalog' }
+        })
         await client.rpc('admin_log_job_run', {
           p_job_name: 'business-website-extract',
           p_started_at: startedAt,
