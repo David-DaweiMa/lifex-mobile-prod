@@ -175,6 +175,7 @@ serve(async (req) => {
   const startedAt = new Date().toISOString()
   let status: 'success' | 'failed' = 'success'
   const placesKey = (() => { try { return getPlacesKey() } catch { return null } })()
+  const debug: Record<string, unknown> = {}
 
   try {
     const p = (await req.json().catch(() => ({}))) as RunParams
@@ -217,6 +218,10 @@ serve(async (req) => {
         .not('website', 'is', null)
         .neq('website', '')
         .limit(1)
+      debug['catalog_businesses_pick_count'] = Array.isArray(picks) ? picks.length : 0
+      if (Array.isArray(picks) && picks.length > 0) {
+        debug['catalog_businesses_first_website'] = picks[0]?.website ?? null
+      }
       if (Array.isArray(picks) && picks.length > 0) {
         targets.push({ businessId: picks[0].id })
       } else {
@@ -228,6 +233,10 @@ serve(async (req) => {
             .not('website', 'is', null)
             .neq('website', '')
             .limit(1)
+          debug['google_place_cache_pick_count'] = Array.isArray(gpc) ? gpc.length : 0
+          if (Array.isArray(gpc) && gpc.length > 0) {
+            debug['google_place_cache_first_website'] = gpc[0]?.website ?? null
+          }
           if (Array.isArray(gpc) && gpc.length > 0) {
             targets.push({ placeId: gpc[0].place_id, website: gpc[0].website })
           }
@@ -353,7 +362,7 @@ serve(async (req) => {
       // ignore logging errors
     }
 
-    return new Response(JSON.stringify({ ok: true, success, failures, total: targets.length, dryRun }), {
+    return new Response(JSON.stringify({ ok: true, success, failures, total: targets.length, dryRun, debug }), {
       headers: { 'content-type': 'application/json' }
     })
   } catch (e) {
