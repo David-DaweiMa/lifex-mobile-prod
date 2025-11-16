@@ -56,6 +56,31 @@ async function fetchPlaceDetail(key: string, placeId: string) {
   return await res.json()
 }
 
+function preferHttps(url: string | undefined): string | undefined {
+  if (!url) return url
+  try {
+    const u = new URL(url)
+    if (u.protocol === 'http:') {
+      u.protocol = 'https:'
+      return u.toString()
+    }
+    return url
+  } catch {
+    return url
+  }
+}
+
+function buildUa(): Record<string, string> {
+  return {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache'
+  }
+}
+
 function extractJsonLdBlocks(html: string): any[] {
   const blocks: any[] = []
   const re = /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi
@@ -160,15 +185,48 @@ function buildAttrsFromJsonLd(nodes: any[], nowIso: string) {
   return attrs
 }
 
-async function fetchHtml(url: string): Promise<string | null> {
+function extractTitle(html: string): string | null {
   try {
-    const res = await fetch(url, { headers: { 'Accept': 'text/html,*/*' } })
-    if (!res.ok) return null
-    const text = await res.text()
-    return text
+    const lower = html.toLowerCase()
+    const start = lower.indexOf('<title')
+    if (start < 0) return null
+    const gt = lower.indexOf('>', start)
+    if (gt < 0) return null
+    const end = lower.indexOf('</title>', gt)
+    if (end < 0) return null
+    const raw = html.slice(gt + 1, end).trim()
+    const txt = raw.slice(0, 300)
+    return txt.length > 0 ? txt : null
   } catch {
     return null
   }
+}
+
+async function fetchHtmlBestEffort(url: string): Promise<{ html: string | null; finalUrl: string | null; error?: string }> {
+  const candidates: string[] = []
+  const httpsFirst = preferHttps(url)
+  if (httpsFirst && httpsFirst !== url) candidates.push(httpsFirst)
+  if (url) candidates.push(url)
+  const headers = buildUa()
+  let lastErr = ''
+  for (const u of candidates) {
+    try {
+      const ctrl = new AbortController()
+      const t = setTimeout(() => ctrl.abort(), 12000)
+      const res = await fetch(u, { headers, redirect: 'follow', signal: ctrl.signal })
+      clearTimeout(t)
+      if (!res.ok) {
+        lastErr = `status_${res.status}`
+        continue
+      }
+      const text = await res.text()
+      return { html: text, finalUrl: res.url || u }
+    } catch (e: any) {
+      lastErr = String(e?.message || e)
+      continue
+    }
+  }
+  return { html: null, finalUrl: null, error: lastErr || 'fetch_failed' }
 }
 
 serve(async (req) => {
@@ -241,6 +299,7 @@ serve(async (req) => {
         let website: string | undefined = t.website
         let name: string | undefined
         let formattedAddress: string | undefined
+        const targetErrors: string[] = []
 
         if (placeId && placesKey && allowPlacesLookup) {
           const detail = await withRetries(() => fetchPlaceDetail(placesKey, placeId))
@@ -261,7 +320,22 @@ serve(async (req) => {
         }
 
         if (!businessId && !placeId) {
-          failures++; continue
+          failures++;
+          targetErrors.push('no_business_or_place_id')
+          cacheItems.push({
+            business_id: null,
+            source_url: website ?? null,
+            page_title: null,
+            raw_html: null,
+            jsonld: [],
+            attrs: [],
+            status: 'failed_no_target',
+            job_name: 'business-website-extract',
+            fetched_at: nowIso,
+            extracted_at: nowIso,
+            errors: targetErrors.slice(0, 5)
+          })
+          continue
         }
 
         // If still no website, try DB lookup
@@ -283,23 +357,96 @@ serve(async (req) => {
           name = name || detail?.displayName?.text || undefined
           formattedAddress = formattedAddress || detail?.formattedAddress || undefined
         }
-        if (!website) { failures++; continue }
+        if (!website) { 
+          failures++; 
+          targetErrors.push('no_website')
+          cacheItems.push({
+            business_id: businessId ?? null,
+            source_url: null,
+            page_title: null,
+            raw_html: null,
+            jsonld: [],
+            attrs: [],
+            status: 'failed_no_website',
+            job_name: 'business-website-extract',
+            fetched_at: nowIso,
+            extracted_at: nowIso,
+            errors: targetErrors.slice(0, 5)
+          })
+          continue 
+        }
 
-        const html = await fetchHtml(website)
-        if (!html) { failures++; continue }
+        const fetched = await fetchHtmlBestEffort(website)
+        const finalUrl = fetched.finalUrl ?? website
+        const html = fetched.html
+        if (!html) { 
+          failures++; 
+          targetErrors.push(`fetch_failed:${String(fetched.error || 'unknown')}`)
+          cacheItems.push({
+            business_id: businessId ?? null,
+            source_url: finalUrl,
+            page_title: null,
+            raw_html: null,
+            jsonld: [],
+            attrs: [],
+            status: 'failed_fetch',
+            job_name: 'business-website-extract',
+            fetched_at: nowIso,
+            extracted_at: nowIso,
+            errors: targetErrors.slice(0, 5)
+          })
+          continue 
+        }
         const nodes = extractJsonLdBlocks(html)
-        if (!nodes || nodes.length === 0) { failures++; continue }
+        if (!nodes || nodes.length === 0) { 
+          failures++; 
+          targetErrors.push('no_jsonld')
+          const pageTitle0 = extractTitle(html)
+          const htmlLimited0 = html.length > 200000 ? html.slice(0, 200000) : html
+          cacheItems.push({
+            business_id: businessId ?? null,
+            source_url: finalUrl,
+            page_title: pageTitle0,
+            raw_html: htmlLimited0,
+            jsonld: [],
+            attrs: [],
+            status: 'no_jsonld',
+            job_name: 'business-website-extract',
+            fetched_at: nowIso,
+            extracted_at: nowIso,
+            errors: targetErrors.slice(0, 5)
+          })
+          continue 
+        }
         const attrs = buildAttrsFromJsonLd(nodes, nowIso)
-        if (attrs.length === 0) { failures++; continue }
+        if (attrs.length === 0) { 
+          failures++; 
+          targetErrors.push('no_attrs')
+          const pageTitle1 = extractTitle(html)
+          const htmlLimited1 = html.length > 200000 ? html.slice(0, 200000) : html
+          cacheItems.push({
+            business_id: businessId ?? null,
+            source_url: finalUrl,
+            page_title: pageTitle1,
+            raw_html: htmlLimited1,
+            jsonld: nodes.slice(0, 50),
+            attrs: [],
+            status: 'no_attrs',
+            job_name: 'business-website-extract',
+            fetched_at: nowIso,
+            extracted_at: nowIso,
+            errors: targetErrors.slice(0, 5)
+          })
+          continue 
+        }
 
         // Always write scrape cache (even on dry run)
         try {
-          const titleMatch = html.match(/<title[^>]*>([\\s\\S]*?)<\\/title>/i)
-          const pageTitle = titleMatch ? String(titleMatch[1]).trim().slice(0, 300) : null
+          const pageTitle = extractTitle(html)
           const htmlLimited = html.length > 200000 ? html.slice(0, 200000) : html
           cacheItems.push({
             business_id: businessId ?? null,
-            source_url: website,
+            source_url: finalUrl,
             page_title: pageTitle,
             raw_html: htmlLimited,
             jsonld: nodes.slice(0, 50),
@@ -307,7 +454,8 @@ serve(async (req) => {
             status: 'ok',
             job_name: 'business-website-extract',
             fetched_at: nowIso,
-            extracted_at: nowIso
+            extracted_at: nowIso,
+            errors: []
           })
         } catch (_) {
           // ignore cache preparation errors (do not fail the run)
@@ -345,6 +493,7 @@ serve(async (req) => {
       // ignore logging errors
     }
 
+    debug['errors'] = errors.slice(0, 10)
     return new Response(JSON.stringify({ ok: true, success, failures, total: targets.length, dryRun, debug }), {
       headers: { 'content-type': 'application/json' }
     })
